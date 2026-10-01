@@ -18,6 +18,7 @@ class SensitiveFinding(BaseModel):
 
 
 class AnalyzeResponse(BaseModel):
+    event_id: int
     is_malicious: bool
     risk_level: str
     risk_score: int

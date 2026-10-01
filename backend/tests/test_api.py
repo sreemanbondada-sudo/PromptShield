@@ -85,3 +85,26 @@ def test_empty_prompt_is_rejected():
     )
 
     assert response.status_code == 422
+
+def test_events_endpoint_returns_events():
+    response = client.get("/events?limit=5")
+    result = response.json()
+
+    assert response.status_code == 200
+    assert "events" in result
+    assert isinstance(result["events"], list)
+    assert len(result["events"]) <= 5
+
+
+def test_statistics_endpoint_returns_summary():
+    response = client.get("/statistics")
+    result = response.json()
+
+    assert response.status_code == 200
+    assert "total_scans" in result
+    assert "malicious_prompts" in result
+    assert "sensitive_prompts" in result
+    assert "actions" in result
+    assert "categories" in result
+
+    
