@@ -5,6 +5,7 @@ from database import (
     get_recent_events,
     get_statistics,
     save_security_event,
+    verify_audit_chain,
 )
 from detector import analyze_prompt
 from schemas import (
@@ -116,3 +117,13 @@ def verify_integrity(request: IntegrityVerifyRequest):
         "valid": valid,
         "algorithm": "HMAC-SHA-256",
     }
+@app.get("/audit/verify")
+def verify_database_audit_chain():
+    try:
+        return verify_audit_chain()
+
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error

@@ -204,3 +204,12 @@ def test_integrity_endpoint_rejects_invalid_signature_format():
 
     assert response.status_code == 422
 
+def test_audit_verification_endpoint():
+    response = client.get("/audit/verify")
+    result = response.json()
+
+    assert response.status_code == 200
+    assert "valid" in result
+    assert "checked_events" in result
+    assert "legacy_events" in result
+    assert "broken_event_id" in result
