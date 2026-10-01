@@ -4,6 +4,7 @@ anyio==4.15.1
 certifi==2026.7.22
 cffi==2.1.1
 click==8.5.0
+cloudpickle==3.1.2
 colorama==0.4.6
 cryptography==50.0.2
 fastapi==0.142.2
@@ -13,6 +14,9 @@ httptools==0.8.0
 httpx==0.28.1
 idna==3.20
 iniconfig==2.3.0
+joblib==1.6.0
+narwhals==2.26.0
+numpy==2.5.3
 opentelemetry-api==1.45.0
 packaging==26.3
 pluggy==1.6.0
@@ -23,7 +27,10 @@ Pygments==2.21.0
 pytest==9.1.1
 python-dotenv==1.2.4
 PyYAML==6.0.3
+scikit-learn==1.9.1
+scipy==1.18.1
 starlette==1.7.0
+threadpoolctl==3.7.0
 typing-inspection==0.4.4
 typing_extensions==4.16.0
 uvicorn==0.54.0

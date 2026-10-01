@@ -5,7 +5,9 @@ class AnalyzeRequest(BaseModel):
     prompt: str = Field(
         min_length=1,
         max_length=5000,
-        description="The prompt that PromptShield should analyze.",
+        description=(
+            "The prompt that PromptShield should analyze."
+        ),
     )
 
 
@@ -30,6 +32,7 @@ class AnalyzeResponse(BaseModel):
     redacted_prompt: str
     recommended_action: str
 
+
 class IntegrityVerifyRequest(BaseModel):
     message: str = Field(
         min_length=1,
@@ -39,10 +42,28 @@ class IntegrityVerifyRequest(BaseModel):
 
     signature: str = Field(
         pattern=r"^[0-9a-fA-F]{64}$",
-        description="The expected HMAC-SHA-256 signature.",
+        description=(
+            "The expected HMAC-SHA-256 signature."
+        ),
     )
 
 
 class IntegrityVerifyResponse(BaseModel):
     valid: bool
     algorithm: str
+
+
+class MLAnalysisResponse(BaseModel):
+    is_malicious: bool
+
+    malicious_probability: float = Field(
+        ge=0.0,
+        le=1.0,
+    )
+
+    threshold: float = Field(
+        ge=0.0,
+        le=1.0,
+    )
+
+    model_type: str
