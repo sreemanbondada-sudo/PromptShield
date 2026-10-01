@@ -29,3 +29,20 @@ class AnalyzeResponse(BaseModel):
     sensitive_findings: list[SensitiveFinding]
     redacted_prompt: str
     recommended_action: str
+
+class IntegrityVerifyRequest(BaseModel):
+    message: str = Field(
+        min_length=1,
+        max_length=10000,
+        description="The trusted message to verify.",
+    )
+
+    signature: str = Field(
+        pattern=r"^[0-9a-fA-F]{64}$",
+        description="The expected HMAC-SHA-256 signature.",
+    )
+
+
+class IntegrityVerifyResponse(BaseModel):
+    valid: bool
+    algorithm: str

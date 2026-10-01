@@ -1,5 +1,10 @@
+
 from fastapi.testclient import TestClient
 
+from integrity_service import (
+    HMAC_KEY_ENVIRONMENT_VARIABLE,
+    generate_signature,
+)
 from main import app
 
 
@@ -86,6 +91,7 @@ def test_empty_prompt_is_rejected():
 
     assert response.status_code == 422
 
+
 def test_events_endpoint_returns_events():
     response = client.get("/events?limit=5")
     result = response.json()
@@ -107,4 +113,94 @@ def test_statistics_endpoint_returns_summary():
     assert "actions" in result
     assert "categories" in result
 
-    
+
+def test_integrity_endpoint_accepts_valid_signature(
+    monkeypatch,
+):
+    secret_key = "api-test-hmac-key"
+    message = "This is the trusted system prompt."
+
+    monkeypatch.setenv(
+        HMAC_KEY_ENVIRONMENT_VARIABLE,
+        secret_key,
+    )
+
+    signature = generate_signature(
+        message,
+        secret_key=secret_key,
+    )
+
+    response = client.post(
+        "/integrity/verify",
+        json={
+            "message": message,
+            "signature": signature,
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "valid": True,
+        "algorithm": "HMAC-SHA-256",
+    }
+
+
+def test_integrity_endpoint_rejects_modified_message(
+    monkeypatch,
+):
+    secret_key = "api-test-hmac-key"
+    original_message = "This is the trusted system prompt."
+    modified_message = "This is a modified system prompt."
+
+    monkeypatch.setenv(
+        HMAC_KEY_ENVIRONMENT_VARIABLE,
+        secret_key,
+    )
+
+    signature = generate_signature(
+        original_message,
+        secret_key=secret_key,
+    )
+
+    response = client.post(
+        "/integrity/verify",
+        json={
+            "message": modified_message,
+            "signature": signature,
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["valid"] is False
+
+
+def test_integrity_endpoint_requires_configured_key(
+    monkeypatch,
+):
+    monkeypatch.delenv(
+        HMAC_KEY_ENVIRONMENT_VARIABLE,
+        raising=False,
+    )
+
+    response = client.post(
+        "/integrity/verify",
+        json={
+            "message": "System prompt",
+            "signature": "a" * 64,
+        },
+    )
+
+    assert response.status_code == 503
+
+
+def test_integrity_endpoint_rejects_invalid_signature_format():
+    response = client.post(
+        "/integrity/verify",
+        json={
+            "message": "System prompt",
+            "signature": "not-a-valid-signature",
+        },
+    )
+
+    assert response.status_code == 422
+

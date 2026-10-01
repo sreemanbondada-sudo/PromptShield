@@ -1,14 +1,20 @@
-from fastapi import FastAPI, Query
-
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Query
+from integrity_service import verify_signature
 from database import (
     get_recent_events,
     get_statistics,
     save_security_event,
 )
 from detector import analyze_prompt
-from schemas import AnalyzeRequest, AnalyzeResponse
+from schemas import (
+    AnalyzeRequest,
+    AnalyzeResponse,
+    IntegrityVerifyRequest,
+    IntegrityVerifyResponse,
+)
 from sensitive_detector import detect_sensitive_data
-
+load_dotenv()
 
 app = FastAPI(
     title="PromptShield API",
@@ -90,3 +96,23 @@ def events(
 @app.get("/statistics")
 def statistics():
     return get_statistics()
+@app.post(
+    "/integrity/verify",
+    response_model=IntegrityVerifyResponse,
+)
+def verify_integrity(request: IntegrityVerifyRequest):
+    try:
+        valid = verify_signature(
+            message=request.message,
+            signature=request.signature,
+        )
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+
+    return {
+        "valid": valid,
+        "algorithm": "HMAC-SHA-256",
+    }
