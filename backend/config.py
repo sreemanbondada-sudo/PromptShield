@@ -1,19 +1,33 @@
+import os
 from pathlib import Path
 
 from encryption_service import get_aes_key
 from integrity_service import get_hmac_key
 from ml_detector import DEFAULT_MODEL_PATH
-import os
+
 
 MINIMUM_HMAC_KEY_LENGTH = 32
+
 ALLOWED_ORIGINS_ENVIRONMENT_VARIABLE = (
     "PROMPTSHIELD_ALLOWED_ORIGINS"
+)
+
+RATE_LIMIT_MAXIMUM_REQUESTS_ENVIRONMENT_VARIABLE = (
+    "PROMPTSHIELD_RATE_LIMIT_MAX_REQUESTS"
+)
+
+RATE_LIMIT_WINDOW_SECONDS_ENVIRONMENT_VARIABLE = (
+    "PROMPTSHIELD_RATE_LIMIT_WINDOW_SECONDS"
 )
 
 DEFAULT_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+
+DEFAULT_RATE_LIMIT_MAXIMUM_REQUESTS = 30
+DEFAULT_RATE_LIMIT_WINDOW_SECONDS = 60
+
 
 def get_allowed_origins() -> list[str]:
     """Return the explicitly permitted frontend origins."""
@@ -44,6 +58,47 @@ def get_allowed_origins() -> list[str]:
 
     return origins
 
+
+def get_positive_integer_setting(
+    variable_name: str,
+    default_value: int,
+) -> int:
+    """Read and validate a positive integer setting."""
+    configured_value = os.getenv(variable_name)
+
+    if configured_value is None:
+        return default_value
+
+    try:
+        value = int(configured_value)
+
+    except ValueError as error:
+        raise RuntimeError(
+            f"{variable_name} must be a positive integer."
+        ) from error
+
+    if value < 1:
+        raise RuntimeError(
+            f"{variable_name} must be a positive integer."
+        )
+
+    return value
+
+
+def get_rate_limit_settings() -> dict:
+    """Return validated rate-limit configuration."""
+    return {
+        "maximum_requests": get_positive_integer_setting(
+            RATE_LIMIT_MAXIMUM_REQUESTS_ENVIRONMENT_VARIABLE,
+            DEFAULT_RATE_LIMIT_MAXIMUM_REQUESTS,
+        ),
+        "window_seconds": get_positive_integer_setting(
+            RATE_LIMIT_WINDOW_SECONDS_ENVIRONMENT_VARIABLE,
+            DEFAULT_RATE_LIMIT_WINDOW_SECONDS,
+        ),
+    }
+
+
 def validate_configuration(
     model_path: Path = DEFAULT_MODEL_PATH,
 ) -> dict:
@@ -70,6 +125,13 @@ def validate_configuration(
         errors.append(str(error))
         aes_key = None
 
+    try:
+        rate_limit_settings = get_rate_limit_settings()
+
+    except RuntimeError as error:
+        errors.append(str(error))
+        rate_limit_settings = None
+
     if not model_path.exists():
         errors.append(
             "The ML model file was not found. "
@@ -94,4 +156,11 @@ def validate_configuration(
         "aes_key_bits": len(aes_key) * 8,
         "model_configured": True,
         "model_path": str(model_path),
+        "rate_limit_configured": True,
+        "rate_limit_maximum_requests": (
+            rate_limit_settings["maximum_requests"]
+        ),
+        "rate_limit_window_seconds": (
+            rate_limit_settings["window_seconds"]
+        ),
     }

@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import (
     get_allowed_origins,
+    get_rate_limit_settings,
     validate_configuration,
 )
 from database import (
@@ -32,8 +33,12 @@ from request_controls import (
     RequestSizeLimitMiddleware,
 )
 
+from rate_limiter import RateLimitMiddleware
+
+
 load_dotenv()
 
+rate_limit_settings = get_rate_limit_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -56,6 +61,17 @@ app = FastAPI(
 
 
 register_error_handlers(app)
+
+app.add_middleware(
+    RateLimitMiddleware,
+    maximum_requests=(
+        rate_limit_settings["maximum_requests"]
+    ),
+    window_seconds=(
+        rate_limit_settings["window_seconds"]
+    ),
+)
+
 
 app.add_middleware(
     RequestSizeLimitMiddleware,
