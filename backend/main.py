@@ -10,12 +10,14 @@ from config import (
     validate_configuration,
 )
 from database import (
+    check_database_integrity,
     get_recent_events,
     get_statistics,
     initialize_database,
     save_security_event,
     verify_audit_chain,
 )
+
 from detector import analyze_prompt
 from error_handlers import register_error_handlers
 from integrity_service import verify_signature
@@ -51,6 +53,14 @@ async def lifespan(app: FastAPI):
     """Validate configuration and initialize storage."""
     validate_configuration()
     initialize_database()
+
+    database_integrity = check_database_integrity()
+
+    if not database_integrity["valid"]:
+        raise RuntimeError(
+            "PromptShield database integrity "
+            "verification failed."
+        )
 
     yield
 

@@ -18,14 +18,37 @@ DEFAULT_DATABASE_PATH = (
     Path(__file__).parent / "promptshield.db"
 )
 
+DATABASE_TIMEOUT_SECONDS = 5.0
+DATABASE_BUSY_TIMEOUT_MILLISECONDS = 5000
+
 
 def get_connection(
     database_path: Path = DEFAULT_DATABASE_PATH,
 ) -> sqlite3.Connection:
-    """Create a connection to the PromptShield database."""
-    connection = sqlite3.connect(database_path)
+    """Create and safely configure a database connection."""
+    connection = sqlite3.connect(
+        database_path,
+        timeout=DATABASE_TIMEOUT_SECONDS,
+    )
+
     connection.row_factory = sqlite3.Row
-    connection.execute("PRAGMA foreign_keys = ON")
+
+    connection.execute(
+        "PRAGMA foreign_keys = ON"
+    )
+
+    connection.execute(
+        "PRAGMA busy_timeout = "
+        f"{DATABASE_BUSY_TIMEOUT_MILLISECONDS}"
+    )
+
+    connection.execute(
+        "PRAGMA journal_mode = WAL"
+    )
+
+    connection.execute(
+        "PRAGMA synchronous = NORMAL"
+    )
 
     return connection
 
@@ -156,6 +179,8 @@ def save_security_event(
     }
 
     with get_connection(database_path) as connection:
+        connection.execute("BEGIN IMMEDIATE")
+
         previous_row = connection.execute(
             """
             SELECT event_hash
@@ -165,7 +190,7 @@ def save_security_event(
             LIMIT 1
             """
         ).fetchone()
-
+    
         previous_hash = (
             previous_row["event_hash"]
             if previous_row is not None
@@ -478,4 +503,36 @@ def verify_audit_chain(
         "checked_events": len(rows),
         "legacy_events": legacy_count,
         "broken_event_id": None,
+    }
+def check_database_integrity(
+    database_path: Path = DEFAULT_DATABASE_PATH,
+) -> dict:
+    """Check SQLite data and foreign-key integrity."""
+    initialize_database(database_path)
+
+    with get_connection(database_path) as connection:
+        quick_check_rows = connection.execute(
+            "PRAGMA quick_check"
+        ).fetchall()
+
+        foreign_key_rows = connection.execute(
+            "PRAGMA foreign_key_check"
+        ).fetchall()
+
+    quick_check_messages = [
+        row[0]
+        for row in quick_check_rows
+    ]
+
+    database_is_valid = (
+        quick_check_messages == ["ok"]
+        and not foreign_key_rows
+    )
+
+    return {
+        "valid": database_is_valid,
+        "quick_check": quick_check_messages,
+        "foreign_key_violations": len(
+            foreign_key_rows
+        ),
     }
