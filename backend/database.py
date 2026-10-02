@@ -1,14 +1,22 @@
 import json
 import sqlite3
 from pathlib import Path
+from uuid import uuid4
+
 from audit_service import (
     GENESIS_HASH,
     create_event_hash,
     verify_event_hash,
 )
+from encryption_service import (
+    decrypt_text,
+    encrypt_text,
+)
 
 
-DEFAULT_DATABASE_PATH = Path(__file__).parent / "promptshield.db"
+DEFAULT_DATABASE_PATH = (
+    Path(__file__).parent / "promptshield.db"
+)
 
 
 def get_connection(
@@ -17,6 +25,7 @@ def get_connection(
     """Create a connection to the PromptShield database."""
     connection = sqlite3.connect(database_path)
     connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA foreign_keys = ON")
 
     return connection
 
@@ -24,13 +33,14 @@ def get_connection(
 def initialize_database(
     database_path: Path = DEFAULT_DATABASE_PATH,
 ) -> None:
-    """Create or safely upgrade the security-events table."""
+    """Create or safely upgrade the PromptShield database."""
     with get_connection(database_path) as connection:
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS security_events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_at TEXT NOT NULL
+                    DEFAULT CURRENT_TIMESTAMP,
                 is_malicious INTEGER NOT NULL,
                 risk_level TEXT NOT NULL,
                 risk_score INTEGER NOT NULL,
@@ -71,13 +81,35 @@ def initialize_database(
                 """
             )
 
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS encrypted_event_previews (
+                event_id INTEGER PRIMARY KEY,
+                event_reference TEXT NOT NULL UNIQUE,
+                encrypted_preview TEXT NOT NULL,
+                FOREIGN KEY (event_id)
+                    REFERENCES security_events(id)
+                    ON DELETE CASCADE
+            )
+            """
+        )
+
+def build_preview_associated_data(
+    event_id: int,
+    event_reference: str,
+) -> str:
+    """Build authenticated context for an encrypted preview."""
+    return (
+        f"promptshield:event-preview:"
+        f"{event_id}:{event_reference}"
+    )
 
 def save_security_event(
     analysis_result: dict,
     prompt_length: int,
     database_path: Path = DEFAULT_DATABASE_PATH,
 ) -> int:
-    """Save a privacy-safe, tamper-evident security event."""
+    """Save a tamper-evident event and encrypted preview."""
     initialize_database(database_path)
 
     matched_patterns = analysis_result.get(
@@ -93,7 +125,10 @@ def save_security_event(
         )
     ]
 
-    serialized_patterns = json.dumps(matched_patterns)
+    serialized_patterns = json.dumps(
+        matched_patterns
+    )
+
     serialized_sensitive_types = json.dumps(
         sensitive_data_types
     )
@@ -109,7 +144,9 @@ def save_security_event(
             analysis_result["recommended_action"]
         ),
         "contains_sensitive_data": int(
-            analysis_result["contains_sensitive_data"]
+            analysis_result[
+                "contains_sensitive_data"
+            ]
         ),
         "matched_patterns": serialized_patterns,
         "sensitive_data_types": (
@@ -163,7 +200,9 @@ def save_security_event(
                 event_data["risk_score"],
                 event_data["category"],
                 event_data["recommended_action"],
-                event_data["contains_sensitive_data"],
+                event_data[
+                    "contains_sensitive_data"
+                ],
                 event_data["matched_patterns"],
                 event_data["sensitive_data_types"],
                 event_data["prompt_length"],
@@ -179,9 +218,81 @@ def save_security_event(
                 "The security event could not be saved."
             )
 
+        event_reference = uuid4().hex
+
+        associated_data = (
+            build_preview_associated_data(
+                event_id=event_id,
+                event_reference=event_reference,
+            )
+        )
+
+        redacted_preview = analysis_result.get(
+            "redacted_prompt",
+            "",
+        )
+
+        encrypted_preview = encrypt_text(
+            plaintext=redacted_preview,
+            associated_data=associated_data,
+        )
+
+        connection.execute(
+            """
+            INSERT INTO encrypted_event_previews (
+                event_id,
+                event_reference,
+                encrypted_preview
+            )
+            VALUES (?, ?, ?)
+            """,
+            (
+                event_id,
+                event_reference,
+                encrypted_preview,
+            ),
+        )
+
         return event_id
+def get_decrypted_event_preview(
+    event_id: int,
+    database_path: Path = DEFAULT_DATABASE_PATH,
+) -> dict | None:
+    """Decrypt an internally stored redacted preview."""
+    initialize_database(database_path)
 
+    with get_connection(database_path) as connection:
+        row = connection.execute(
+            """
+            SELECT
+                event_id,
+                event_reference,
+                encrypted_preview
+            FROM encrypted_event_previews
+            WHERE event_id = ?
+            """,
+            (event_id,),
+        ).fetchone()
 
+    if row is None:
+        return None
+
+    associated_data = build_preview_associated_data(
+        event_id=row["event_id"],
+        event_reference=row["event_reference"],
+    )
+
+    redacted_preview = decrypt_text(
+        encrypted_payload=row["encrypted_preview"],
+        associated_data=associated_data,
+    )
+
+    return {
+        "event_id": row["event_id"],
+        "event_reference": row["event_reference"],
+        "redacted_prompt": redacted_preview,
+    }
+    
 def get_recent_events(
     limit: int = 20,
     database_path: Path = DEFAULT_DATABASE_PATH,
@@ -189,7 +300,10 @@ def get_recent_events(
     """Return the most recent security events."""
     initialize_database(database_path)
 
-    safe_limit = max(1, min(limit, 100))
+    safe_limit = max(
+        1,
+        min(limit, 100),
+    )
 
     with get_connection(database_path) as connection:
         rows = connection.execute(
@@ -248,7 +362,9 @@ def get_statistics(
 
         action_rows = connection.execute(
             """
-            SELECT recommended_action, COUNT(*) AS count
+            SELECT
+                recommended_action,
+                COUNT(*) AS count
             FROM security_events
             GROUP BY recommended_action
             """
@@ -256,7 +372,9 @@ def get_statistics(
 
         category_rows = connection.execute(
             """
-            SELECT category, COUNT(*) AS count
+            SELECT
+                category,
+                COUNT(*) AS count
             FROM security_events
             GROUP BY category
             ORDER BY count DESC
@@ -264,7 +382,9 @@ def get_statistics(
         ).fetchall()
 
     return {
-        "total_scans": totals["total_scans"] or 0,
+        "total_scans": (
+            totals["total_scans"] or 0
+        ),
         "malicious_prompts": (
             totals["malicious_prompts"] or 0
         ),
@@ -280,10 +400,12 @@ def get_statistics(
             for row in category_rows
         },
     }
+
+
 def verify_audit_chain(
     database_path: Path = DEFAULT_DATABASE_PATH,
 ) -> dict:
-    """Verify all cryptographically chained security events."""
+    """Verify all cryptographically chained events."""
     initialize_database(database_path)
 
     with get_connection(database_path) as connection:
@@ -306,7 +428,7 @@ def verify_audit_chain(
 
     expected_previous_hash = GENESIS_HASH
 
-    for row in rows:
+    for checked_events, row in enumerate(rows):
         event_data = {
             "is_malicious": row["is_malicious"],
             "risk_level": row["risk_level"],
@@ -318,7 +440,9 @@ def verify_audit_chain(
             "contains_sensitive_data": (
                 row["contains_sensitive_data"]
             ),
-            "matched_patterns": row["matched_patterns"],
+            "matched_patterns": (
+                row["matched_patterns"]
+            ),
             "sensitive_data_types": (
                 row["sensitive_data_types"]
             ),
@@ -336,10 +460,13 @@ def verify_audit_chain(
             previous_hash=row["previous_hash"],
         )
 
-        if not chain_link_is_valid or not event_is_valid:
+        if (
+            not chain_link_is_valid
+            or not event_is_valid
+        ):
             return {
                 "valid": False,
-                "checked_events": 0,
+                "checked_events": checked_events,
                 "legacy_events": legacy_count,
                 "broken_event_id": row["id"],
             }

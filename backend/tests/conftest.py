@@ -1,8 +1,15 @@
+import base64
+
 import pytest
 
 import database
 import main
-from integrity_service import HMAC_KEY_ENVIRONMENT_VARIABLE
+from encryption_service import (
+    AES_KEY_ENVIRONMENT_VARIABLE,
+)
+from integrity_service import (
+    HMAC_KEY_ENVIRONMENT_VARIABLE,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -14,6 +21,15 @@ def configure_test_environment(
     monkeypatch.setenv(
         HMAC_KEY_ENVIRONMENT_VARIABLE,
         "promptshield-test-only-hmac-key",
+    )
+
+    test_aes_key = base64.urlsafe_b64encode(
+        bytes(range(32))
+    ).decode("utf-8")
+
+    monkeypatch.setenv(
+        AES_KEY_ENVIRONMENT_VARIABLE,
+        test_aes_key,
     )
 
     test_database_path = tmp_path / "promptshield-test.db"
@@ -67,3 +83,4 @@ def configure_test_environment(
         "verify_audit_chain",
         verify_test_audit_chain,
     )
+    
