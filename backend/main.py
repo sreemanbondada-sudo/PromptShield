@@ -35,6 +35,12 @@ from request_controls import (
 
 from rate_limiter import RateLimitMiddleware
 
+from security_headers import SecurityHeadersMiddleware
+
+from request_logging import (
+    PrivacySafeRequestLoggingMiddleware,
+)
+
 
 load_dotenv()
 
@@ -78,6 +84,10 @@ app.add_middleware(
 )
 
 app.add_middleware(
+    PrivacySafeRequestLoggingMiddleware,
+)
+
+app.add_middleware(
     CORSMiddleware,
     allow_origins=get_allowed_origins(),
     allow_credentials=False,
@@ -88,6 +98,10 @@ app.add_middleware(
     allow_headers=[
         "Content-Type",
     ],
+)
+
+app.add_middleware(
+    SecurityHeadersMiddleware,
 )
 
 
