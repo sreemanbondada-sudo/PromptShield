@@ -1,9 +1,13 @@
+from contextlib import asynccontextmanager
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 
+from config import validate_configuration
 from database import (
     get_recent_events,
     get_statistics,
+    initialize_database,
     save_security_event,
     verify_audit_chain,
 )
@@ -23,13 +27,23 @@ from sensitive_detector import detect_sensitive_data
 load_dotenv()
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Validate configuration and initialize storage."""
+    validate_configuration()
+    initialize_database()
+
+    yield
+
+
 app = FastAPI(
     title="PromptShield API",
     description=(
         "Security API for detecting malicious AI prompts, "
         "sensitive-data exposure and integrity violations."
     ),
-    version="0.6.0",
+    version="0.7.0",
+    lifespan=lifespan,
 )
 
 
@@ -46,6 +60,7 @@ def health_check():
     return {
         "status": "healthy",
     }
+
 
 @app.post(
     "/analyze",
@@ -96,6 +111,7 @@ def analyze(request: AnalyzeRequest):
         )
 
         prompt_result["risk_level"] = "medium"
+
         prompt_result["category"] = (
             "sensitive_data_exposure"
         )
@@ -119,6 +135,7 @@ def analyze(request: AnalyzeRequest):
         )
 
         prompt_result["risk_level"] = "medium"
+
         prompt_result["category"] = (
             "ml_suspicious_prompt"
         )
@@ -225,7 +242,9 @@ def analyze_with_machine_learning(
     request: AnalyzeRequest,
 ):
     try:
-        return analyze_prompt_with_ml(request.prompt)
+        return analyze_prompt_with_ml(
+            request.prompt
+        )
 
     except RuntimeError as error:
         raise HTTPException(
