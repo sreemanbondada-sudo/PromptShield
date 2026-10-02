@@ -360,3 +360,38 @@ def test_rule_engine_still_has_blocking_priority(
         "rule_engine"
         in result["detection_sources"]
     )
+
+def test_allowed_frontend_origin_passes_cors():
+    response = client.options(
+        "/analyze",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+
+    assert response.status_code == 200
+
+    assert (
+        response.headers[
+            "access-control-allow-origin"
+        ]
+        == "http://localhost:5173"
+    )
+
+
+def test_unknown_origin_is_rejected_by_cors():
+    response = client.options(
+        "/analyze",
+        headers={
+            "Origin": "https://malicious.example",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+
+    assert response.status_code == 400
+
+    assert (
+        "access-control-allow-origin"
+        not in response.headers
+    )

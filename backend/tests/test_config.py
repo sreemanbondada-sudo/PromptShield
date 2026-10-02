@@ -3,7 +3,10 @@ import base64
 import pytest
 
 from config import (
+    ALLOWED_ORIGINS_ENVIRONMENT_VARIABLE,
+    DEFAULT_ALLOWED_ORIGINS,
     MINIMUM_HMAC_KEY_LENGTH,
+    get_allowed_origins,
     validate_configuration,
 )
 from encryption_service import (
@@ -103,3 +106,47 @@ def test_missing_model_is_rejected(
         validate_configuration(
             model_path=missing_model_path,
         )
+
+def test_default_cors_origins_are_used(
+    monkeypatch,
+):
+    monkeypatch.delenv(
+        ALLOWED_ORIGINS_ENVIRONMENT_VARIABLE,
+        raising=False,
+    )
+
+    assert get_allowed_origins() == (
+        DEFAULT_ALLOWED_ORIGINS
+    )
+
+
+def test_configured_cors_origins_are_parsed(
+    monkeypatch,
+):
+    monkeypatch.setenv(
+        ALLOWED_ORIGINS_ENVIRONMENT_VARIABLE,
+        (
+            "https://dashboard.example.com/, "
+            "http://localhost:5173"
+        ),
+    )
+
+    assert get_allowed_origins() == [
+        "https://dashboard.example.com",
+        "http://localhost:5173",
+    ]
+
+
+def test_wildcard_cors_origin_is_rejected(
+    monkeypatch,
+):
+    monkeypatch.setenv(
+        ALLOWED_ORIGINS_ENVIRONMENT_VARIABLE,
+        "*",
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="Wildcard CORS origins",
+    ):
+        get_allowed_origins()

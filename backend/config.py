@@ -3,10 +3,46 @@ from pathlib import Path
 from encryption_service import get_aes_key
 from integrity_service import get_hmac_key
 from ml_detector import DEFAULT_MODEL_PATH
-
+import os
 
 MINIMUM_HMAC_KEY_LENGTH = 32
+ALLOWED_ORIGINS_ENVIRONMENT_VARIABLE = (
+    "PROMPTSHIELD_ALLOWED_ORIGINS"
+)
 
+DEFAULT_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+def get_allowed_origins() -> list[str]:
+    """Return the explicitly permitted frontend origins."""
+    configured_origins = os.getenv(
+        ALLOWED_ORIGINS_ENVIRONMENT_VARIABLE
+    )
+
+    if configured_origins:
+        origins = [
+            origin.strip().rstrip("/")
+            for origin in configured_origins.split(",")
+            if origin.strip()
+        ]
+
+    else:
+        origins = DEFAULT_ALLOWED_ORIGINS.copy()
+
+    if not origins:
+        raise RuntimeError(
+            "At least one allowed CORS origin "
+            "must be configured."
+        )
+
+    if "*" in origins:
+        raise RuntimeError(
+            "Wildcard CORS origins are not permitted."
+        )
+
+    return origins
 
 def validate_configuration(
     model_path: Path = DEFAULT_MODEL_PATH,

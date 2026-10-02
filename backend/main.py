@@ -3,7 +3,11 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 
-from config import validate_configuration
+from config import (
+    get_allowed_origins,
+    validate_configuration,
+)
+
 from database import (
     get_recent_events,
     get_statistics,
@@ -22,6 +26,8 @@ from schemas import (
     MLAnalysisResponse,
 )
 from sensitive_detector import detect_sensitive_data
+
+from fastapi.middleware.cors import CORSMiddleware
 
 
 load_dotenv()
@@ -46,6 +52,18 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=get_allowed_origins(),
+    allow_credentials=False,
+    allow_methods=[
+        "GET",
+        "POST",
+    ],
+    allow_headers=[
+        "Content-Type",
+    ],
+)
 
 @app.get("/")
 def root():
