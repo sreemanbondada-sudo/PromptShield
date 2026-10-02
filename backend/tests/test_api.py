@@ -395,3 +395,67 @@ def test_unknown_origin_is_rejected_by_cors():
         "access-control-allow-origin"
         not in response.headers
     )
+
+def test_validation_error_does_not_echo_input():
+    secret_marker = "DO-NOT-ECHO-THIS-SECRET"
+
+    response = client.post(
+        "/analyze",
+        json={
+            "prompt": secret_marker * 300,
+        },
+    )
+
+    assert response.status_code == 422
+    assert secret_marker not in response.text
+
+    assert response.json()["error"] == (
+        "validation_error"
+    )
+
+
+def test_unknown_endpoint_uses_safe_error_format():
+    response = client.get(
+        "/endpoint-that-does-not-exist"
+    )
+
+    result = response.json()
+
+    assert response.status_code == 404
+    assert result["error"] == "http_error"
+    assert result["message"] == "Not Found"
+
+
+def test_unexpected_error_hides_internal_details(
+    monkeypatch,
+):
+    internal_message = (
+        "private database implementation detail"
+    )
+
+    def raise_internal_error():
+        raise RuntimeError(internal_message)
+
+    monkeypatch.setattr(
+        "main.get_statistics",
+        raise_internal_error,
+    )
+
+    safe_client = TestClient(
+        app,
+        raise_server_exceptions=False,
+    )
+
+    response = safe_client.get("/statistics")
+    result = response.json()
+
+    assert response.status_code == 500
+
+    assert result == {
+        "error": "internal_server_error",
+        "message": (
+            "An unexpected server error occurred."
+        ),
+    }
+
+    assert internal_message not in response.text
