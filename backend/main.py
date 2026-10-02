@@ -28,6 +28,9 @@ from schemas import (
 )
 from sensitive_detector import detect_sensitive_data
 
+from request_controls import (
+    RequestSizeLimitMiddleware,
+)
 
 load_dotenv()
 
@@ -54,6 +57,9 @@ app = FastAPI(
 
 register_error_handlers(app)
 
+app.add_middleware(
+    RequestSizeLimitMiddleware,
+)
 
 app.add_middleware(
     CORSMiddleware,

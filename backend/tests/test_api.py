@@ -148,6 +148,7 @@ def test_integrity_endpoint_accepts_valid_signature(
     )
 
     assert response.status_code == 200
+
     assert response.json() == {
         "valid": True,
         "algorithm": "HMAC-SHA-256",
@@ -158,9 +159,11 @@ def test_integrity_endpoint_rejects_modified_message(
     monkeypatch,
 ):
     secret_key = "api-test-hmac-key"
+
     original_message = (
         "This is the trusted system prompt."
     )
+
     modified_message = (
         "This is a modified system prompt."
     )
@@ -264,7 +267,8 @@ def test_ml_endpoint_classifies_malicious_prompt():
 
     assert response.status_code == 200
     assert result["is_malicious"] is True
-    assert result["malicious_probability"] >= 0.5
+    assert result["malicious_probability"] >= 0.55
+
 
 def test_hybrid_response_contains_ml_information():
     response = client.post(
@@ -296,7 +300,7 @@ def test_ml_only_detection_recommends_review(
         lambda prompt: {
             "is_malicious": True,
             "malicious_probability": 0.82,
-            "threshold": 0.5,
+            "threshold": 0.55,
             "model_type": (
                 "TF-IDF Logistic Regression"
             ),
@@ -334,7 +338,7 @@ def test_rule_engine_still_has_blocking_priority(
         lambda prompt: {
             "is_malicious": False,
             "malicious_probability": 0.20,
-            "threshold": 0.5,
+            "threshold": 0.55,
             "model_type": (
                 "TF-IDF Logistic Regression"
             ),
@@ -360,6 +364,7 @@ def test_rule_engine_still_has_blocking_priority(
         "rule_engine"
         in result["detection_sources"]
     )
+
 
 def test_allowed_frontend_origin_passes_cors():
     response = client.options(
@@ -395,6 +400,7 @@ def test_unknown_origin_is_rejected_by_cors():
         "access-control-allow-origin"
         not in response.headers
     )
+
 
 def test_validation_error_does_not_echo_input():
     secret_marker = "DO-NOT-ECHO-THIS-SECRET"
@@ -459,3 +465,27 @@ def test_unexpected_error_hides_internal_details(
     }
 
     assert internal_message not in response.text
+
+def test_oversized_request_is_rejected():
+    secret_marker = "OVERSIZED-PRIVATE-DATA"
+
+    response = client.post(
+        "/analyze",
+        json={
+            "prompt": secret_marker * 1000,
+        },
+    )
+
+    result = response.json()
+
+    assert response.status_code == 413
+
+    assert result == {
+        "error": "request_too_large",
+        "message": (
+            "The request body exceeds the "
+            "maximum permitted size."
+        ),
+    }
+
+    assert secret_marker not in response.text
