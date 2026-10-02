@@ -1,0 +1,43 @@
+{
+    "dataset_size": 80,
+    "training_size": 60,
+    "testing_size": 20,
+    "accuracy": 1.0,
+    "confusion_matrix": [
+        [
+            10,
+            0
+        ],
+        [
+            0,
+            10
+        ]
+    ],
+    "classification_report": {
+        "safe": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 10.0
+        },
+        "malicious": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 10.0
+        },
+        "accuracy": 1.0,
+        "macro avg": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 20.0
+        },
+        "weighted avg": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 20.0
+        }
+    }
+}

@@ -1,0 +1,140 @@
+{
+  "files": {
+    "deepset_test": {
+      "category_counts": {
+        "benign": 56,
+        "prompt_injection": 60
+      },
+      "label_counts": {
+        "0": 56,
+        "1": 60
+      },
+      "record_count": 116
+    },
+    "deepset_train": {
+      "category_counts": {
+        "benign": 343,
+        "prompt_injection": 203
+      },
+      "label_counts": {
+        "0": 343,
+        "1": 203
+      },
+      "record_count": 546
+    },
+    "neuralchemy_test": {
+      "category_counts": {
+        "adversarial": 79,
+        "agent_manipulation": 8,
+        "benign": 381,
+        "context_confusion": 6,
+        "control": 5,
+        "direct_injection": 314,
+        "edge_case": 9,
+        "encoding": 30,
+        "encoding_obfuscation": 1,
+        "indirect_injection": 1,
+        "instruction_override": 4,
+        "jailbreak": 50,
+        "many_shot": 1,
+        "multi_turn": 4,
+        "output_manipulation": 5,
+        "payload_injection": 2,
+        "persona_replacement": 3,
+        "prompt_extraction": 3,
+        "prompt_injection": 4,
+        "rag_poisoning": 4,
+        "response_manipulation": 4,
+        "system_extraction": 2,
+        "system_manipulation": 4,
+        "token_injection": 1,
+        "token_smuggling": 7,
+        "training_extraction": 10
+      },
+      "label_counts": {
+        "0": 390,
+        "1": 552
+      },
+      "record_count": 942
+    },
+    "neuralchemy_train": {
+      "category_counts": {
+        "adversarial": 383,
+        "agent_manipulation": 25,
+        "benign": 1699,
+        "chain_of_thought": 2,
+        "code_execution": 4,
+        "context_confusion": 16,
+        "control": 17,
+        "crescendo": 9,
+        "direct_injection": 1395,
+        "edge_case": 42,
+        "encoding": 177,
+        "encoding_obfuscation": 6,
+        "indirect_injection": 8,
+        "instruction_override": 21,
+        "jailbreak": 291,
+        "many_shot": 5,
+        "model_fingerprinting": 16,
+        "multi_turn": 12,
+        "output_manipulation": 16,
+        "payload_injection": 10,
+        "persona_replacement": 25,
+        "prompt_extraction": 14,
+        "prompt_injection": 16,
+        "prompt_leak": 3,
+        "rag_poisoning": 26,
+        "response_manipulation": 13,
+        "system_extraction": 10,
+        "system_manipulation": 29,
+        "token_injection": 4,
+        "token_smuggling": 27,
+        "training_extraction": 68
+      },
+      "label_counts": {
+        "0": 1741,
+        "1": 2648
+      },
+      "record_count": 4389
+    },
+    "neuralchemy_validation": {
+      "category_counts": {
+        "adversarial": 85,
+        "agent_manipulation": 3,
+        "benign": 396,
+        "code_execution": 1,
+        "context_confusion": 4,
+        "control": 5,
+        "direct_injection": 293,
+        "edge_case": 11,
+        "encoding": 40,
+        "encoding_obfuscation": 3,
+        "instruction_override": 2,
+        "jailbreak": 48,
+        "model_fingerprinting": 2,
+        "multi_turn": 9,
+        "payload_injection": 4,
+        "persona_replacement": 1,
+        "prompt_extraction": 2,
+        "prompt_injection": 1,
+        "rag_poisoning": 6,
+        "response_manipulation": 2,
+        "system_extraction": 3,
+        "system_manipulation": 2,
+        "token_smuggling": 5,
+        "training_extraction": 13
+      },
+      "label_counts": {
+        "0": 407,
+        "1": 534
+      },
+      "record_count": 941
+    }
+  },
+  "leakage_checks": {
+    "neuralchemy_train_to_deepset_test_prompt_overlap": 0,
+    "official_split_group_overlap": 0,
+    "official_split_prompt_overlap": 0
+  },
+  "valid": true
+}

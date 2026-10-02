@@ -1,0 +1,114 @@
+{
+  "current_model": {
+    "threshold": 0.55,
+    "evaluations": {
+      "promptshield_challenge": {
+        "accuracy": 0.9,
+        "precision": 0.8333333333333334,
+        "recall": 1.0,
+        "f1_score": 0.9090909090909091,
+        "roc_auc": 0.93,
+        "confusion_matrix": [
+          [
+            8,
+            2
+          ],
+          [
+            0,
+            10
+          ]
+        ]
+      },
+      "neuralchemy_test": {
+        "accuracy": 0.618895966029724,
+        "precision": 0.9617224880382775,
+        "recall": 0.3641304347826087,
+        "f1_score": 0.5282522996057819,
+        "roc_auc": 0.8809968413229283,
+        "confusion_matrix": [
+          [
+            382,
+            8
+          ],
+          [
+            351,
+            201
+          ]
+        ]
+      },
+      "deepset_test": {
+        "accuracy": 0.6120689655172413,
+        "precision": 0.8260869565217391,
+        "recall": 0.31666666666666665,
+        "f1_score": 0.4578313253012048,
+        "roc_auc": 0.7238095238095239,
+        "confusion_matrix": [
+          [
+            52,
+            4
+          ],
+          [
+            41,
+            19
+          ]
+        ]
+      }
+    }
+  },
+  "candidate_model": {
+    "threshold": 0.55,
+    "evaluations": {
+      "promptshield_challenge": {
+        "accuracy": 0.8,
+        "precision": 0.7142857142857143,
+        "recall": 1.0,
+        "f1_score": 0.8333333333333334,
+        "roc_auc": 0.95,
+        "confusion_matrix": [
+          [
+            6,
+            4
+          ],
+          [
+            0,
+            10
+          ]
+        ]
+      },
+      "neuralchemy_test": {
+        "accuracy": 0.9543524416135881,
+        "precision": 0.9652650822669104,
+        "recall": 0.9565217391304348,
+        "f1_score": 0.9608735213830755,
+        "roc_auc": 0.9943190263842437,
+        "confusion_matrix": [
+          [
+            371,
+            19
+          ],
+          [
+            24,
+            528
+          ]
+        ]
+      },
+      "deepset_test": {
+        "accuracy": 0.7844827586206896,
+        "precision": 0.9487179487179487,
+        "recall": 0.6166666666666667,
+        "f1_score": 0.7474747474747475,
+        "roc_auc": 0.8919642857142857,
+        "confusion_matrix": [
+          [
+            54,
+            2
+          ],
+          [
+            23,
+            37
+          ]
+        ]
+      }
+    }
+  }
+}
