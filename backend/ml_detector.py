@@ -8,6 +8,7 @@ DEFAULT_MODEL_PATH = (
     / "models"
     / "prompt_classifier.joblib"
 )
+DEFAULT_CLASSIFICATION_THRESHOLD = 0.55
 
 _model = None
 
@@ -32,7 +33,7 @@ def load_model(
 
 def analyze_prompt_with_ml(
     prompt: str,
-    threshold: float = 0.5,
+    threshold: float = DEFAULT_CLASSIFICATION_THRESHOLD,
 ) -> dict:
     """Predict whether a prompt is malicious."""
     if not 0.0 <= threshold <= 1.0:
