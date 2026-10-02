@@ -47,16 +47,42 @@ def health_check():
         "status": "healthy",
     }
 
-
 @app.post(
     "/analyze",
     response_model=AnalyzeResponse,
 )
 def analyze(request: AnalyzeRequest):
     prompt_result = analyze_prompt(request.prompt)
+
     sensitive_result = detect_sensitive_data(
         request.prompt
     )
+
+    try:
+        ml_result = analyze_prompt_with_ml(
+            request.prompt
+        )
+
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+
+    detection_sources = []
+
+    if prompt_result["is_malicious"]:
+        detection_sources.append("rule_engine")
+
+    if sensitive_result["contains_sensitive_data"]:
+        detection_sources.append(
+            "sensitive_data_detector"
+        )
+
+    if ml_result["is_malicious"]:
+        detection_sources.append(
+            "machine_learning"
+        )
 
     if prompt_result["is_malicious"]:
         recommended_action = "block"
@@ -80,6 +106,29 @@ def analyze(request: AnalyzeRequest):
             "to an AI application."
         )
 
+    elif ml_result["is_malicious"]:
+        recommended_action = "review"
+
+        ml_risk_score = round(
+            ml_result["malicious_probability"] * 100
+        )
+
+        prompt_result["risk_score"] = max(
+            prompt_result["risk_score"],
+            ml_risk_score,
+        )
+
+        prompt_result["risk_level"] = "medium"
+        prompt_result["category"] = (
+            "ml_suspicious_prompt"
+        )
+
+        prompt_result["explanation"] = (
+            "The machine-learning model marked this "
+            "prompt as suspicious. Manual review is "
+            "recommended because the model is advisory."
+        )
+
     else:
         recommended_action = "allow"
 
@@ -95,6 +144,11 @@ def analyze(request: AnalyzeRequest):
             sensitive_result["redacted_text"]
         ),
         "recommended_action": recommended_action,
+        "ml_prediction": ml_result["is_malicious"],
+        "ml_probability": (
+            ml_result["malicious_probability"]
+        ),
+        "detection_sources": detection_sources,
     }
 
     event_id = save_security_event(

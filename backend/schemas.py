@@ -31,6 +31,14 @@ class AnalyzeResponse(BaseModel):
     sensitive_findings: list[SensitiveFinding]
     redacted_prompt: str
     recommended_action: str
+    ml_prediction: bool
+
+    ml_probability: float = Field(
+        ge=0.0,
+        le=1.0,
+    )
+
+    detection_sources: list[str]
 
 
 class IntegrityVerifyRequest(BaseModel):
