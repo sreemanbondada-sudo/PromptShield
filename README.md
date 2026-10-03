@@ -1,5 +1,7 @@
 # PromptShield
 
+[![PromptShield CI](https://github.com/sreemanbondada-sudo/PromptShield/actions/workflows/ci.yml/badge.svg)](https://github.com/sreemanbondada-sudo/PromptShield/actions/workflows/ci.yml)
+
 PromptShield is an explainable security gateway that analyzes user prompts before they reach an AI application. It combines deterministic security rules, sensitive-data detection, machine learning, cryptographic protection and tamper-evident logging through a FastAPI backend and React dashboard.
 
 ## Project Status
@@ -7,7 +9,7 @@ PromptShield is an explainable security gateway that analyzes user prompts befor
 The backend security platform, expanded machine-learning pipeline and React dashboard are operational.
 
 - 128 backend tests passing
-- 18 frontend tests passing
+- 20 frontend tests passing
 - Hybrid rule-based and machine-learning detection
 - Sensitive-data detection and redaction
 - HMAC-SHA-256 integrity verification
@@ -20,7 +22,9 @@ The backend security platform, expanded machine-learning pipeline and React dash
 - Interactive React security dashboard
 - Security statistics and activity visualizations
 - Searchable and filterable security-event history
+- Privacy-aware security-event investigation
 - Audit-chain integrity monitoring
+- GitHub Actions continuous integration
 
 ## Features
 
@@ -44,6 +48,29 @@ The dashboard provides:
 - Event search and action filtering
 - Manual event refresh
 - Loading, empty and safe error states
+- Privacy-aware security-event investigation
+- Matched-pattern and audit-hash inspection
+
+### Security-event investigation
+
+Each recent security event can be opened in an investigation panel.
+
+The investigation view displays:
+
+- Event ID
+- Creation timestamp
+- Recommended action
+- Risk score and level
+- Security category
+- Malicious classification
+- Sensitive-data status
+- Prompt length
+- Matched rule patterns
+- Sensitive-data types
+- Previous audit-chain hash
+- Current event hash
+
+The event investigation view does not expose the original prompt contents.
 
 ### Prompt attack detection
 
@@ -261,6 +288,25 @@ The backend includes:
 
 The health endpoint remains outside the prompt-analysis rate limit so monitoring systems can continue checking API availability.
 
+## Continuous Integration
+
+PromptShield uses GitHub Actions to check every push and pull request targeting `main`.
+
+The CI workflow automatically:
+
+- Checks out the repository
+- Installs Python dependencies
+- Validates Python source files
+- Runs the complete backend test suite
+- Installs frontend dependencies with `npm ci`
+- Runs the complete frontend test suite
+- Runs ESLint
+- Builds the production frontend bundle
+
+The current CI status is displayed by the badge at the top of this README.
+
+The workflow uses CI-only test credentials. Real application secrets are never committed to the repository.
+
 ## Architecture
 
 ```mermaid
@@ -328,15 +374,24 @@ http://127.0.0.1:8000/docs
 - Vitest
 - React Testing Library
 
+### Development and automation
+
+- Git
+- GitHub
+- GitHub Actions
+- Visual Studio Code
+
 ### Planned infrastructure
 
-- GitHub Actions
 - Cloud deployment
 
 ## Project Structure
 
 ```text
 PromptShield/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── backend/
 │   ├── data/
 │   │   ├── external/
@@ -543,7 +598,7 @@ npm test
 Current result:
 
 ```text
-18 passed
+20 passed
 ```
 
 ### 12. Run frontend quality checks
@@ -623,12 +678,15 @@ The frontend test suite covers:
 - Manual event refreshing
 - Refresh failure handling
 - Security breakdown visualizations
+- Opening an event investigation
+- Investigation metadata rendering
+- Closing the investigation view
 - API service functions
 
 Current result:
 
 ```text
-18 passed
+20 passed
 ```
 
 ## Reproducing the ScamBench Experiment
@@ -712,12 +770,10 @@ The Guardian0369 Prompt-injection-and-PII dataset is not currently included beca
 
 ## Roadmap
 
-- Add a security-event details and investigation view
 - Add user authentication and authorization
 - Expand multilingual and obfuscated attack evaluation
 - Evaluate additional clearly licensed prompt-security datasets
 - Add stronger final holdout datasets
-- Add GitHub Actions continuous integration
 - Deploy the backend and frontend
 - Add screenshots and demonstration material
 
