@@ -1,8 +1,16 @@
-import { useEffect, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 import './App.css'
+import RecentEvents from './components/RecentEvents'
 import {
   analyzePrompt,
   checkApiHealth,
+  getRecentEvents,
+  getStatistics,
+  verifyAuditChain,
 } from './services/api'
 
 function formatLabel(value) {
@@ -19,13 +27,40 @@ function App() {
   const [prompt, setPrompt] = useState('')
   const [apiStatus, setApiStatus] = useState('checking')
   const [analysis, setAnalysis] = useState(null)
+  const [recentEvents, setRecentEvents] = useState([])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState('')
+  const [statistics, setStatistics] = useState(null)
+  const [auditStatus, setAuditStatus] = useState(null)
+
+  const loadDashboardSummary = useCallback(async () => {
+  const [
+    statisticsResult,
+    auditResult,
+    eventsResult,
+  ] = await Promise.allSettled([
+    getStatistics(),
+    verifyAuditChain(),
+    getRecentEvents(10),
+  ])
+
+  if (statisticsResult.status === 'fulfilled') {
+    setStatistics(statisticsResult.value)
+  }
+
+  if (auditResult.status === 'fulfilled') {
+    setAuditStatus(auditResult.value)
+  }
+
+  if (eventsResult.status === 'fulfilled') {
+    setRecentEvents(eventsResult.value.events)
+  }
+}, [])
 
   useEffect(() => {
     let isMounted = true
 
-    async function loadApiStatus() {
+    async function loadInitialData() {
       try {
         const result = await checkApiHealth()
 
@@ -37,14 +72,18 @@ function App() {
           setApiStatus('offline')
         }
       }
+
+      if (isMounted) {
+        await loadDashboardSummary()
+      }
     }
 
-    loadApiStatus()
+    loadInitialData()
 
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [loadDashboardSummary])
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -62,6 +101,7 @@ function App() {
     try {
       const result = await analyzePrompt(trimmedPrompt)
       setAnalysis(result)
+      await loadDashboardSummary()
     } catch (requestError) {
       setError(
         requestError.message ||
@@ -217,8 +257,11 @@ function App() {
                   className={`verdict verdict-${analysis.recommended_action}`}
                 >
                   <span>Recommended action</span>
+
                   <strong>
-                    {formatLabel(analysis.recommended_action)}
+                    {formatLabel(
+                      analysis.recommended_action,
+                    )}
                   </strong>
                 </div>
 
@@ -282,7 +325,10 @@ function App() {
 
                     <div className="tag-list">
                       {analysis.matched_patterns.map((pattern) => (
-                        <span className="tag warning-tag" key={pattern}>
+                        <span
+                          className="tag warning-tag"
+                          key={pattern}
+                        >
                           {formatLabel(pattern)}
                         </span>
                       ))}
@@ -308,34 +354,64 @@ function App() {
           </article>
         </section>
 
-        <section className="statistics-grid">
+        <section
+          className="statistics-grid"
+          aria-label="Security statistics"
+        >
           <article className="stat-card">
             <p>Total scans</p>
-            <strong>—</strong>
-            <span>Waiting for statistics</span>
+            <strong>
+              {statistics?.total_scans ?? '—'}
+            </strong>
+            <span>Prompts analyzed by PromptShield</span>
           </article>
 
           <article className="stat-card">
             <p>Malicious prompts</p>
-            <strong>—</strong>
-            <span>Detected security threats</span>
+            <strong>
+              {statistics?.malicious_prompts ?? '—'}
+            </strong>
+            <span>Rule-confirmed security threats</span>
           </article>
 
           <article className="stat-card">
             <p>Sensitive prompts</p>
-            <strong>—</strong>
-            <span>Prompts requiring redaction</span>
+            <strong>
+              {statistics?.sensitive_prompts ?? '—'}
+            </strong>
+            <span>Prompts requiring data protection</span>
           </article>
 
-          <article className="stat-card">
+          <article
+            className={`stat-card audit-card ${
+              auditStatus?.valid
+                ? 'audit-valid'
+                : 'audit-unavailable'
+            }`}
+          >
             <p>Audit integrity</p>
-            <strong>—</strong>
-            <span>Verification not requested</span>
+
+            <strong>
+              {auditStatus
+                ? auditStatus.valid
+                  ? 'Verified'
+                  : 'Broken'
+                : '—'}
+            </strong>
+
+            <span>
+              {auditStatus
+                ? `${auditStatus.checked_events} events checked`
+                : 'Verification unavailable'}
+            </span>
           </article>
-        </section>
+            </section>
+
+        <RecentEvents events={recentEvents} />
       </main>
     </div>
   )
 }
 
 export default App
+

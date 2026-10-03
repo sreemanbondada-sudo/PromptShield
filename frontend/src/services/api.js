@@ -35,3 +35,16 @@ export function analyzePrompt(prompt) {
     }),
   })
 }
+
+export function getStatistics() {
+  return request('/statistics')
+}
+
+export function verifyAuditChain() {
+  return request('/audit/verify')
+}
+
+export function getRecentEvents(limit = 10) {
+  return request(`/events?limit=${limit}`)
+}
+

@@ -19,3 +19,7 @@ frontend/dist/
 
 # VS Code local settings
 .vscode/
+
+# SQLite runtime files
+*.db-wal
+*.db-shm
