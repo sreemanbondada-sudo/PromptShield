@@ -128,3 +128,57 @@ Public prompt-security datasets can contain:
 - Wording shortcuts that inflate performance
 
 Imported data must be validated before model training.
+
+## ScamBench Training Corpus
+
+- Repository: [shaw/scambench-training](https://huggingface.co/datasets/shaw/scambench-training)
+- Licence: CC BY-SA 4.0
+- Intended purpose: multilingual scam, social-engineering, phishing, prompt-injection and agent-safety research
+- Upstream size: 37,423 multi-turn records
+- PromptShield usage: experimental candidate-model research only
+- Production status: not promoted
+
+### Prepared PromptShield subset
+
+PromptShield prepares a controlled English subset using `backend/prepare_scambench_dataset.py`.
+
+| Split | Safe | Malicious | Total |
+|---|---:|---:|---:|
+| Train | 4,000 | 4,000 | 8,000 |
+| Validation | 500 | 500 | 1,000 |
+| Test | 750 | 750 | 1,500 |
+| **Total** | **5,250** | **5,250** | **10,500** |
+
+The preparation process:
+
+- preserves the upstream train, validation and test boundaries;
+- selects English-language records;
+- extracts only messages with the `user` role;
+- excludes system prompts, assistant responses and reasoning traces;
+- joins multi-turn user messages using `[USER TURN]`;
+- limits prompts to the application's 5,000-character input boundary;
+- creates balanced safe and malicious subsets;
+- removes normalized duplicates across selected splits;
+- uses a deterministic random seed;
+- records preparation metadata in `scambench_preparation_report.json`.
+
+Validation confirmed:
+
+- all required columns are present;
+- labels are binary and balanced;
+- every record contains at least one user turn;
+- prompts remain within the configured length limit;
+- no selected prompts overlap across ScamBench splits;
+- no exact overlaps exist with PromptShield, deepset or NeurAlchemy datasets.
+
+### Licence notice
+
+The normalized ScamBench CSV files are adapted from the ScamBench Training Corpus and remain subject to the Creative Commons Attribution-ShareAlike 4.0 licence.
+
+The preparation and evaluation scripts are part of the PromptShield source code. The dataset content retains its upstream attribution and applicable share-alike terms.
+
+### Experimental result
+
+A separate ScamBench candidate was trained with approximately 12,944 combined records. It improved scam and social-engineering coverage but was not promoted because no evaluated single-model or ensemble configuration improved all established PromptShield evaluation sets without increasing false positives.
+
+The current production model remains unchanged.

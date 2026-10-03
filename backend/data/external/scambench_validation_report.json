@@ -1,0 +1,153 @@
+{
+    "valid": true,
+    "splits": {
+        "train": {
+            "records": 8000,
+            "labels": {
+                "0": 4000,
+                "1": 4000
+            },
+            "categories": {
+                "prompt-injection": 785,
+                "impersonation": 58,
+                "legitimate": 3013,
+                "social-engineering": 2448,
+                "unauthorized-access": 15,
+                "secret-exfiltration": 283,
+                "research-assisted": 503,
+                "extended-multi-turn": 68,
+                "cli-execution": 33,
+                "investment-scam": 20,
+                "social-manipulation": 12,
+                "credential-phishing": 10,
+                "state-persistence": 31,
+                "phishing-link": 213,
+                "hitl-bypass": 27,
+                "inter-agent-communication": 49,
+                "advance-fee-fraud": 39,
+                "verbose-context-injection": 47,
+                "credential-theft": 103,
+                "interpersonal-abuse": 35,
+                "persistent-social-engineering": 27,
+                "admin-override": 35,
+                "benign": 46,
+                "borderline-suspicious": 12,
+                "environment-tampering": 27,
+                "cascading-failure": 28,
+                "malicious-tool": 10,
+                "persistent-violation": 13,
+                "malware-delivery": 10
+            }
+        },
+        "validation": {
+            "records": 1000,
+            "labels": {
+                "0": 500,
+                "1": 500
+            },
+            "categories": {
+                "social-engineering": 307,
+                "prompt-injection": 106,
+                "legitimate": 360,
+                "admin-override": 4,
+                "secret-exfiltration": 35,
+                "cli-execution": 4,
+                "research-assisted": 62,
+                "phishing-link": 27,
+                "interpersonal-abuse": 7,
+                "credential-theft": 13,
+                "hitl-bypass": 5,
+                "benign": 9,
+                "borderline-suspicious": 2,
+                "impersonation": 8,
+                "environment-tampering": 5,
+                "malicious-tool": 4,
+                "extended-multi-turn": 5,
+                "social-manipulation": 1,
+                "malware-delivery": 3,
+                "verbose-context-injection": 5,
+                "investment-scam": 2,
+                "inter-agent-communication": 6,
+                "state-persistence": 4,
+                "advance-fee-fraud": 3,
+                "persistent-social-engineering": 4,
+                "credential-phishing": 3,
+                "cascading-failure": 2,
+                "format-recovery": 2,
+                "persistent-violation": 2
+            }
+        },
+        "test": {
+            "records": 1500,
+            "labels": {
+                "0": 750,
+                "1": 750
+            },
+            "categories": {
+                "prompt-injection": 150,
+                "legitimate": 560,
+                "secret-exfiltration": 55,
+                "social-engineering": 452,
+                "phishing-link": 41,
+                "research-assisted": 87,
+                "benign": 9,
+                "cascading-failure": 6,
+                "credential-phishing": 2,
+                "state-persistence": 7,
+                "borderline-suspicious": 2,
+                "persistent-social-engineering": 6,
+                "advance-fee-fraud": 9,
+                "impersonation": 15,
+                "malware-delivery": 2,
+                "credential-theft": 20,
+                "admin-override": 6,
+                "extended-multi-turn": 15,
+                "environment-tampering": 7,
+                "interpersonal-abuse": 8,
+                "verbose-context-injection": 7,
+                "hitl-bypass": 6,
+                "cli-execution": 5,
+                "inter-agent-communication": 9,
+                "malicious-tool": 3,
+                "investment-scam": 2,
+                "format-recovery": 2,
+                "unauthorized-access": 2,
+                "social-manipulation": 3,
+                "persistent-violation": 2
+            }
+        }
+    },
+    "cross_split_overlap": 0,
+    "existing_dataset_overlaps": {
+        "train": {
+            "prompts.csv": 0,
+            "challenge_prompts.csv": 0,
+            "hard_negative_prompts.csv": 0,
+            "deepset_train.csv": 0,
+            "deepset_test.csv": 0,
+            "neuralchemy_core_train.csv": 0,
+            "neuralchemy_core_validation.csv": 0,
+            "neuralchemy_core_test.csv": 0
+        },
+        "validation": {
+            "prompts.csv": 0,
+            "challenge_prompts.csv": 0,
+            "hard_negative_prompts.csv": 0,
+            "deepset_train.csv": 0,
+            "deepset_test.csv": 0,
+            "neuralchemy_core_train.csv": 0,
+            "neuralchemy_core_validation.csv": 0,
+            "neuralchemy_core_test.csv": 0
+        },
+        "test": {
+            "prompts.csv": 0,
+            "challenge_prompts.csv": 0,
+            "hard_negative_prompts.csv": 0,
+            "deepset_train.csv": 0,
+            "deepset_test.csv": 0,
+            "neuralchemy_core_train.csv": 0,
+            "neuralchemy_core_validation.csv": 0,
+            "neuralchemy_core_test.csv": 0
+        }
+    }
+}

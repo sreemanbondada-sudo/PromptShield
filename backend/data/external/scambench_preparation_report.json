@@ -1,0 +1,34 @@
+{
+    "dataset": "shaw/scambench-training",
+    "language": "en",
+    "random_seed": 42,
+    "maximum_prompt_length": 5000,
+    "extraction_policy": "Only user-role messages are joined. System prompts, assistant responses and reasoning traces are excluded.",
+    "splits": {
+        "train": {
+            "split": "train",
+            "eligible_safe_records": 6599,
+            "eligible_attack_records": 8174,
+            "selected_safe_records": 4000,
+            "selected_attack_records": 4000,
+            "selected_total": 8000
+        },
+        "validation": {
+            "split": "validation",
+            "eligible_safe_records": 816,
+            "eligible_attack_records": 1059,
+            "selected_safe_records": 500,
+            "selected_attack_records": 500,
+            "selected_total": 1000
+        },
+        "test": {
+            "split": "test",
+            "eligible_safe_records": 811,
+            "eligible_attack_records": 1004,
+            "selected_safe_records": 750,
+            "selected_attack_records": 750,
+            "selected_total": 1500
+        }
+    },
+    "cross_split_duplicate_policy": "Normalized prompts selected for an earlier split are excluded from later splits."
+}

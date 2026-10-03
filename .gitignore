@@ -23,3 +23,9 @@ frontend/dist/
 # SQLite runtime files
 *.db-wal
 *.db-shm
+
+# Experimental ML model artifacts
+backend/models/scambench_candidate_classifier.joblib
+
+# Experimental ML model artifacts
+backend/models/scambench_candidate_classifier.joblib
