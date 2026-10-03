@@ -5,6 +5,7 @@ import {
 } from 'react'
 import './App.css'
 import RecentEvents from './components/RecentEvents'
+import SecurityBreakdown from './components/SecurityBreakdown'
 import {
   analyzePrompt,
   checkApiHealth,
@@ -406,7 +407,7 @@ function App() {
             </span>
           </article>
             </section>
-
+                        <SecurityBreakdown statistics={statistics} />
         <RecentEvents events={recentEvents} />
       </main>
     </div>
