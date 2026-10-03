@@ -408,8 +408,13 @@ function App() {
           </article>
             </section>
                         <SecurityBreakdown statistics={statistics} />
-        <RecentEvents events={recentEvents} />
-      </main>
+<RecentEvents
+  events={recentEvents}
+  onRefresh={async () => {
+    const result = await getRecentEvents(10)
+    setRecentEvents(result.events)
+  }}
+/>      </main>
     </div>
   )
 }

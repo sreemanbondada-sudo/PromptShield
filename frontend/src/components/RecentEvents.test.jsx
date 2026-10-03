@@ -1,11 +1,14 @@
 import {
   render,
   screen,
+  waitFor,
 } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import {
   describe,
   expect,
   test,
+  vi,
 } from 'vitest'
 
 import RecentEvents from './RecentEvents'
@@ -19,6 +22,7 @@ const SAMPLE_EVENTS = [
     risk_level: 'high',
     category: 'prompt_injection',
     contains_sensitive_data: false,
+    sensitive_data_types: [],
   },
   {
     id: 1,
@@ -28,6 +32,7 @@ const SAMPLE_EVENTS = [
     risk_level: 'medium',
     category: 'sensitive_data_exposure',
     contains_sensitive_data: true,
+    sensitive_data_types: ['email_address'],
   },
 ]
 
@@ -42,7 +47,7 @@ describe('RecentEvents', () => {
     ).toBeInTheDocument()
 
     expect(
-      screen.getByText('Showing 0 recent events'),
+      screen.getByText('Showing 0 of 0 events'),
     ).toBeInTheDocument()
   })
 
@@ -50,14 +55,23 @@ describe('RecentEvents', () => {
     render(<RecentEvents events={SAMPLE_EVENTS} />)
 
     expect(
-      screen.getByText('Showing 2 recent events'),
+      screen.getByText('Showing 2 of 2 events'),
     ).toBeInTheDocument()
 
     expect(screen.getByText('#2')).toBeInTheDocument()
     expect(screen.getByText('#1')).toBeInTheDocument()
 
-    expect(screen.getByText('Block')).toBeInTheDocument()
-    expect(screen.getByText('Redact')).toBeInTheDocument()
+        expect(
+      screen.getByText('Block', {
+        selector: '.event-action',
+      }),
+    ).toBeInTheDocument()
+
+    expect(
+      screen.getByText('Redact', {
+        selector: '.event-action',
+      }),
+    ).toBeInTheDocument()
 
     expect(
       screen.getByText('Prompt Injection'),
@@ -78,5 +92,128 @@ describe('RecentEvents', () => {
     expect(
       screen.getByText('None'),
     ).toBeInTheDocument()
+  })
+
+  test('filters events using the search field', async () => {
+    const user = userEvent.setup()
+
+    render(<RecentEvents events={SAMPLE_EVENTS} />)
+
+    await user.type(
+      screen.getByRole('searchbox', {
+        name: 'Search events',
+      }),
+      'sensitive data',
+    )
+
+    expect(screen.getByText('#1')).toBeInTheDocument()
+    expect(screen.queryByText('#2')).not.toBeInTheDocument()
+
+    expect(
+      screen.getByText('Showing 1 of 2 events'),
+    ).toBeInTheDocument()
+  })
+
+  test('filters events by recommended action', async () => {
+    const user = userEvent.setup()
+
+    render(<RecentEvents events={SAMPLE_EVENTS} />)
+
+    await user.selectOptions(
+      screen.getByRole('combobox', {
+        name: 'Filter by action',
+      }),
+      'block',
+    )
+
+    expect(screen.getByText('#2')).toBeInTheDocument()
+    expect(screen.queryByText('#1')).not.toBeInTheDocument()
+
+    expect(
+      screen.getByText('Showing 1 of 2 events'),
+    ).toBeInTheDocument()
+  })
+
+  test('clears filters when no events match', async () => {
+    const user = userEvent.setup()
+
+    render(<RecentEvents events={SAMPLE_EVENTS} />)
+
+    const searchField = screen.getByRole('searchbox', {
+      name: 'Search events',
+    })
+
+    await user.type(searchField, 'does-not-exist')
+
+    expect(
+      screen.getByText(
+        'No events match the selected filters.',
+      ),
+    ).toBeInTheDocument()
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Clear filters',
+      }),
+    )
+
+    expect(searchField).toHaveValue('')
+    expect(screen.getByText('#2')).toBeInTheDocument()
+    expect(screen.getByText('#1')).toBeInTheDocument()
+  })
+
+  test('refreshes recent events', async () => {
+    const user = userEvent.setup()
+    const onRefresh = vi.fn().mockResolvedValue(undefined)
+
+    render(
+      <RecentEvents
+        events={SAMPLE_EVENTS}
+        onRefresh={onRefresh}
+      />,
+    )
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Refresh events',
+      }),
+    )
+
+    expect(onRefresh).toHaveBeenCalledOnce()
+  })
+
+  test('shows a safe error when refresh fails', async () => {
+    const user = userEvent.setup()
+
+    const onRefresh = vi
+      .fn()
+      .mockRejectedValue(
+        new Error('Private backend information'),
+      )
+
+    render(
+      <RecentEvents
+        events={SAMPLE_EVENTS}
+        onRefresh={onRefresh}
+      />,
+    )
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Refresh events',
+      }),
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('alert'),
+      ).toHaveTextContent(
+        'Recent events could not be refreshed.',
+      )
+    })
+
+    expect(
+      screen.queryByText('Private backend information'),
+    ).not.toBeInTheDocument()
   })
 })

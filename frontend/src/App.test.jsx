@@ -139,10 +139,11 @@ describe('PromptShield dashboard', () => {
         'Explain the solar system.',
       )
     })
-
-    expect(
-      await screen.findByText('Allow'),
-    ).toBeInTheDocument()
+expect(
+  await screen.findByText('Allow', {
+    selector: 'strong',
+  }),
+).toBeInTheDocument()
 
     expect(screen.getByText('10/100')).toBeInTheDocument()
     expect(screen.getByText('Safe')).toBeInTheDocument()
