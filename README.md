@@ -40,6 +40,32 @@ The backend uses Render's free service tier. Its first request after a period of
 
 The hosted SQLite database uses Render's ephemeral filesystem. Hosted event history may reset after a restart, spin-down or deployment. The local-development database is unaffected.
 
+## Screenshots
+
+### Administrator login
+
+The deployed dashboard requires administrator authentication before protected security data can be accessed.
+
+![PromptShield administrator login](docs/screenshots/login-page.png)
+
+### Security dashboard
+
+The dashboard displays API health, prompt analysis, security statistics, audit status and recent security activity.
+
+![PromptShield security dashboard](docs/screenshots/dashboard-overview.png)
+
+### Explainable prompt analysis
+
+Each analysis displays the recommended action, risk score, risk level, category, machine-learning probability and human-readable explanation.
+
+![PromptShield prompt-analysis result](docs/screenshots/prompt-analysis.png)
+
+### Security-event investigation
+
+Security events can be inspected without exposing original prompt contents. The investigation panel displays security metadata, matched patterns and audit-chain hashes.
+
+![PromptShield security-event investigation](docs/screenshots/event-investigation.png)
+
 ## Features
 
 ### Administrator authentication
