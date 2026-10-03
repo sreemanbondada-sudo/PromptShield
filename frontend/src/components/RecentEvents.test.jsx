@@ -21,8 +21,16 @@ const SAMPLE_EVENTS = [
     risk_score: 100,
     risk_level: 'high',
     category: 'prompt_injection',
+    is_malicious: true,
     contains_sensitive_data: false,
     sensitive_data_types: [],
+    matched_patterns: [
+      'previous-instruction override',
+      'system-prompt extraction',
+    ],
+    prompt_length: 70,
+    previous_hash: 'previous-test-hash',
+    event_hash: 'current-test-hash',
   },
   {
     id: 1,
@@ -31,8 +39,15 @@ const SAMPLE_EVENTS = [
     risk_score: 60,
     risk_level: 'medium',
     category: 'sensitive_data_exposure',
+    is_malicious: false,
     contains_sensitive_data: true,
-    sensitive_data_types: ['email_address'],
+    sensitive_data_types: [
+      'email_address',
+    ],
+    matched_patterns: [],
+    prompt_length: 42,
+    previous_hash: 'another-previous-hash',
+    event_hash: 'another-current-hash',
   },
 ]
 
@@ -61,7 +76,7 @@ describe('RecentEvents', () => {
     expect(screen.getByText('#2')).toBeInTheDocument()
     expect(screen.getByText('#1')).toBeInTheDocument()
 
-        expect(
+    expect(
       screen.getByText('Block', {
         selector: '.event-action',
       }),
@@ -107,7 +122,9 @@ describe('RecentEvents', () => {
     )
 
     expect(screen.getByText('#1')).toBeInTheDocument()
-    expect(screen.queryByText('#2')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('#2'),
+    ).not.toBeInTheDocument()
 
     expect(
       screen.getByText('Showing 1 of 2 events'),
@@ -127,7 +144,9 @@ describe('RecentEvents', () => {
     )
 
     expect(screen.getByText('#2')).toBeInTheDocument()
-    expect(screen.queryByText('#1')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('#1'),
+    ).not.toBeInTheDocument()
 
     expect(
       screen.getByText('Showing 1 of 2 events'),
@@ -143,7 +162,10 @@ describe('RecentEvents', () => {
       name: 'Search events',
     })
 
-    await user.type(searchField, 'does-not-exist')
+    await user.type(
+      searchField,
+      'does-not-exist',
+    )
 
     expect(
       screen.getByText(
@@ -164,7 +186,10 @@ describe('RecentEvents', () => {
 
   test('refreshes recent events', async () => {
     const user = userEvent.setup()
-    const onRefresh = vi.fn().mockResolvedValue(undefined)
+
+    const onRefresh = vi
+      .fn()
+      .mockResolvedValue(undefined)
 
     render(
       <RecentEvents
@@ -213,7 +238,83 @@ describe('RecentEvents', () => {
     })
 
     expect(
-      screen.queryByText('Private backend information'),
+      screen.queryByText(
+        'Private backend information',
+      ),
+    ).not.toBeInTheDocument()
+  })
+
+  test('opens an event investigation view', async () => {
+    const user = userEvent.setup()
+
+    render(<RecentEvents events={SAMPLE_EVENTS} />)
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'View details for event #2',
+      }),
+    )
+
+    expect(
+      screen.getByRole('dialog', {
+        name: 'Security event #2',
+      }),
+    ).toBeInTheDocument()
+
+    expect(
+      screen.getByText(
+        'Previous-Instruction Override',
+      ),
+    ).toBeInTheDocument()
+
+    expect(
+      screen.getByText(
+        'System-Prompt Extraction',
+      ),
+    ).toBeInTheDocument()
+
+    expect(
+      screen.getByText('70 characters'),
+    ).toBeInTheDocument()
+
+    expect(
+      screen.getByText('previous-test-hash'),
+    ).toBeInTheDocument()
+
+    expect(
+      screen.getByText('current-test-hash'),
+    ).toBeInTheDocument()
+
+    expect(
+      screen.getByText(
+        /Original prompt contents are not exposed/,
+      ),
+    ).toBeInTheDocument()
+  })
+
+  test('closes the event investigation view', async () => {
+    const user = userEvent.setup()
+
+    render(<RecentEvents events={SAMPLE_EVENTS} />)
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'View details for event #2',
+      }),
+    )
+
+    expect(
+      screen.getByRole('dialog'),
+    ).toBeInTheDocument()
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Close event details',
+      }),
+    )
+
+    expect(
+      screen.queryByRole('dialog'),
     ).not.toBeInTheDocument()
   })
 })

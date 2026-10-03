@@ -1,4 +1,7 @@
-import { useMemo, useState } from 'react'
+import {
+  useMemo,
+  useState,
+} from 'react'
 
 function formatLabel(value) {
   if (!value) {
@@ -10,21 +13,186 @@ function formatLabel(value) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
+function formatTimestamp(value) {
+  if (!value) {
+    return 'Unknown'
+  }
+
+  return new Date(`${value}Z`).toLocaleString()
+}
+
+function DetailList({ values, emptyMessage }) {
+  if (!values || values.length === 0) {
+    return (
+      <span className="event-detail-empty">
+        {emptyMessage}
+      </span>
+    )
+  }
+
+  return (
+    <ul className="event-detail-list">
+      {values.map((value) => (
+        <li key={value}>{formatLabel(value)}</li>
+      ))}
+    </ul>
+  )
+}
+
+function EventDetails({ event, onClose }) {
+  return (
+    <aside
+      className="event-details-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="event-details-title"
+    >
+      <div className="event-details-header">
+        <div>
+          <p className="section-label">
+            EVENT INVESTIGATION
+          </p>
+
+          <h4 id="event-details-title">
+            Security event #{event.id}
+          </h4>
+        </div>
+
+        <button
+          type="button"
+          className="event-details-close"
+          onClick={onClose}
+          aria-label="Close event details"
+        >
+          Close
+        </button>
+      </div>
+
+      <div className="event-details-grid">
+        <div>
+          <span>Recorded at</span>
+          <strong>
+            {formatTimestamp(event.created_at)}
+          </strong>
+        </div>
+
+        <div>
+          <span>Recommended action</span>
+          <strong>
+            {formatLabel(event.recommended_action)}
+          </strong>
+        </div>
+
+        <div>
+          <span>Risk score</span>
+          <strong>{event.risk_score}/100</strong>
+        </div>
+
+        <div>
+          <span>Risk level</span>
+          <strong>
+            {formatLabel(event.risk_level)}
+          </strong>
+        </div>
+
+        <div>
+          <span>Category</span>
+          <strong>
+            {formatLabel(event.category)}
+          </strong>
+        </div>
+
+        <div>
+          <span>Malicious classification</span>
+          <strong>
+            {event.is_malicious
+              ? 'Detected'
+              : 'Not detected'}
+          </strong>
+        </div>
+
+        <div>
+          <span>Sensitive data</span>
+          <strong>
+            {event.contains_sensitive_data
+              ? 'Detected'
+              : 'Not detected'}
+          </strong>
+        </div>
+
+        <div>
+          <span>Prompt length</span>
+          <strong>
+            {event.prompt_length} characters
+          </strong>
+        </div>
+      </div>
+
+      <div className="event-detail-section">
+        <h5>Matched security patterns</h5>
+
+        <DetailList
+          values={event.matched_patterns}
+          emptyMessage="No rule patterns matched."
+        />
+      </div>
+
+      <div className="event-detail-section">
+        <h5>Sensitive-data types</h5>
+
+        <DetailList
+          values={event.sensitive_data_types}
+          emptyMessage={
+            'No sensitive-data types were detected.'
+          }
+        />
+      </div>
+
+      <div className="event-detail-section">
+        <h5>Audit-chain metadata</h5>
+
+        <div className="event-hash">
+          <span>Previous hash</span>
+          <code>
+            {event.previous_hash ?? 'Unavailable'}
+          </code>
+        </div>
+
+        <div className="event-hash">
+          <span>Event hash</span>
+          <code>
+            {event.event_hash ?? 'Unavailable'}
+          </code>
+        </div>
+      </div>
+
+      <p className="event-privacy-note">
+        PromptShield displays security metadata only.
+        Original prompt contents are not exposed through
+        this event view.
+      </p>
+    </aside>
+  )
+}
+
 function RecentEvents({ events, onRefresh }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [actionFilter, setActionFilter] = useState('all')
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [refreshError, setRefreshError] = useState('')
+  const [selectedEvent, setSelectedEvent] = useState(null)
 
   const filteredEvents = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase()
+    const normalizedSearch = searchTerm
+      .trim()
+      .toLowerCase()
 
     return events.filter((event) => {
       const matchesAction =
         actionFilter === 'all' ||
         event.recommended_action === actionFilter
 
-            const searchableText = [
+      const searchableText = [
         event.id,
         event.category,
         event.recommended_action,
@@ -66,7 +234,10 @@ function RecentEvents({ events, onRefresh }) {
     <section className="events-section">
       <div className="events-heading">
         <div>
-          <p className="section-label">SECURITY ACTIVITY</p>
+          <p className="section-label">
+            SECURITY ACTIVITY
+          </p>
+
           <h3>Recent security events</h3>
         </div>
 
@@ -76,7 +247,9 @@ function RecentEvents({ events, onRefresh }) {
           onClick={handleRefresh}
           disabled={!onRefresh || isRefreshing}
         >
-          {isRefreshing ? 'Refreshing...' : 'Refresh events'}
+          {isRefreshing
+            ? 'Refreshing...'
+            : 'Refresh events'}
         </button>
       </div>
 
@@ -113,22 +286,39 @@ function RecentEvents({ events, onRefresh }) {
       </div>
 
       <div className="events-summary">
-        Showing {filteredEvents.length} of {events.length} events
+        Showing {filteredEvents.length} of {events.length}{' '}
+        events
       </div>
 
       {refreshError && (
-        <p className="events-refresh-error" role="alert">
+        <p
+          className="events-refresh-error"
+          role="alert"
+        >
           {refreshError}
         </p>
       )}
 
+      {selectedEvent && (
+        <EventDetails
+          event={selectedEvent}
+          onClose={() => {
+            setSelectedEvent(null)
+          }}
+        />
+      )}
+
       {events.length === 0 ? (
         <div className="events-empty">
-          <p>No security events have been recorded yet.</p>
+          <p>
+            No security events have been recorded yet.
+          </p>
         </div>
       ) : filteredEvents.length === 0 ? (
         <div className="events-empty">
-          <p>No events match the selected filters.</p>
+          <p>
+            No events match the selected filters.
+          </p>
 
           <button
             type="button"
@@ -152,6 +342,7 @@ function RecentEvents({ events, onRefresh }) {
                 <th>Risk</th>
                 <th>Category</th>
                 <th>Sensitive data</th>
+                <th>Investigation</th>
               </tr>
             </thead>
 
@@ -161,16 +352,15 @@ function RecentEvents({ events, onRefresh }) {
                   <td>#{event.id}</td>
 
                   <td>
-                    {event.created_at
-                      ? new Date(
-                          `${event.created_at}Z`,
-                        ).toLocaleString()
-                      : 'Unknown'}
+                    {formatTimestamp(event.created_at)}
                   </td>
 
                   <td>
                     <span
-                      className={`event-action action-${event.recommended_action}`}
+                      className={
+                        `event-action ` +
+                        `action-${event.recommended_action}`
+                      }
                     >
                       {formatLabel(
                         event.recommended_action,
@@ -179,18 +369,38 @@ function RecentEvents({ events, onRefresh }) {
                   </td>
 
                   <td>
-                    <strong>{event.risk_score}/100</strong>
+                    <strong>
+                      {event.risk_score}/100
+                    </strong>
+
                     <small>
                       {formatLabel(event.risk_level)}
                     </small>
                   </td>
 
-                  <td>{formatLabel(event.category)}</td>
+                  <td>
+                    {formatLabel(event.category)}
+                  </td>
 
                   <td>
                     {event.contains_sensitive_data
                       ? 'Detected'
                       : 'None'}
+                  </td>
+
+                  <td>
+                    <button
+                      type="button"
+                      className="event-view-button"
+                      aria-label={
+                        `View details for event #${event.id}`
+                      }
+                      onClick={() => {
+                        setSelectedEvent(event)
+                      }}
+                    >
+                      View details
+                    </button>
                   </td>
                 </tr>
               ))}
