@@ -1,121 +1,340 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
+import {
+  analyzePrompt,
+  checkApiHealth,
+} from './services/api'
+
+function formatLabel(value) {
+  if (!value) {
+    return 'None'
+  }
+
+  return value
+    .replaceAll('_', ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [prompt, setPrompt] = useState('')
+  const [apiStatus, setApiStatus] = useState('checking')
+  const [analysis, setAnalysis] = useState(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadApiStatus() {
+      try {
+        const result = await checkApiHealth()
+
+        if (isMounted && result.status === 'healthy') {
+          setApiStatus('online')
+        }
+      } catch {
+        if (isMounted) {
+          setApiStatus('offline')
+        }
+      }
+    }
+
+    loadApiStatus()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+
+    const trimmedPrompt = prompt.trim()
+
+    if (!trimmedPrompt || isAnalyzing) {
+      return
+    }
+
+    setIsAnalyzing(true)
+    setError('')
+    setAnalysis(null)
+
+    try {
+      const result = await analyzePrompt(trimmedPrompt)
+      setAnalysis(result)
+    } catch (requestError) {
+      setError(
+        requestError.message ||
+          'Prompt analysis failed. Please try again.',
+      )
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  function handleClear() {
+    setPrompt('')
+    setAnalysis(null)
+    setError('')
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="brand">
+          <div className="brand-mark" aria-hidden="true">
+            PS
+          </div>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+          <div>
+            <h1>PromptShield</h1>
+            <p>AI Prompt Security Gateway</p>
+          </div>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        <div className="system-status">
+          <span className={`status-dot ${apiStatus}`} />
+
+          {apiStatus === 'online' && 'API online'}
+          {apiStatus === 'offline' && 'API unavailable'}
+          {apiStatus === 'checking' && 'Checking API'}
+        </div>
+      </header>
+
+      <main className="dashboard">
+        <section className="hero-section">
+          <div>
+            <p className="eyebrow">REAL-TIME AI SECURITY</p>
+
+            <h2>
+              Analyze prompts before they reach your AI application.
+            </h2>
+
+            <p className="hero-description">
+              Detect prompt injection, sensitive-data exposure and
+              suspicious machine-learning patterns through one
+              explainable security gateway.
+            </p>
+          </div>
+
+          <div className="protection-summary">
+            <span>Rule engine</span>
+            <span>Sensitive-data detection</span>
+            <span>ML classification</span>
+          </div>
+        </section>
+
+        <section className="analysis-grid">
+          <article className="panel prompt-panel">
+            <div className="panel-heading">
+              <div>
+                <p className="section-label">PROMPT ANALYSIS</p>
+                <h3>Inspect a user prompt</h3>
+              </div>
+
+              <span className="character-count">
+                {prompt.length}/5000
+              </span>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="prompt">
+                Prompt to analyze
+              </label>
+
+              <textarea
+                id="prompt"
+                value={prompt}
+                maxLength={5000}
+                onChange={(event) => setPrompt(event.target.value)}
+                placeholder="Enter a prompt to inspect for security risks..."
+                disabled={isAnalyzing}
+              />
+
+              {error && (
+                <div className="error-message" role="alert">
+                  {error}
+                </div>
+              )}
+
+              <div className="form-actions">
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={handleClear}
+                  disabled={!prompt && !analysis && !error}
+                >
+                  Clear
+                </button>
+
+                <button
+                  className="primary-button"
+                  type="submit"
+                  disabled={!prompt.trim() || isAnalyzing}
+                >
+                  {isAnalyzing
+                    ? 'Analyzing...'
+                    : 'Analyze prompt'}
+                </button>
+              </div>
+            </form>
+          </article>
+
+          <article className="panel result-panel">
+            <p className="section-label">ANALYSIS RESULT</p>
+
+            {!analysis && !isAnalyzing && (
+              <div className="empty-result">
+                <div className="shield-icon" aria-hidden="true">
+                  ✓
+                </div>
+
+                <h3>Ready to inspect</h3>
+
+                <p>
+                  Submit a prompt to view its verdict, risk score,
+                  attack category, ML probability and recommended
+                  action.
+                </p>
+              </div>
+            )}
+
+            {isAnalyzing && (
+              <div className="empty-result" aria-live="polite">
+                <div className="loading-spinner" />
+
+                <h3>Analyzing prompt</h3>
+
+                <p>
+                  PromptShield is running its security detectors.
+                </p>
+              </div>
+            )}
+
+            {analysis && !isAnalyzing && (
+              <div className="analysis-result">
+                <div
+                  className={`verdict verdict-${analysis.recommended_action}`}
+                >
+                  <span>Recommended action</span>
+                  <strong>
+                    {formatLabel(analysis.recommended_action)}
+                  </strong>
+                </div>
+
+                <div className="result-metrics">
+                  <div>
+                    <span>Risk score</span>
+                    <strong>{analysis.risk_score}/100</strong>
+                  </div>
+
+                  <div>
+                    <span>Risk level</span>
+                    <strong>
+                      {formatLabel(analysis.risk_level)}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>Category</span>
+                    <strong>
+                      {formatLabel(analysis.category)}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>ML probability</span>
+                    <strong>
+                      {Math.round(
+                        (analysis.ml_probability ?? 0) * 100,
+                      )}
+                      %
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="result-section">
+                  <span>Explanation</span>
+                  <p>{analysis.explanation}</p>
+                </div>
+
+                <div className="result-section">
+                  <span>Detection sources</span>
+
+                  <div className="tag-list">
+                    {analysis.detection_sources?.length > 0 ? (
+                      analysis.detection_sources.map((source) => (
+                        <span className="tag" key={source}>
+                          {formatLabel(source)}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="muted-text">
+                        No detector raised an alert
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {analysis.matched_patterns?.length > 0 && (
+                  <div className="result-section">
+                    <span>Matched security patterns</span>
+
+                    <div className="tag-list">
+                      {analysis.matched_patterns.map((pattern) => (
+                        <span className="tag warning-tag" key={pattern}>
+                          {formatLabel(pattern)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {analysis.contains_sensitive_data && (
+                  <div className="result-section">
+                    <span>Protected prompt preview</span>
+
+                    <p className="redacted-preview">
+                      {analysis.redacted_prompt}
+                    </p>
+                  </div>
+                )}
+
+                <p className="event-reference">
+                  Security event #{analysis.event_id}
+                </p>
+              </div>
+            )}
+          </article>
+        </section>
+
+        <section className="statistics-grid">
+          <article className="stat-card">
+            <p>Total scans</p>
+            <strong>—</strong>
+            <span>Waiting for statistics</span>
+          </article>
+
+          <article className="stat-card">
+            <p>Malicious prompts</p>
+            <strong>—</strong>
+            <span>Detected security threats</span>
+          </article>
+
+          <article className="stat-card">
+            <p>Sensitive prompts</p>
+            <strong>—</strong>
+            <span>Prompts requiring redaction</span>
+          </article>
+
+          <article className="stat-card">
+            <p>Audit integrity</p>
+            <strong>—</strong>
+            <span>Verification not requested</span>
+          </article>
+        </section>
+      </main>
+    </div>
   )
 }
 
