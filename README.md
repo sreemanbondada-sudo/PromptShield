@@ -1,23 +1,49 @@
 # PromptShield
 
-PromptShield is an explainable security gateway that analyzes user prompts before they reach an AI application. It combines deterministic security rules, sensitive-data detection, machine learning, cryptographic protection and tamper-evident logging.
+PromptShield is an explainable security gateway that analyzes user prompts before they reach an AI application. It combines deterministic security rules, sensitive-data detection, machine learning, cryptographic protection and tamper-evident logging through a FastAPI backend and React dashboard.
 
 ## Project Status
 
-The backend security foundation and expanded machine-learning pipeline are operational.
+The backend security platform, expanded machine-learning pipeline and React dashboard are operational.
 
-- 123 automated tests passing
+- 128 backend tests passing
+- 18 frontend tests passing
 - Hybrid rule-based and machine-learning detection
 - Sensitive-data detection and redaction
 - HMAC-SHA-256 integrity verification
 - AES-256-GCM encrypted storage
 - Tamper-evident SQLite audit chain
 - Multi-source ML training and independent evaluation
+- ScamBench candidate-model research
 - API rate limiting and request-size protection
 - CORS, security headers and privacy-safe error handling
-- React dashboard planned
+- Interactive React security dashboard
+- Security statistics and activity visualizations
+- Searchable and filterable security-event history
+- Audit-chain integrity monitoring
 
 ## Features
+
+### React security dashboard
+
+PromptShield includes a responsive React and Vite dashboard connected to the FastAPI backend.
+
+The dashboard provides:
+
+- Real-time prompt analysis
+- API health monitoring
+- Recommended actions and risk scores
+- Machine-learning probability display
+- Detection-source explanations
+- Matched-pattern information
+- Sensitive-data redaction previews
+- Security statistics
+- Action and category visualizations
+- Audit-chain integrity status
+- Recent security-event history
+- Event search and action filtering
+- Manual event refresh
+- Loading, empty and safe error states
 
 ### Prompt attack detection
 
@@ -28,7 +54,7 @@ PromptShield detects patterns associated with:
 - System-prompt extraction
 - Role manipulation
 
-The rule engine returns:
+The deterministic rule engine returns:
 
 - Attack category
 - Risk score and level
@@ -45,7 +71,8 @@ The sensitive-data detector recognizes:
 - API keys
 - AWS access keys
 - Private-key indicators
-- Password and secret assignments
+- Password assignments
+- Secret assignments
 - High-entropy secret-like strings
 
 Sensitive values are replaced with `[REDACTED]` before protected previews are stored.
@@ -70,51 +97,104 @@ Decision priority:
 3. ML-only suspicion: `review`
 4. No detection: `allow`
 
-The machine-learning model is advisory. A rule-based attack still receives blocking priority.
+The machine-learning model is advisory. A rule-based attack always receives blocking priority.
 
-### ML datasets
+## Machine-Learning Datasets
 
 The production classifier is trained using:
 
 - The original PromptShield development dataset
 - Defensive and educational hard-negative prompts
-- NeurAlchemy prompt-injection training data
-- A reserved portion of the deepset training data
+- NeurAlchemy prompt-injection data
+- Deepset prompt-injection data
 
-Independent validation and testing use records that are kept separate from production training.
+Dataset preparation includes:
 
-Dataset origins, licenses, transformations and limitations are documented in [`DATASET_SOURCES.md`](DATASET_SOURCES.md).
+- Schema normalization
+- Binary label conversion
+- Duplicate removal
+- Training and evaluation separation
+- Cross-dataset overlap checking
+- Prompt-length validation
+- Source and license documentation
 
-### ML evaluation
+Detailed dataset information is available in [DATASET_SOURCES.md](DATASET_SOURCES.md).
 
-Current production training configuration:
+### Production model
 
-- 4,944 combined training samples
-- 110 reserved deepset validation samples
-- Duplicate prompt removal
-- Production classification threshold: `0.55`
-- TF-IDF word and character features
-- Balanced Logistic Regression classifier
+The production model uses:
 
-Current expanded-model test results:
+- TF-IDF word features
+- TF-IDF character features
+- Logistic Regression
+- Balanced class weights
+- Classification threshold `0.55`
 
-| Dataset | Accuracy | Precision | Recall | F1 score | ROC-AUC |
-|---|---:|---:|---:|---:|---:|
-| NeurAlchemy test | 95.44% | 96.53% | 95.65% | 96.09% | 0.9943 |
-| deepset test | 78.45% | 94.87% | 61.67% | 74.75% | 0.8920 |
-| PromptShield challenge | 80.00% | 71.43% | 100.00% | 83.33% | 0.9500 |
+The expanded production model was trained on approximately 4,944 deduplicated examples.
 
-The expanded model performs substantially better across external datasets than the original 80-prompt baseline. Performance still varies between datasets, demonstrating the importance of domain diversity and independent evaluation.
+Representative evaluation results:
 
-These results represent an academic and portfolio evaluation. They should not be interpreted as production-level security guarantees.
+| Evaluation dataset | Accuracy | Precision | Recall | F1 score |
+|---|---:|---:|---:|---:|
+| NeurAlchemy test | 95.44% | 96.53% | 95.65% | 96.09% |
+| Deepset test | 78.45% | 94.87% | 61.67% | 74.75% |
+| PromptShield challenge | 80.00% | 71.43% | 100.00% | 83.33% |
 
-### HMAC integrity verification
+These measurements are development results and should not be interpreted as proof of production-level security.
+
+### ScamBench research experiment
+
+PromptShield also includes a controlled research experiment using the English subset of `shaw/scambench-training`.
+
+The preparation process:
+
+- Streams the source dataset
+- Selects English records
+- Extracts only user-role messages
+- Excludes system prompts
+- Excludes assistant responses
+- Excludes reasoning traces
+- Limits prompts to 5,000 characters
+- Creates balanced and deterministic subsets
+- Removes cross-split duplicates
+- Checks overlap with existing datasets
+
+Prepared subsets:
+
+| Split | Safe | Attack | Total |
+|---|---:|---:|---:|
+| Training | 4,000 | 4,000 | 8,000 |
+| Validation | 500 | 500 | 1,000 |
+| Test | 750 | 750 | 1,500 |
+
+The isolated ScamBench candidate was evaluated separately from the production model.
+
+At threshold `0.60`, representative candidate results were:
+
+| Evaluation dataset | Accuracy | Precision | Recall | F1 score |
+|---|---:|---:|---:|---:|
+| NeurAlchemy test | 94.90% | 96.49% | 94.75% | 95.61% |
+| Deepset test | 75.86% | 100.00% | 53.33% | 69.57% |
+| ScamBench test | 85.13% | 87.48% | 82.00% | 84.65% |
+| PromptShield challenge | 80.00% | 71.43% | 100.00% | 83.33% |
+
+OR and weighted ensemble strategies were also evaluated.
+
+The candidate and ensemble approaches were not promoted because they increased false positives or reduced performance on existing evaluation sets. The current production model remains unchanged.
+
+This rejected experiment is intentionally documented because it demonstrates reproducible model evaluation instead of selecting a model using accuracy from only one dataset.
+
+The candidate model binary is excluded from Git because it is an experimental generated artifact. It can be reproduced using the included training script.
+
+## HMAC Integrity Verification
 
 PromptShield uses HMAC-SHA-256 to verify that trusted messages and system prompts have not been modified.
 
 Signature verification uses constant-time comparison to reduce timing-attack risk.
 
-### AES-GCM protected storage
+The HMAC secret is loaded from an environment variable and must not be committed to Git.
+
+## AES-GCM Protected Storage
 
 Redacted prompt previews are encrypted using AES-256-GCM before being stored in SQLite.
 
@@ -127,87 +207,90 @@ The protected-storage design provides:
 - Detection of modified ciphertext
 - Protection against ciphertext swapping
 
-Original sensitive values are not stored. There is intentionally no public decryption endpoint.
+Original sensitive values are not stored.
 
-### Tamper-evident audit chain
+There is intentionally no public endpoint that exposes decrypted prompt previews.
 
-Every security event contains:
+## Tamper-Evident Audit Chain
+
+Every protected security event contains:
 
 - The previous event hash
 - Its own HMAC-SHA-256 event hash
 
-Changing or rearranging protected event data breaks the chain and can be detected through the audit-verification API.
+Changing or rearranging protected event data breaks the audit chain and can be detected through the audit-verification API.
 
-### Privacy-aware event storage
+Legacy events that predate audit-chain support are reported separately.
+
+## Privacy-Aware Event Storage
 
 PromptShield stores security metadata such as:
 
-- Risk level and score
+- Risk level
+- Risk score
 - Attack category
 - Recommended action
 - Matched rule names
 - Detection sources
-- ML probability
+- Machine-learning prediction
+- Machine-learning probability
 - Detected sensitive-data types
 - Prompt length
-- Audit hashes
 - Encrypted redacted preview
+- Audit hashes
+- Creation timestamp
 
-It does not store the original unredacted prompt.
+PromptShield does not store the original unredacted prompt.
 
-### API hardening
+## API Security Hardening
 
-The API includes:
+The backend includes:
 
-- Configurable CORS restrictions
-- Request-body size enforcement
-- Sliding-window rate limiting
+- Explicit CORS origins
 - Security response headers
+- Sliding-window rate limiting
+- Request-body size limits
 - Privacy-safe validation errors
-- Privacy-safe request logging
+- Safe unexpected-error responses
 - Startup configuration validation
-- Safe handling of unexpected server errors
+- Environment-based secret management
+- SQLite foreign-key enforcement
+- SQLite busy timeout
+- SQLite WAL mode
+- Explicit database transactions
 
-### Database hardening
-
-SQLite storage uses:
-
-- Foreign-key enforcement
-- Write-ahead logging
-- Busy-timeout configuration
-- Explicit write transactions
-- Audit-chain verification
-- Startup integrity checks
-- Isolated temporary databases during testing
+The health endpoint remains outside the prompt-analysis rate limit so monitoring systems can continue checking API availability.
 
 ## Architecture
 
 ```mermaid
 flowchart TD
-    A[User prompt] --> B[FastAPI gateway]
-    B --> C[Rule engine]
-    B --> D[Sensitive-data detector]
-    B --> E[ML classifier]
-    C --> F[Hybrid decision engine]
-    D --> F
-    E --> F
-    F --> G[Allow, review, redact or block]
-    F --> H[Audit event]
-    H --> I[HMAC hash chain]
-    F --> J[Redacted preview]
-    J --> K[AES-GCM encryption]
-    I --> L[SQLite]
-    K --> L
+    A[User prompt] --> B[React dashboard]
+    B --> C[FastAPI security gateway]
+    C --> D[Rule engine]
+    C --> E[Sensitive-data detector]
+    C --> F[ML classifier]
+    D --> G[Hybrid decision engine]
+    E --> G
+    F --> G
+    G --> H[Allow, review, redact or block]
+    G --> I[Security event]
+    I --> J[HMAC audit chain]
+    G --> K[Redacted preview]
+    K --> L[AES-GCM encryption]
+    J --> M[SQLite]
+    L --> M
+    M --> N[Dashboard statistics and events]
 ```
 
-A more detailed design is available in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+Additional architecture documentation is available in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## API Endpoints
 
 | Method | Endpoint | Purpose |
 |---|---|---|
 | GET | `/` | Application status |
-| GET | `/health` | Health check |
+| GET | `/health` | API health check |
 | POST | `/analyze` | Hybrid prompt and sensitive-data analysis |
 | POST | `/ml/analyze` | Standalone ML classification |
 | GET | `/events` | Recent security events |
@@ -215,7 +298,7 @@ A more detailed design is available in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 | POST | `/integrity/verify` | HMAC-SHA-256 verification |
 | GET | `/audit/verify` | Audit-chain verification |
 
-Interactive API documentation is available at:
+Interactive API documentation is available while the backend is running:
 
 ```text
 http://127.0.0.1:8000/docs
@@ -223,23 +306,30 @@ http://127.0.0.1:8000/docs
 
 ## Technology Stack
 
-### Implemented
+### Backend
 
 - Python
 - FastAPI
 - Pydantic
 - SQLite
 - scikit-learn
-- Hugging Face Datasets
 - pytest
 - HMAC-SHA-256
 - AES-256-GCM
 - python-dotenv
+- Hugging Face Datasets
 
-### Planned
+### Frontend
 
 - React
 - Vite
+- JavaScript
+- CSS
+- Vitest
+- React Testing Library
+
+### Planned infrastructure
+
 - GitHub Actions
 - Cloud deployment
 
@@ -255,15 +345,17 @@ PromptShield/
 │   │   │   ├── neuralchemy_core_train.csv
 │   │   │   ├── neuralchemy_core_validation.csv
 │   │   │   ├── neuralchemy_core_test.csv
-│   │   │   └── validation_report.json
-│   │   ├── prompts.csv
+│   │   │   ├── scambench_train.csv
+│   │   │   ├── scambench_validation.csv
+│   │   │   └── scambench_test.csv
 │   │   ├── challenge_prompts.csv
-│   │   └── hard_negative_prompts.csv
+│   │   ├── hard_negative_prompts.csv
+│   │   └── prompts.csv
 │   ├── models/
 │   │   ├── prompt_classifier.joblib
 │   │   ├── metrics.json
-│   │   ├── challenge_metrics.json
-│   │   └── model_comparison.json
+│   │   ├── model_comparison.json
+│   │   └── evaluation reports
 │   ├── tests/
 │   ├── audit_service.py
 │   ├── config.py
@@ -272,19 +364,46 @@ PromptShield/
 │   ├── encryption_service.py
 │   ├── error_handlers.py
 │   ├── evaluate_model.py
+│   ├── evaluate_model_ensemble.py
+│   ├── evaluate_scambench_candidate.py
 │   ├── evaluate_thresholds.py
+│   ├── evaluate_weighted_ensemble.py
 │   ├── integrity_service.py
 │   ├── main.py
+│   ├── middleware.py
 │   ├── ml_detector.py
 │   ├── model_pipeline.py
 │   ├── prepare_external_datasets.py
+│   ├── prepare_scambench_dataset.py
 │   ├── rate_limiter.py
 │   ├── schemas.py
 │   ├── sensitive_detector.py
 │   ├── train_expanded_model.py
 │   ├── train_model.py
+│   ├── train_scambench_candidate.py
 │   ├── validate_external_datasets.py
+│   ├── validate_scambench_dataset.py
 │   └── requirements.txt
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── RecentEvents.jsx
+│   │   │   ├── RecentEvents.test.jsx
+│   │   │   ├── SecurityBreakdown.jsx
+│   │   │   └── SecurityBreakdown.test.jsx
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   └── api.test.js
+│   │   ├── test/
+│   │   │   └── setup.js
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── App.test.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── package.json
+│   └── vite.config.js
 ├── .gitignore
 ├── ARCHITECTURE.md
 ├── DATASET_SOURCES.md
@@ -297,12 +416,13 @@ PromptShield/
 
 ```powershell
 git clone https://github.com/sreemanbondada-sudo/PromptShield.git
-cd PromptShield\backend
+cd PromptShield
 ```
 
-### 2. Create a virtual environment
+### 2. Create the backend virtual environment
 
 ```powershell
+cd backend
 py -m venv .venv
 ```
 
@@ -313,7 +433,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
 ```
 
-### 3. Install dependencies
+### 3. Install backend dependencies
 
 ```powershell
 python -m pip install -r requirements.txt
@@ -321,7 +441,7 @@ python -m pip install -r requirements.txt
 
 ### 4. Configure environment variables
 
-Create `backend/.env` based on `.env.example`.
+Create `backend/.env` based on `backend/.env.example`.
 
 Generate an HMAC key:
 
@@ -335,7 +455,7 @@ Generate a Base64-encoded AES-256 key:
 python -c "import base64, secrets; print(base64.urlsafe_b64encode(secrets.token_bytes(32)).decode())"
 ```
 
-Add the generated values to `.env`:
+Add the values to `.env`:
 
 ```env
 PROMPTSHIELD_HMAC_KEY=your-private-hmac-key
@@ -345,38 +465,31 @@ PROMPTSHIELD_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 
 Never commit `.env` or share its secret values.
 
-### 5. Prepare external datasets
+### 5. Train the production ML model
 
-The normalized external CSV files are included in the repository. To regenerate them from their documented sources, run:
-
-```powershell
-python prepare_external_datasets.py
-python validate_external_datasets.py
-```
-
-See [`DATASET_SOURCES.md`](DATASET_SOURCES.md) before redistributing or replacing datasets.
-
-### 6. Train the production ML model
+From the `backend` directory:
 
 ```powershell
 python train_model.py
 ```
 
-The command trains the expanded multi-source classifier and writes:
+This uses the expanded production training pipeline.
 
-```text
-models/prompt_classifier.joblib
-models/metrics.json
-```
-
-### 7. Evaluate the model
+### 6. Evaluate the production model
 
 ```powershell
 python evaluate_model.py
 python evaluate_thresholds.py
 ```
 
-### 8. Run the tests
+### 7. Validate external datasets
+
+```powershell
+python validate_external_datasets.py
+python validate_scambench_dataset.py
+```
+
+### 8. Run backend tests
 
 Run tests from the `backend` directory:
 
@@ -387,24 +500,78 @@ python -m pytest -v
 Current result:
 
 ```text
-123 passed
+128 passed
 ```
 
-### 9. Start the API
+One dependency deprecation warning may appear from FastAPI's current `TestClient` integration. It does not indicate a failed test.
+
+### 9. Start the backend API
 
 ```powershell
 python -m uvicorn main:app --reload
 ```
 
-Open:
+The backend will run at:
+
+```text
+http://127.0.0.1:8000
+```
+
+API documentation:
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
+Keep this terminal running.
+
+### 10. Install frontend dependencies
+
+Open a second PowerShell terminal:
+
+```powershell
+cd C:\Users\Sreeman\Documents\Projects\PromptShield\frontend
+npm install
+```
+
+### 11. Run frontend tests
+
+```powershell
+npm test
+```
+
+Current result:
+
+```text
+18 passed
+```
+
+### 12. Run frontend quality checks
+
+```powershell
+npm run lint
+npm run build
+```
+
+### 13. Start the React dashboard
+
+```powershell
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+The backend and frontend must both be running for the complete dashboard to work.
+
 ## Testing
 
-The automated test suite covers:
+### Backend testing
+
+The backend test suite covers:
 
 - Rule-based attack detection
 - Safe-prompt handling
@@ -413,6 +580,7 @@ The automated test suite covers:
 - Entropy analysis
 - FastAPI endpoints
 - SQLite storage and statistics
+- Database transaction behaviour
 - HMAC generation and verification
 - AES-GCM encryption and decryption
 - Ciphertext tampering
@@ -420,25 +588,88 @@ The automated test suite covers:
 - Audit-chain verification
 - ML inference
 - Hybrid decision priority
-- External-dataset preparation and validation
-- Expanded ML training behavior
+- CORS configuration
 - Configuration validation
-- CORS enforcement
-- Request-size enforcement
-- Rate-limit enforcement
-- Security response headers
-- Privacy-safe errors and logging
-- Database concurrency protection
-- Startup database integrity checks
+- Privacy-safe error handling
+- Request-size limits
+- Rate limiting
+- Security headers
+- External dataset preparation
+- Dataset validation
 - Temporary test-database isolation
+- ScamBench user-message extraction
 
 Current result:
 
 ```text
-123 passed
+128 passed
 ```
 
-One dependency deprecation warning may appear from FastAPI's current `TestClient` integration. It does not indicate a failed test.
+### Frontend testing
+
+The frontend test suite covers:
+
+- Dashboard API integration
+- API status rendering
+- Prompt submission
+- Prompt-analysis results
+- Safe frontend error handling
+- Recent-event rendering
+- Sensitive-data status rendering
+- Event search
+- Action filtering
+- Empty filter results
+- Clearing filters
+- Manual event refreshing
+- Refresh failure handling
+- Security breakdown visualizations
+- API service functions
+
+Current result:
+
+```text
+18 passed
+```
+
+## Reproducing the ScamBench Experiment
+
+Prepare the controlled ScamBench subsets:
+
+```powershell
+python prepare_scambench_dataset.py
+```
+
+Validate the generated data:
+
+```powershell
+python validate_scambench_dataset.py
+```
+
+Train the isolated candidate:
+
+```powershell
+python train_scambench_candidate.py
+```
+
+Evaluate the candidate at the selected comparison threshold:
+
+```powershell
+python evaluate_scambench_candidate.py
+```
+
+Evaluate a simple OR ensemble:
+
+```powershell
+python evaluate_model_ensemble.py
+```
+
+Evaluate weighted ensemble configurations:
+
+```powershell
+python evaluate_weighted_ensemble.py
+```
+
+These commands do not replace the production model automatically.
 
 ## Security Limitations
 
@@ -446,36 +677,49 @@ PromptShield is currently an academic and portfolio project.
 
 Current limitations include:
 
-- External-dataset performance varies across domains
-- The classifier currently performs binary safe/malicious classification
-- Multilingual, encoded and heavily obfuscated attacks need further evaluation
-- Rule patterns require continued maintenance against new attacks
-- Rate limiting currently uses in-memory application state
+- Classical TF-IDF and Logistic Regression instead of a transformer model
+- Limited manually curated PromptShield challenge data
+- Dataset-specific language and annotation differences
 - No user authentication or authorization
+- In-memory rate limiting that is not shared across multiple server instances
 - No production key-management service
-- No distributed or multi-instance rate-limit storage
 - No public encrypted-preview retrieval workflow
 - SQLite is intended for local development
-- The ML classifier may produce false positives and false negatives
+- Detection rules require continued evaluation against new attacks
+- Model probabilities should not be interpreted as guaranteed security
+- No security tool can reliably detect every unseen adversarial prompt
+
+PromptShield should be used as one layer within a defense-in-depth security design.
 
 Do not use the current version as the only security control protecting a production AI system.
 
+## Responsible Dataset Use
+
+PromptShield records dataset sources, licenses and transformations in `DATASET_SOURCES.md`.
+
+Important practices include:
+
+- Preserve required attribution
+- Respect source-dataset licenses
+- Avoid publishing private or sensitive information
+- Sanitize secret-like values before committing datasets
+- Keep training and evaluation splits separate
+- Report negative results and model regressions
+- Do not promote a candidate model based on one favourable metric
+- Do not repeatedly tune against final test sets
+
+The Guardian0369 Prompt-injection-and-PII dataset is not currently included because its licensing and schema require additional review.
+
 ## Roadmap
 
+- Add a security-event details and investigation view
 - Add user authentication and authorization
-- Build the React security dashboard
-- Add charts for actions, risks and attack categories
-- Add a security-event investigation interface
 - Expand multilingual and obfuscated attack evaluation
+- Evaluate additional clearly licensed prompt-security datasets
 - Add stronger final holdout datasets
-- Replace in-memory rate limiting for distributed deployment
 - Add GitHub Actions continuous integration
 - Deploy the backend and frontend
-- Add dashboard screenshots and demonstration material
-
-## Responsible Use
-
-PromptShield is designed for defensive security research, education and portfolio demonstration. Dataset examples and detection rules should be used only to improve the security of authorized AI applications.
+- Add screenshots and demonstration material
 
 ## Author
 
