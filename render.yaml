@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: promptshield-api
+    runtime: python
+    plan: free
+    rootDir: backend
+
+    buildCommand: pip install -r requirements.txt
+
+    startCommand: >
+      python -m uvicorn main:app
+      --host 0.0.0.0
+      --port $PORT
+
+    healthCheckPath: /health
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.15
+
+      - key: PROMPTSHIELD_HMAC_KEY
+        sync: false
+
+      - key: PROMPTSHIELD_AES_KEY
+        sync: false
+
+      - key: PROMPTSHIELD_JWT_SECRET
+        sync: false
+
+      - key: PROMPTSHIELD_ADMIN_USERNAME
+        value: admin
+
+      - key: PROMPTSHIELD_ADMIN_PASSWORD_HASH
+        sync: false
+
+      - key: PROMPTSHIELD_ALLOWED_ORIGINS
+        sync: false
+
+      - key: PROMPTSHIELD_RATE_LIMIT_MAX_REQUESTS
+        value: "30"
+
+      - key: PROMPTSHIELD_RATE_LIMIT_WINDOW_SECONDS
+        value: "60"
