@@ -19,23 +19,68 @@ The current implementation includes:
 - SQLite event storage
 - Automated backend and frontend testing
 - GitHub Actions continuous integration
+- A Render backend deployment
+- A Vercel frontend deployment
 
-External AI-provider forwarding and production cloud deployment remain future phases.
+The React frontend is deployed through Vercel and the FastAPI backend is deployed through Render. External AI-provider forwarding and production-grade persistent infrastructure remain future phases.
+
+## Live Deployment
+
+| Component | Platform | Address |
+|---|---|---|
+| React dashboard | Vercel | [https://prompt-shield-xi.vercel.app](https://prompt-shield-xi.vercel.app) |
+| FastAPI backend | Render | [https://promptshield-api-5g1x.onrender.com](https://promptshield-api-5g1x.onrender.com) |
+| Health check | Render | [https://promptshield-api-5g1x.onrender.com/health](https://promptshield-api-5g1x.onrender.com/health) |
+| API documentation | Render | [https://promptshield-api-5g1x.onrender.com/docs](https://promptshield-api-5g1x.onrender.com/docs) |
+
+The free Render service can enter a sleep state after inactivity. Its first request after sleeping can experience a cold-start delay.
+
+The hosted SQLite database uses an ephemeral filesystem. Hosted event records can reset after a service restart, spin-down or deployment. Local-development storage is unaffected.
 
 ## High-Level Architecture
 
 ```mermaid
 flowchart TD
-    A[Administrator] --> B[React dashboard]
+    A[Administrator] --> B[Vercel React dashboard]
     B --> C[JWT authentication]
-    C --> D[FastAPI security gateway]
+    C --> D[Render FastAPI gateway]
     D --> E[Prompt analysis pipeline]
     E --> F[Security decision]
     F --> G[Authenticated response]
     F --> H[Protected event storage]
-    H --> I[SQLite database]
+    H --> I[Ephemeral SQLite database]
     I --> B
 ```
+
+## Deployment Architecture
+
+```mermaid
+flowchart TD
+    A[GitHub repository] --> B[GitHub Actions]
+    A --> C[Vercel build]
+    A --> D[Render build]
+    C --> E[React dashboard]
+    D --> F[FastAPI backend]
+    E --> F
+```
+
+The deployment uses:
+
+- GitHub as the source repository
+- GitHub Actions for automated verification
+- Vercel for the Vite and React frontend
+- Render for the FastAPI backend
+- Vercel environment variables for the public API base URL
+- Render environment variables for private backend configuration
+- Explicit production CORS origins
+
+The frontend receives only the public backend URL through:
+
+```text
+VITE_API_BASE_URL
+```
+
+Private cryptographic values are stored only in Render environment settings.
 
 ## Authentication Architecture
 
@@ -70,7 +115,7 @@ The administrator configuration is supplied through private environment variable
 - `PROMPTSHIELD_ADMIN_PASSWORD_HASH`
 - `PROMPTSHIELD_JWT_SECRET`
 
-The plain administrator password is never stored in the repository or `.env` file.
+The plain administrator password is never stored in the repository or environment file.
 
 Password verification uses Argon2 through `pwdlib`. Username comparison uses constant-time comparison to reduce timing leakage.
 
@@ -99,10 +144,10 @@ After successful login, the React dashboard stores the access token in browser `
 
 This provides the following behavior:
 
-- The token is available to API calls within the current browser session
+- The token is available within the current browser session
 - Protected requests automatically include an `Authorization` header
 - A `401 Unauthorized` response clears the rejected token
-- Expired sessions return the user to the login screen
+- Expired sessions return the administrator to the login screen
 - Selecting **Sign out** removes the token and clears dashboard state
 - Closing the browser session removes the session token
 
@@ -222,7 +267,7 @@ flowchart TD
     A[AdminLogin] --> B[Session authentication state]
     B --> C[Prompt analysis]
     B --> D[Security statistics]
-    B --> E[Recent event investigation]
+    B --> E[Event investigation]
     C --> F[Authenticated API service]
     D --> F
     E --> F
@@ -328,6 +373,8 @@ PromptShield configures SQLite with:
 | Foreign-key check | Detect invalid table relationships |
 | Startup verification | Refuse startup when integrity verification fails |
 
+These controls protect database consistency, but they do not make SQLite persistent on Render's free ephemeral filesystem.
+
 ## Cryptographic Components
 
 | Component | Algorithm | Purpose |
@@ -339,7 +386,7 @@ PromptShield configures SQLite with:
 | Preview encryption | AES-256-GCM | Protect redacted prompt previews |
 | Username and signature comparison | Constant-time comparison | Reduce timing leakage |
 
-JWT, AES and HMAC secrets are supplied through environment variables and excluded from Git.
+JWT, AES and HMAC secrets are supplied through private environment variables and excluded from Git.
 
 ## API Components
 
@@ -418,9 +465,18 @@ The backend:
 
 Original sensitive values are excluded. Redacted previews are encrypted and event metadata is authenticated through the audit chain.
 
-### 4. Environment to security services
+### 4. Deployment environment to security services
 
-JWT, HMAC and AES keys, along with the administrator password hash, are loaded from private environment configuration and must never enter source control.
+JWT, HMAC and AES keys, along with the administrator password hash, are stored as private environment variables.
+
+These values must never be added to:
+
+- Git
+- GitHub
+- `render.yaml`
+- Vercel frontend variables
+- Screenshots
+- Public logs
 
 ## Configuration Validation
 
@@ -481,11 +537,12 @@ The current automated-test totals are:
 - There is no centralized session-revocation store.
 - The rate limiter is stored in process memory.
 - Multiple server processes would not share rate-limit state.
+- The free Render backend can experience a cold-start delay.
+- The free Render filesystem is ephemeral, so hosted SQLite events can reset.
 - SQLite is intended for local or small-scale use.
 - Production key rotation is not implemented.
 - The audit chain is not coordinated across distributed databases.
 - External AI-provider forwarding is not yet implemented.
-- Cloud deployment is not yet implemented.
 - The project has not undergone an independent penetration test.
 - The ML classifier remains probabilistic and cannot detect every unseen attack.
 
@@ -493,17 +550,17 @@ The current automated-test totals are:
 
 ```mermaid
 flowchart TD
-    A[Current authenticated platform] --> B[Architecture documentation]
-    B --> C[Deployment configuration]
-    C --> D[Hosted backend and frontend]
-    D --> E[Role-based access control]
-    E --> F[Session revocation and key rotation]
+    A[Current deployed platform] --> B[Persistent production storage]
+    B --> C[Role-based access control]
+    C --> D[Session revocation]
+    D --> E[Managed key rotation]
+    E --> F[External AI integration]
     F --> G[Portfolio release]
 ```
 
 Planned improvements include:
 
-- Production deployment
+- Persistent production storage
 - Multi-user role-based access control
 - Refresh-token rotation
 - Centralized session revocation

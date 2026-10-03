@@ -26,6 +26,19 @@ The backend security platform, expanded machine-learning pipeline and authentica
 - Privacy-aware security-event investigation
 - Audit-chain integrity monitoring
 - GitHub Actions continuous integration
+- Live React deployment on Vercel
+- Live FastAPI deployment on Render
+
+## Live Deployment
+
+- React dashboard: [https://prompt-shield-xi.vercel.app](https://prompt-shield-xi.vercel.app)
+- FastAPI backend: [https://promptshield-api-5g1x.onrender.com](https://promptshield-api-5g1x.onrender.com)
+- Backend health check: [https://promptshield-api-5g1x.onrender.com/health](https://promptshield-api-5g1x.onrender.com/health)
+- Interactive API documentation: [https://promptshield-api-5g1x.onrender.com/docs](https://promptshield-api-5g1x.onrender.com/docs)
+
+The backend uses Render's free service tier. Its first request after a period of inactivity may take approximately one minute while the service wakes.
+
+The hosted SQLite database uses Render's ephemeral filesystem. Hosted event history may reset after a restart, spin-down or deployment. The local-development database is unaffected.
 
 ## Features
 
@@ -421,9 +434,10 @@ http://127.0.0.1:8000/docs
 - GitHub Actions
 - Visual Studio Code
 
-### Planned infrastructure
+### Deployment
 
-- Cloud deployment
+- Render
+- Vercel
 
 ## Project Structure
 
@@ -825,6 +839,8 @@ Current limitations include:
 - Detection rules require continued evaluation against new attacks
 - Model probabilities should not be interpreted as guaranteed security
 - No security tool can reliably detect every unseen adversarial prompt
+- The free hosted SQLite database is ephemeral and can reset after Render restarts or deployments
+- The free backend may have a cold-start delay after inactivity
 
 PromptShield should be used as one layer within a defense-in-depth security design.
 
@@ -854,8 +870,9 @@ The Guardian0369 Prompt-injection-and-PII dataset is not currently included beca
 - Expand multilingual and obfuscated attack evaluation
 - Evaluate additional clearly licensed prompt-security datasets
 - Add stronger final holdout datasets
-- Deploy the backend and frontend
+
 - Add screenshots and demonstration material
+
 
 ## Author
 
