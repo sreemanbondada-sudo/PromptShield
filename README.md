@@ -2,14 +2,15 @@
 
 [![PromptShield CI](https://github.com/sreemanbondada-sudo/PromptShield/actions/workflows/ci.yml/badge.svg)](https://github.com/sreemanbondada-sudo/PromptShield/actions/workflows/ci.yml)
 
-PromptShield is an explainable security gateway that analyzes user prompts before they reach an AI application. It combines deterministic security rules, sensitive-data detection, machine learning, cryptographic protection and tamper-evident logging through a FastAPI backend and React dashboard.
+PromptShield is an explainable security gateway that analyzes user prompts before they reach an AI application. It combines deterministic security rules, sensitive-data detection, machine learning, cryptographic protection, authenticated administration and tamper-evident logging through a FastAPI backend and React dashboard.
 
 ## Project Status
 
-The backend security platform, expanded machine-learning pipeline and React dashboard are operational.
+The backend security platform, expanded machine-learning pipeline and authenticated React dashboard are operational.
 
-- 128 backend tests passing
-- 20 frontend tests passing
+- 149 backend tests passing
+- 31 frontend tests passing
+- JWT administrator authentication for protected API routes
 - Hybrid rule-based and machine-learning detection
 - Sensitive-data detection and redaction
 - HMAC-SHA-256 integrity verification
@@ -28,12 +29,37 @@ The backend security platform, expanded machine-learning pipeline and React dash
 
 ## Features
 
+### Administrator authentication
+
+PromptShield protects its security operations using administrator authentication and signed JSON Web Tokens.
+
+The authentication design includes:
+
+- Argon2 administrator-password hashing
+- HMAC-SHA-256 JWT signing
+- Configurable administrator credentials
+- Constant-time username comparison
+- Thirty-minute access-token expiration
+- Bearer-token validation for protected endpoints
+- Session-token storage in the browser's `sessionStorage`
+- Automatic removal of rejected or expired tokens
+- Explicit dashboard sign-out
+- Public health monitoring without authentication
+- Startup validation of authentication configuration
+
+The dashboard never stores the administrator password. The access token is stored only for the current browser session.
+
+PromptShield currently supports one configured administrator account. Multi-user role-based access control is planned.
+
 ### React security dashboard
 
 PromptShield includes a responsive React and Vite dashboard connected to the FastAPI backend.
 
 The dashboard provides:
 
+- Secure administrator sign-in and sign-out
+- Authenticated API communication
+- Expired-session handling
 - Real-time prompt analysis
 - API health monitoring
 - Recommended actions and risk scores
@@ -171,7 +197,7 @@ These measurements are development results and should not be interpreted as proo
 
 ### ScamBench research experiment
 
-PromptShield also includes a controlled research experiment using the English subset of `shaw/scambench-training`.
+PromptShield includes a controlled research experiment using the English subset of `shaw/scambench-training`.
 
 The preparation process:
 
@@ -273,6 +299,10 @@ PromptShield does not store the original unredacted prompt.
 
 The backend includes:
 
+- Administrator authentication
+- Signed and expiring JWT access tokens
+- Argon2 password verification
+- Protected security and analysis endpoints
 - Explicit CORS origins
 - Security response headers
 - Sliding-window rate limiting
@@ -285,6 +315,8 @@ The backend includes:
 - SQLite busy timeout
 - SQLite WAL mode
 - Explicit database transactions
+
+The root, health and login endpoints remain public. Analysis, event, statistics, integrity, audit and standalone ML endpoints require a valid administrator bearer token.
 
 The health endpoint remains outside the prompt-analysis rate limit so monitoring systems can continue checking API availability.
 
@@ -311,38 +343,44 @@ The workflow uses CI-only test credentials. Real application secrets are never c
 
 ```mermaid
 flowchart TD
-    A[User prompt] --> B[React dashboard]
-    B --> C[FastAPI security gateway]
-    C --> D[Rule engine]
-    C --> E[Sensitive-data detector]
-    C --> F[ML classifier]
-    D --> G[Hybrid decision engine]
-    E --> G
-    F --> G
-    G --> H[Allow, review, redact or block]
-    G --> I[Security event]
-    I --> J[HMAC audit chain]
-    G --> K[Redacted preview]
-    K --> L[AES-GCM encryption]
-    J --> M[SQLite]
+    A[Administrator] --> B[React login]
+    B --> C[JWT authentication]
+    C --> D[React security dashboard]
+    D --> E[FastAPI security gateway]
+    E --> F[Rule and sensitive-data detection]
+    E --> G[ML classifier]
+    F --> H[Hybrid decision engine]
+    G --> H
+    H --> I[Allow, review, redact or block]
+    H --> J[Protected security event]
+    J --> K[HMAC audit chain]
+    J --> L[AES-GCM encrypted preview]
+    K --> M[SQLite]
     L --> M
-    M --> N[Dashboard statistics and events]
+    M --> D
 ```
 
 Additional architecture documentation is available in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## API Endpoints
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| GET | `/` | Application status |
-| GET | `/health` | API health check |
-| POST | `/analyze` | Hybrid prompt and sensitive-data analysis |
-| POST | `/ml/analyze` | Standalone ML classification |
-| GET | `/events` | Recent security events |
-| GET | `/statistics` | Security statistics |
-| POST | `/integrity/verify` | HMAC-SHA-256 verification |
-| GET | `/audit/verify` | Audit-chain verification |
+| Method | Endpoint | Access | Purpose |
+|---|---|---|---|
+| GET | `/` | Public | Application status |
+| GET | `/health` | Public | API health check |
+| POST | `/auth/login` | Public | Administrator authentication and JWT issuance |
+| POST | `/analyze` | Administrator | Hybrid prompt and sensitive-data analysis |
+| POST | `/ml/analyze` | Administrator | Standalone ML classification |
+| GET | `/events` | Administrator | Recent security events |
+| GET | `/statistics` | Administrator | Security statistics |
+| POST | `/integrity/verify` | Administrator | HMAC-SHA-256 verification |
+| GET | `/audit/verify` | Administrator | Audit-chain verification |
+
+Protected endpoints require this HTTP header:
+
+```text
+Authorization: Bearer <access-token>
+```
 
 Interactive API documentation is available while the backend is running:
 
@@ -360,6 +398,8 @@ http://127.0.0.1:8000/docs
 - SQLite
 - scikit-learn
 - pytest
+- PyJWT
+- pwdlib with Argon2
 - HMAC-SHA-256
 - AES-256-GCM
 - python-dotenv
@@ -412,7 +452,12 @@ PromptShield/
 │   │   ├── model_comparison.json
 │   │   └── evaluation reports
 │   ├── tests/
+│   │   ├── test_auth_api.py
+│   │   ├── test_auth_service.py
+│   │   └── additional backend tests
 │   ├── audit_service.py
+│   ├── auth_dependencies.py
+│   ├── auth_service.py
 │   ├── config.py
 │   ├── database.py
 │   ├── detector.py
@@ -443,6 +488,8 @@ PromptShield/
 │   ├── public/
 │   ├── src/
 │   │   ├── components/
+│   │   │   ├── AdminLogin.jsx
+│   │   │   ├── AdminLogin.test.jsx
 │   │   │   ├── RecentEvents.jsx
 │   │   │   ├── RecentEvents.test.jsx
 │   │   │   ├── SecurityBreakdown.jsx
@@ -510,15 +557,32 @@ Generate a Base64-encoded AES-256 key:
 python -c "import base64, secrets; print(base64.urlsafe_b64encode(secrets.token_bytes(32)).decode())"
 ```
 
-Add the values to `.env`:
+Generate a JWT signing secret:
+
+```powershell
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+Generate an Argon2 administrator-password hash without displaying the password:
+
+```powershell
+python -c "from getpass import getpass; from pwdlib import PasswordHash; print(PasswordHash.recommended().hash(getpass('Administrator password: ')))"
+```
+
+Add the configuration to `.env`:
 
 ```env
 PROMPTSHIELD_HMAC_KEY=your-private-hmac-key
 PROMPTSHIELD_AES_KEY=your-base64-encoded-aes-key
+PROMPTSHIELD_JWT_SECRET=your-private-jwt-secret
+PROMPTSHIELD_ADMIN_USERNAME=admin
+PROMPTSHIELD_ADMIN_PASSWORD_HASH=your-generated-argon2-password-hash
 PROMPTSHIELD_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+PROMPTSHIELD_RATE_LIMIT_MAX_REQUESTS=30
+PROMPTSHIELD_RATE_LIMIT_WINDOW_SECONDS=60
 ```
 
-Never commit `.env` or share its secret values.
+Never commit `.env`, share its secret values or place the plain administrator password in the file.
 
 ### 5. Train the production ML model
 
@@ -555,7 +619,7 @@ python -m pytest -v
 Current result:
 
 ```text
-128 passed
+149 passed
 ```
 
 One dependency deprecation warning may appear from FastAPI's current `TestClient` integration. It does not indicate a failed test.
@@ -598,7 +662,7 @@ npm test
 Current result:
 
 ```text
-20 passed
+31 passed
 ```
 
 ### 12. Run frontend quality checks
@@ -619,6 +683,8 @@ Open:
 ```text
 http://localhost:5173
 ```
+
+Sign in using the administrator username and the plain password used to create `PROMPTSHIELD_ADMIN_PASSWORD_HASH`.
 
 The backend and frontend must both be running for the complete dashboard to work.
 
@@ -653,17 +719,28 @@ The backend test suite covers:
 - Dataset validation
 - Temporary test-database isolation
 - ScamBench user-message extraction
+- Administrator credential verification
+- Argon2 password hashing and verification
+- JWT creation, validation and expiration
+- Protected API endpoint authorization
+- Invalid and expired token rejection
 
 Current result:
 
 ```text
-128 passed
+149 passed
 ```
 
 ### Frontend testing
 
 The frontend test suite covers:
 
+- Administrator login and logout
+- Login failure handling
+- Session-token storage
+- Authorization headers
+- Missing-session handling
+- Expired-session handling
 - Dashboard API integration
 - API status rendering
 - Prompt submission
@@ -686,7 +763,7 @@ The frontend test suite covers:
 Current result:
 
 ```text
-20 passed
+31 passed
 ```
 
 ## Reproducing the ScamBench Experiment
@@ -735,11 +812,13 @@ PromptShield is currently an academic and portfolio project.
 
 Current limitations include:
 
+- Authentication currently supports one configured administrator rather than multi-user role-based access control
+- Access tokens currently use fixed expiration without a refresh-token workflow
 - Classical TF-IDF and Logistic Regression instead of a transformer model
 - Limited manually curated PromptShield challenge data
 - Dataset-specific language and annotation differences
-- No user authentication or authorization
 - In-memory rate limiting that is not shared across multiple server instances
+- No production identity provider
 - No production key-management service
 - No public encrypted-preview retrieval workflow
 - SQLite is intended for local development
@@ -770,7 +849,8 @@ The Guardian0369 Prompt-injection-and-PII dataset is not currently included beca
 
 ## Roadmap
 
-- Add user authentication and authorization
+- Add multi-user role-based access control
+- Add refresh-token rotation and session revocation
 - Expand multilingual and obfuscated attack evaluation
 - Evaluate additional clearly licensed prompt-security datasets
 - Add stronger final holdout datasets

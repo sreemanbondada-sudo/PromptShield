@@ -10,8 +10,15 @@ import {
 import {
   analyzePrompt,
   checkApiHealth,
+  clearAccessToken,
+  getAccessToken,
   getRecentEvents,
+  isAuthenticated,
+  loginAdmin,
+  logoutAdmin,
+  setAccessToken,
 } from './api'
+
 
 function createResponse({
   body,
@@ -25,16 +32,20 @@ function createResponse({
   }
 }
 
+
 describe('frontend API service', () => {
   beforeEach(() => {
+    sessionStorage.clear()
     vi.stubGlobal('fetch', vi.fn())
   })
 
   afterEach(() => {
+    sessionStorage.clear()
     vi.unstubAllGlobals()
   })
 
-  test('requests the backend health endpoint', async () => {
+
+  test('requests the public health endpoint', async () => {
     fetch.mockResolvedValue(
       createResponse({
         body: {
@@ -54,34 +65,65 @@ describe('frontend API service', () => {
       }),
     )
 
+    expect(
+      fetch.mock.calls[0][1].headers.Authorization,
+    ).toBeUndefined()
+
     expect(result).toEqual({
       status: 'healthy',
     })
   })
 
-  test('sends prompts as JSON for analysis', async () => {
+
+  test('logs in and stores the access token', async () => {
     fetch.mockResolvedValue(
       createResponse({
         body: {
-          recommended_action: 'allow',
+          access_token: 'test-access-token',
+          token_type: 'bearer',
+          expires_in: 1800,
         },
       }),
     )
 
-    await analyzePrompt('Explain the solar system.')
+    const result = await loginAdmin(
+      'admin',
+      'correct-test-password',
+    )
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://127.0.0.1:8000/analyze',
+      'http://127.0.0.1:8000/auth/login',
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({
-          prompt: 'Explain the solar system.',
+          username: 'admin',
+          password: 'correct-test-password',
         }),
       }),
     )
+
+    expect(result.token_type).toBe('bearer')
+    expect(getAccessToken()).toBe(
+      'test-access-token',
+    )
+    expect(isAuthenticated()).toBe(true)
   })
 
-  test('requests a limited number of recent events', async () => {
+
+  test('requires authentication for protected requests', async () => {
+    await expect(
+      getRecentEvents(5),
+    ).rejects.toThrow(
+      'Administrator authentication is required.',
+    )
+
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+
+  test('sends the bearer token with protected requests', async () => {
+    setAccessToken('test-access-token')
+
     fetch.mockResolvedValue(
       createResponse({
         body: {
@@ -94,11 +136,50 @@ describe('frontend API service', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       'http://127.0.0.1:8000/events?limit=5',
-      expect.any(Object),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization:
+            'Bearer test-access-token',
+        }),
+      }),
     )
   })
 
+
+  test('sends prompts as authenticated JSON requests', async () => {
+    setAccessToken('test-access-token')
+
+    fetch.mockResolvedValue(
+      createResponse({
+        body: {
+          recommended_action: 'allow',
+        },
+      }),
+    )
+
+    await analyzePrompt(
+      'Explain the solar system.',
+    )
+
+    expect(fetch).toHaveBeenCalledWith(
+      'http://127.0.0.1:8000/analyze',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          prompt: 'Explain the solar system.',
+        }),
+        headers: expect.objectContaining({
+          Authorization:
+            'Bearer test-access-token',
+        }),
+      }),
+    )
+  })
+
+
   test('uses the backend safe error message', async () => {
+    setAccessToken('test-access-token')
+
     fetch.mockResolvedValue(
       createResponse({
         ok: false,
@@ -106,7 +187,8 @@ describe('frontend API service', () => {
         body: {
           error: 'rate_limit_exceeded',
           message:
-            'Too many analysis requests. Please try again later.',
+            'Too many analysis requests. ' +
+            'Please try again later.',
         },
       }),
     )
@@ -114,7 +196,54 @@ describe('frontend API service', () => {
     await expect(
       analyzePrompt('Test prompt'),
     ).rejects.toThrow(
-      'Too many analysis requests. Please try again later.',
+      'Too many analysis requests. ' +
+        'Please try again later.',
     )
+  })
+
+
+  test('clears an expired unauthorized session', async () => {
+    setAccessToken('expired-access-token')
+
+    fetch.mockResolvedValue(
+      createResponse({
+        ok: false,
+        status: 401,
+        body: {
+          detail: 'Invalid authentication credentials.',
+        },
+      }),
+    )
+
+    await expect(
+      getRecentEvents(),
+    ).rejects.toThrow(
+      'Your administrator session has expired. ' +
+        'Please sign in again.',
+    )
+
+    expect(getAccessToken()).toBeNull()
+    expect(isAuthenticated()).toBe(false)
+  })
+
+
+  test('logs the administrator out', () => {
+    setAccessToken('test-access-token')
+
+    expect(isAuthenticated()).toBe(true)
+
+    logoutAdmin()
+
+    expect(getAccessToken()).toBeNull()
+    expect(isAuthenticated()).toBe(false)
+  })
+
+
+  test('can clear a stored token directly', () => {
+    setAccessToken('test-access-token')
+
+    clearAccessToken()
+
+    expect(getAccessToken()).toBeNull()
   })
 })

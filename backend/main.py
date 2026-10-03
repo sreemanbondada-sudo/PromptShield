@@ -1,9 +1,23 @@
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import (
+    Depends,
+    FastAPI,
+    HTTPException,
+    Query,
+)
 from fastapi.middleware.cors import CORSMiddleware
 
+from auth_dependencies import (
+    authentication_error,
+    require_admin,
+)
+from auth_service import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    authenticate_admin,
+    create_access_token,
+)
 from config import (
     get_allowed_origins,
     get_rate_limit_settings,
@@ -17,36 +31,36 @@ from database import (
     save_security_event,
     verify_audit_chain,
 )
-
 from detector import analyze_prompt
 from error_handlers import register_error_handlers
 from integrity_service import verify_signature
 from ml_detector import analyze_prompt_with_ml
+from rate_limiter import RateLimitMiddleware
+from request_controls import (
+    RequestSizeLimitMiddleware,
+)
+from request_logging import (
+    PrivacySafeRequestLoggingMiddleware,
+)
 from schemas import (
     AnalyzeRequest,
     AnalyzeResponse,
     IntegrityVerifyRequest,
     IntegrityVerifyResponse,
+    LoginRequest,
     MLAnalysisResponse,
+    TokenResponse,
+)
+from security_headers import (
+    SecurityHeadersMiddleware,
 )
 from sensitive_detector import detect_sensitive_data
-
-from request_controls import (
-    RequestSizeLimitMiddleware,
-)
-
-from rate_limiter import RateLimitMiddleware
-
-from security_headers import SecurityHeadersMiddleware
-
-from request_logging import (
-    PrivacySafeRequestLoggingMiddleware,
-)
 
 
 load_dotenv()
 
 rate_limit_settings = get_rate_limit_settings()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -71,12 +85,13 @@ app = FastAPI(
         "Security API for detecting malicious AI prompts, "
         "sensitive-data exposure and integrity violations."
     ),
-    version="0.7.0",
+    version="0.8.0",
     lifespan=lifespan,
 )
 
 
 register_error_handlers(app)
+
 
 app.add_middleware(
     RateLimitMiddleware,
@@ -93,9 +108,11 @@ app.add_middleware(
     RequestSizeLimitMiddleware,
 )
 
+
 app.add_middleware(
     PrivacySafeRequestLoggingMiddleware,
 )
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -107,8 +124,10 @@ app.add_middleware(
     ],
     allow_headers=[
         "Content-Type",
+        "Authorization",
     ],
 )
+
 
 app.add_middleware(
     SecurityHeadersMiddleware,
@@ -131,10 +150,49 @@ def health_check():
 
 
 @app.post(
+    "/auth/login",
+    response_model=TokenResponse,
+)
+def login(request: LoginRequest):
+    """Authenticate the configured administrator."""
+    try:
+        authenticated = authenticate_admin(
+            username=request.username,
+            password=request.password,
+        )
+
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Authentication service is unavailable."
+            ),
+        ) from error
+
+    if not authenticated:
+        raise authentication_error()
+
+    access_token = create_access_token(
+        subject=request.username,
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "expires_in": (
+            ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        ),
+    }
+
+
+@app.post(
     "/analyze",
     response_model=AnalyzeResponse,
 )
-def analyze(request: AnalyzeRequest):
+def analyze(
+    request: AnalyzeRequest,
+    _admin: str = Depends(require_admin),
+):
     prompt_result = analyze_prompt(request.prompt)
 
     sensitive_result = detect_sensitive_data(
@@ -254,6 +312,7 @@ def events(
         ge=1,
         le=100,
     ),
+    _admin: str = Depends(require_admin),
 ):
     return {
         "events": get_recent_events(limit=limit),
@@ -261,7 +320,9 @@ def events(
 
 
 @app.get("/statistics")
-def statistics():
+def statistics(
+    _admin: str = Depends(require_admin),
+):
     return get_statistics()
 
 
@@ -271,6 +332,7 @@ def statistics():
 )
 def verify_integrity(
     request: IntegrityVerifyRequest,
+    _admin: str = Depends(require_admin),
 ):
     try:
         valid = verify_signature(
@@ -291,7 +353,9 @@ def verify_integrity(
 
 
 @app.get("/audit/verify")
-def verify_database_audit_chain():
+def verify_database_audit_chain(
+    _admin: str = Depends(require_admin),
+):
     try:
         return verify_audit_chain()
 
@@ -308,6 +372,7 @@ def verify_database_audit_chain():
 )
 def analyze_with_machine_learning(
     request: AnalyzeRequest,
+    _admin: str = Depends(require_admin),
 ):
     try:
         return analyze_prompt_with_ml(

@@ -1,6 +1,13 @@
 import os
 from pathlib import Path
 
+from auth_service import (
+    ADMIN_PASSWORD_HASH_ENVIRONMENT_VARIABLE,
+    ADMIN_USERNAME_ENVIRONMENT_VARIABLE,
+    JWT_SECRET_ENVIRONMENT_VARIABLE,
+    get_admin_credentials,
+    get_jwt_secret,
+)
 from encryption_service import get_aes_key
 from integrity_service import get_hmac_key
 from ml_detector import DEFAULT_MODEL_PATH
@@ -117,6 +124,7 @@ def validate_configuration(
 
     except RuntimeError as error:
         errors.append(str(error))
+        hmac_key = None
 
     try:
         aes_key = get_aes_key()
@@ -124,6 +132,31 @@ def validate_configuration(
     except RuntimeError as error:
         errors.append(str(error))
         aes_key = None
+
+    try:
+        jwt_secret = get_jwt_secret()
+
+    except RuntimeError as error:
+        errors.append(str(error))
+        jwt_secret = None
+
+    try:
+        admin_username, admin_password_hash = (
+            get_admin_credentials()
+        )
+
+        if not admin_password_hash.startswith(
+            "$argon2"
+        ):
+            errors.append(
+                f"{ADMIN_PASSWORD_HASH_ENVIRONMENT_VARIABLE} "
+                "must contain an Argon2 password hash."
+            )
+
+    except RuntimeError as error:
+        errors.append(str(error))
+        admin_username = None
+        admin_password_hash = None
 
     try:
         rate_limit_settings = get_rate_limit_settings()
@@ -154,6 +187,12 @@ def validate_configuration(
         "hmac_key_length": len(hmac_key),
         "aes_configured": True,
         "aes_key_bits": len(aes_key) * 8,
+        "authentication_configured": True,
+        "jwt_secret_length": len(jwt_secret),
+        "admin_username": admin_username,
+        "admin_password_hash_configured": bool(
+            admin_password_hash
+        ),
         "model_configured": True,
         "model_path": str(model_path),
         "rate_limit_configured": True,

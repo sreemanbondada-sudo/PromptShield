@@ -3,16 +3,22 @@ import {
   useEffect,
   useState,
 } from 'react'
+
 import './App.css'
+import AdminLogin from './components/AdminLogin'
 import RecentEvents from './components/RecentEvents'
 import SecurityBreakdown from './components/SecurityBreakdown'
+
 import {
   analyzePrompt,
   checkApiHealth,
   getRecentEvents,
   getStatistics,
+  isAuthenticated,
+  logoutAdmin,
   verifyAuditChain,
 } from './services/api'
+
 
 function formatLabel(value) {
   if (!value) {
@@ -21,51 +27,98 @@ function formatLabel(value) {
 
   return value
     .replaceAll('_', ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+    .replace(/\b\w/g, (letter) =>
+      letter.toUpperCase(),
+    )
 }
+
 
 function App() {
   const [prompt, setPrompt] = useState('')
-  const [apiStatus, setApiStatus] = useState('checking')
+  const [apiStatus, setApiStatus] =
+    useState('checking')
   const [analysis, setAnalysis] = useState(null)
-  const [recentEvents, setRecentEvents] = useState([])
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [recentEvents, setRecentEvents] =
+    useState([])
+  const [isAnalyzing, setIsAnalyzing] =
+    useState(false)
   const [error, setError] = useState('')
-  const [statistics, setStatistics] = useState(null)
-  const [auditStatus, setAuditStatus] = useState(null)
+  const [statistics, setStatistics] =
+    useState(null)
+  const [auditStatus, setAuditStatus] =
+    useState(null)
+  const [isLoggedIn, setIsLoggedIn] =
+    useState(() => isAuthenticated())
 
-  const loadDashboardSummary = useCallback(async () => {
-  const [
-    statisticsResult,
-    auditResult,
-    eventsResult,
-  ] = await Promise.allSettled([
-    getStatistics(),
-    verifyAuditChain(),
-    getRecentEvents(10),
-  ])
 
-  if (statisticsResult.status === 'fulfilled') {
-    setStatistics(statisticsResult.value)
-  }
+  const clearDashboardData = useCallback(() => {
+    setPrompt('')
+    setAnalysis(null)
+    setRecentEvents([])
+    setStatistics(null)
+    setAuditStatus(null)
+    setError('')
+  }, [])
 
-  if (auditResult.status === 'fulfilled') {
-    setAuditStatus(auditResult.value)
-  }
 
-  if (eventsResult.status === 'fulfilled') {
-    setRecentEvents(eventsResult.value.events)
-  }
-}, [])
+  const handleExpiredSession = useCallback(() => {
+    if (!isAuthenticated()) {
+      clearDashboardData()
+      setIsLoggedIn(false)
+      return true
+    }
+
+    return false
+  }, [clearDashboardData])
+
+
+  const loadDashboardSummary = useCallback(
+    async () => {
+      const [
+        statisticsResult,
+        auditResult,
+        eventsResult,
+      ] = await Promise.allSettled([
+        getStatistics(),
+        verifyAuditChain(),
+        getRecentEvents(10),
+      ])
+
+      if (handleExpiredSession()) {
+        return
+      }
+
+      if (
+        statisticsResult.status === 'fulfilled'
+      ) {
+        setStatistics(statisticsResult.value)
+      }
+
+      if (auditResult.status === 'fulfilled') {
+        setAuditStatus(auditResult.value)
+      }
+
+      if (eventsResult.status === 'fulfilled') {
+        setRecentEvents(
+          eventsResult.value.events,
+        )
+      }
+    },
+    [handleExpiredSession],
+  )
+
 
   useEffect(() => {
     let isMounted = true
 
-    async function loadInitialData() {
+    async function checkBackendHealth() {
       try {
         const result = await checkApiHealth()
 
-        if (isMounted && result.status === 'healthy') {
+        if (
+          isMounted &&
+          result.status === 'healthy'
+        ) {
           setApiStatus('online')
         }
       } catch {
@@ -73,18 +126,46 @@ function App() {
           setApiStatus('offline')
         }
       }
-
-      if (isMounted) {
-        await loadDashboardSummary()
-      }
     }
 
-    loadInitialData()
+    checkBackendHealth()
 
     return () => {
       isMounted = false
     }
-  }, [loadDashboardSummary])
+  }, [])
+
+
+  useEffect(() => {
+  if (!isLoggedIn) {
+    return undefined
+  }
+
+  const loadTimer = window.setTimeout(() => {
+    loadDashboardSummary()
+  }, 0)
+
+  return () => {
+    window.clearTimeout(loadTimer)
+  }
+}, [
+  isLoggedIn,
+  loadDashboardSummary,
+])
+
+
+  function handleLogin() {
+    setIsLoggedIn(true)
+    setError('')
+  }
+
+
+  function handleLogout() {
+    logoutAdmin()
+    clearDashboardData()
+    setIsLoggedIn(false)
+  }
+
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -100,18 +181,36 @@ function App() {
     setAnalysis(null)
 
     try {
-      const result = await analyzePrompt(trimmedPrompt)
+      const result = await analyzePrompt(
+        trimmedPrompt,
+      )
+
       setAnalysis(result)
       await loadDashboardSummary()
     } catch (requestError) {
-      setError(
-        requestError.message ||
-          'Prompt analysis failed. Please try again.',
-      )
+      if (!handleExpiredSession()) {
+        setError(
+          requestError.message ||
+            'Prompt analysis failed. Please try again.',
+        )
+      }
     } finally {
       setIsAnalyzing(false)
     }
   }
+
+
+  async function handleRefreshEvents() {
+    try {
+      const result = await getRecentEvents(10)
+
+      setRecentEvents(result.events)
+    } catch (requestError) {
+      handleExpiredSession()
+      throw requestError
+    }
+  }
+
 
   function handleClear() {
     setPrompt('')
@@ -119,11 +218,24 @@ function App() {
     setError('')
   }
 
+
+  if (!isLoggedIn) {
+    return (
+      <AdminLogin
+        onLogin={handleLogin}
+      />
+    )
+  }
+
+
   return (
     <div className="app-shell">
       <header className="topbar">
         <div className="brand">
-          <div className="brand-mark" aria-hidden="true">
+          <div
+            className="brand-mark"
+            aria-hidden="true"
+          >
             PS
           </div>
 
@@ -133,28 +245,49 @@ function App() {
           </div>
         </div>
 
-        <div className="system-status">
-          <span className={`status-dot ${apiStatus}`} />
+        <div className="topbar-actions">
+          <div className="system-status">
+            <span
+              className={`status-dot ${apiStatus}`}
+            />
 
-          {apiStatus === 'online' && 'API online'}
-          {apiStatus === 'offline' && 'API unavailable'}
-          {apiStatus === 'checking' && 'Checking API'}
+            {apiStatus === 'online' &&
+              'API online'}
+
+            {apiStatus === 'offline' &&
+              'API unavailable'}
+
+            {apiStatus === 'checking' &&
+              'Checking API'}
+          </div>
+
+          <button
+            className="logout-button"
+            type="button"
+            onClick={handleLogout}
+          >
+            Sign out
+          </button>
         </div>
       </header>
 
       <main className="dashboard">
         <section className="hero-section">
           <div>
-            <p className="eyebrow">REAL-TIME AI SECURITY</p>
+            <p className="eyebrow">
+              REAL-TIME AI SECURITY
+            </p>
 
             <h2>
-              Analyze prompts before they reach your AI application.
+              Analyze prompts before they reach your
+              AI application.
             </h2>
 
             <p className="hero-description">
-              Detect prompt injection, sensitive-data exposure and
-              suspicious machine-learning patterns through one
-              explainable security gateway.
+              Detect prompt injection, sensitive-data
+              exposure and suspicious machine-learning
+              patterns through one explainable security
+              gateway.
             </p>
           </div>
 
@@ -169,7 +302,10 @@ function App() {
           <article className="panel prompt-panel">
             <div className="panel-heading">
               <div>
-                <p className="section-label">PROMPT ANALYSIS</p>
+                <p className="section-label">
+                  PROMPT ANALYSIS
+                </p>
+
                 <h3>Inspect a user prompt</h3>
               </div>
 
@@ -187,13 +323,21 @@ function App() {
                 id="prompt"
                 value={prompt}
                 maxLength={5000}
-                onChange={(event) => setPrompt(event.target.value)}
-                placeholder="Enter a prompt to inspect for security risks..."
+                onChange={(event) =>
+                  setPrompt(event.target.value)
+                }
+                placeholder={
+                  'Enter a prompt to inspect for ' +
+                  'security risks...'
+                }
                 disabled={isAnalyzing}
               />
 
               {error && (
-                <div className="error-message" role="alert">
+                <div
+                  className="error-message"
+                  role="alert"
+                >
                   {error}
                 </div>
               )}
@@ -203,7 +347,11 @@ function App() {
                   className="secondary-button"
                   type="button"
                   onClick={handleClear}
-                  disabled={!prompt && !analysis && !error}
+                  disabled={
+                    !prompt &&
+                    !analysis &&
+                    !error
+                  }
                 >
                   Clear
                 </button>
@@ -211,7 +359,10 @@ function App() {
                 <button
                   className="primary-button"
                   type="submit"
-                  disabled={!prompt.trim() || isAnalyzing}
+                  disabled={
+                    !prompt.trim() ||
+                    isAnalyzing
+                  }
                 >
                   {isAnalyzing
                     ? 'Analyzing...'
@@ -222,32 +373,41 @@ function App() {
           </article>
 
           <article className="panel result-panel">
-            <p className="section-label">ANALYSIS RESULT</p>
+            <p className="section-label">
+              ANALYSIS RESULT
+            </p>
 
             {!analysis && !isAnalyzing && (
               <div className="empty-result">
-                <div className="shield-icon" aria-hidden="true">
+                <div
+                  className="shield-icon"
+                  aria-hidden="true"
+                >
                   ✓
                 </div>
 
                 <h3>Ready to inspect</h3>
 
                 <p>
-                  Submit a prompt to view its verdict, risk score,
-                  attack category, ML probability and recommended
-                  action.
+                  Submit a prompt to view its verdict,
+                  risk score, attack category, ML
+                  probability and recommended action.
                 </p>
               </div>
             )}
 
             {isAnalyzing && (
-              <div className="empty-result" aria-live="polite">
+              <div
+                className="empty-result"
+                aria-live="polite"
+              >
                 <div className="loading-spinner" />
 
                 <h3>Analyzing prompt</h3>
 
                 <p>
-                  PromptShield is running its security detectors.
+                  PromptShield is running its security
+                  detectors.
                 </p>
               </div>
             )}
@@ -255,7 +415,10 @@ function App() {
             {analysis && !isAnalyzing && (
               <div className="analysis-result">
                 <div
-                  className={`verdict verdict-${analysis.recommended_action}`}
+                  className={
+                    `verdict verdict-` +
+                    analysis.recommended_action
+                  }
                 >
                   <span>Recommended action</span>
 
@@ -269,28 +432,40 @@ function App() {
                 <div className="result-metrics">
                   <div>
                     <span>Risk score</span>
-                    <strong>{analysis.risk_score}/100</strong>
+                    <strong>
+                      {analysis.risk_score}/100
+                    </strong>
                   </div>
 
                   <div>
                     <span>Risk level</span>
+
                     <strong>
-                      {formatLabel(analysis.risk_level)}
+                      {formatLabel(
+                        analysis.risk_level,
+                      )}
                     </strong>
                   </div>
 
                   <div>
                     <span>Category</span>
+
                     <strong>
-                      {formatLabel(analysis.category)}
+                      {formatLabel(
+                        analysis.category,
+                      )}
                     </strong>
                   </div>
 
                   <div>
                     <span>ML probability</span>
+
                     <strong>
                       {Math.round(
-                        (analysis.ml_probability ?? 0) * 100,
+                        (
+                          analysis.ml_probability ??
+                          0
+                        ) * 100,
                       )}
                       %
                     </strong>
@@ -306,12 +481,18 @@ function App() {
                   <span>Detection sources</span>
 
                   <div className="tag-list">
-                    {analysis.detection_sources?.length > 0 ? (
-                      analysis.detection_sources.map((source) => (
-                        <span className="tag" key={source}>
-                          {formatLabel(source)}
-                        </span>
-                      ))
+                    {analysis.detection_sources
+                      ?.length > 0 ? (
+                      analysis.detection_sources.map(
+                        (source) => (
+                          <span
+                            className="tag"
+                            key={source}
+                          >
+                            {formatLabel(source)}
+                          </span>
+                        ),
+                      )
                     ) : (
                       <span className="muted-text">
                         No detector raised an alert
@@ -320,26 +501,35 @@ function App() {
                   </div>
                 </div>
 
-                {analysis.matched_patterns?.length > 0 && (
+                {analysis.matched_patterns
+                  ?.length > 0 && (
                   <div className="result-section">
-                    <span>Matched security patterns</span>
+                    <span>
+                      Matched security patterns
+                    </span>
 
                     <div className="tag-list">
-                      {analysis.matched_patterns.map((pattern) => (
-                        <span
-                          className="tag warning-tag"
-                          key={pattern}
-                        >
-                          {formatLabel(pattern)}
-                        </span>
-                      ))}
+                      {analysis.matched_patterns.map(
+                        (pattern) => (
+                          <span
+                            className={
+                              'tag warning-tag'
+                            }
+                            key={pattern}
+                          >
+                            {formatLabel(pattern)}
+                          </span>
+                        ),
+                      )}
                     </div>
                   </div>
                 )}
 
                 {analysis.contains_sensitive_data && (
                   <div className="result-section">
-                    <span>Protected prompt preview</span>
+                    <span>
+                      Protected prompt preview
+                    </span>
 
                     <p className="redacted-preview">
                       {analysis.redacted_prompt}
@@ -348,7 +538,8 @@ function App() {
                 )}
 
                 <p className="event-reference">
-                  Security event #{analysis.event_id}
+                  Security event #
+                  {analysis.event_id}
                 </p>
               </div>
             )}
@@ -361,34 +552,48 @@ function App() {
         >
           <article className="stat-card">
             <p>Total scans</p>
+
             <strong>
               {statistics?.total_scans ?? '—'}
             </strong>
-            <span>Prompts analyzed by PromptShield</span>
+
+            <span>
+              Prompts analyzed by PromptShield
+            </span>
           </article>
 
           <article className="stat-card">
             <p>Malicious prompts</p>
+
             <strong>
               {statistics?.malicious_prompts ?? '—'}
             </strong>
-            <span>Rule-confirmed security threats</span>
+
+            <span>
+              Rule-confirmed security threats
+            </span>
           </article>
 
           <article className="stat-card">
             <p>Sensitive prompts</p>
+
             <strong>
               {statistics?.sensitive_prompts ?? '—'}
             </strong>
-            <span>Prompts requiring data protection</span>
+
+            <span>
+              Prompts requiring data protection
+            </span>
           </article>
 
           <article
-            className={`stat-card audit-card ${
-              auditStatus?.valid
-                ? 'audit-valid'
-                : 'audit-unavailable'
-            }`}
+            className={
+              `stat-card audit-card ${
+                auditStatus?.valid
+                  ? 'audit-valid'
+                  : 'audit-unavailable'
+              }`
+            }
           >
             <p>Audit integrity</p>
 
@@ -406,18 +611,21 @@ function App() {
                 : 'Verification unavailable'}
             </span>
           </article>
-            </section>
-                        <SecurityBreakdown statistics={statistics} />
-<RecentEvents
-  events={recentEvents}
-  onRefresh={async () => {
-    const result = await getRecentEvents(10)
-    setRecentEvents(result.events)
-  }}
-/>      </main>
+        </section>
+
+        <SecurityBreakdown
+          statistics={statistics}
+        />
+
+        <RecentEvents
+          events={recentEvents}
+          onRefresh={handleRefreshEvents}
+        />
+      </main>
     </div>
   )
 }
+
 
 export default App
 

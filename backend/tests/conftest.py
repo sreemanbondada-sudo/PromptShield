@@ -4,11 +4,31 @@ import pytest
 
 import database
 import main
+from auth_dependencies import require_admin
+from auth_service import (
+    ADMIN_PASSWORD_HASH_ENVIRONMENT_VARIABLE,
+    ADMIN_USERNAME_ENVIRONMENT_VARIABLE,
+    JWT_SECRET_ENVIRONMENT_VARIABLE,
+    hash_password,
+)
 from encryption_service import (
     AES_KEY_ENVIRONMENT_VARIABLE,
 )
 from integrity_service import (
     HMAC_KEY_ENVIRONMENT_VARIABLE,
+)
+
+
+TEST_ADMIN_USERNAME = "promptshield-test-admin"
+TEST_ADMIN_PASSWORD = "promptshield-test-password"
+
+TEST_ADMIN_PASSWORD_HASH = hash_password(
+    TEST_ADMIN_PASSWORD
+)
+
+TEST_JWT_SECRET = (
+    "promptshield-test-jwt-secret-"
+    "with-at-least-32-characters"
 )
 
 
@@ -32,7 +52,24 @@ def configure_test_environment(
         test_aes_key,
     )
 
-    test_database_path = tmp_path / "promptshield-test.db"
+    monkeypatch.setenv(
+        JWT_SECRET_ENVIRONMENT_VARIABLE,
+        TEST_JWT_SECRET,
+    )
+
+    monkeypatch.setenv(
+        ADMIN_USERNAME_ENVIRONMENT_VARIABLE,
+        TEST_ADMIN_USERNAME,
+    )
+
+    monkeypatch.setenv(
+        ADMIN_PASSWORD_HASH_ENVIRONMENT_VARIABLE,
+        TEST_ADMIN_PASSWORD_HASH,
+    )
+
+    test_database_path = (
+        tmp_path / "promptshield-test.db"
+    )
 
     def save_test_event(
         analysis_result: dict,
@@ -83,4 +120,14 @@ def configure_test_environment(
         "verify_audit_chain",
         verify_test_audit_chain,
     )
-    
+
+    main.app.dependency_overrides[
+        require_admin
+    ] = lambda: TEST_ADMIN_USERNAME
+
+    yield
+
+    main.app.dependency_overrides.pop(
+        require_admin,
+        None,
+    )

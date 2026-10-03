@@ -1,6 +1,36 @@
 from pydantic import BaseModel, Field
 
 
+class LoginRequest(BaseModel):
+    username: str = Field(
+        min_length=1,
+        max_length=100,
+        description=(
+            "The PromptShield administrator username."
+        ),
+    )
+
+    password: str = Field(
+        min_length=8,
+        max_length=256,
+        description=(
+            "The PromptShield administrator password."
+        ),
+    )
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+    expires_in: int = Field(
+        gt=0,
+        description=(
+            "Access-token lifetime in seconds."
+        ),
+    )
+
+
 class AnalyzeRequest(BaseModel):
     prompt: str = Field(
         min_length=1,
