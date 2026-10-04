@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://promptshield.local/schemas/action-classifier-record.json",
+  "title": "PromptShield Action Classifier Record",
+  "description": "Schema for fictional contextual action-classification research records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "prompt",
+    "action",
+    "sensitive_spans",
+    "rationale",
+    "template_group",
+    "source",
+    "split"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^psac_[0-9]{6}$",
+      "description": "Stable unique identifier such as psac_000001."
+    },
+    "prompt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 5000,
+      "description": "Fictional prompt text used for research."
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "allow",
+        "review",
+        "redact",
+        "block"
+      ],
+      "description": "Expected primary PromptShield action."
+    },
+    "sensitive_spans": {
+      "type": "array",
+      "description": "Exact sensitive values that must be redacted.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "start",
+          "end",
+          "text",
+          "type"
+        ],
+        "properties": {
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Inclusive character offset."
+          },
+          "end": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Exclusive character offset."
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact fictional value in the prompt."
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Sensitive-value type such as passport_number."
+          }
+        }
+      }
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 500,
+      "description": "Short explanation supporting the expected action."
+    },
+    "template_group": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Semantic family used to prevent split leakage."
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "generated",
+        "adapted"
+      ],
+      "description": "How the fictional record was created."
+    },
+    "split": {
+      "type": "string",
+      "enum": [
+        "train",
+        "validation",
+        "test"
+      ],
+      "description": "Dataset partition assigned before model development."
+    }
+  }
+}
