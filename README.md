@@ -8,7 +8,7 @@ PromptShield is an explainable security gateway that analyzes user prompts befor
 
 The backend security platform, expanded machine-learning pipeline and authenticated React dashboard are operational.
 
-- 149 backend tests passing
+- 169 backend tests passing
 - 31 frontend unit and component tests passing
 - 2 Playwright browser end-to-end tests passing
 - JWT administrator authentication for protected API routes
@@ -16,7 +16,7 @@ The backend security platform, expanded machine-learning pipeline and authentica
 - Sensitive-data detection and redaction
 - HMAC-SHA-256 integrity verification
 - AES-256-GCM encrypted storage
-- Tamper-evident SQLite audit chain
+- Tamper-evident audit chain with persistent PostgreSQL production storage
 - Multi-source ML training and independent evaluation
 - ScamBench candidate-model research
 - API rate limiting and request-size protection
@@ -39,7 +39,7 @@ The backend security platform, expanded machine-learning pipeline and authentica
 
 The backend uses Render's free service tier. Its first request after a period of inactivity may take approximately one minute while the service wakes.
 
-The hosted SQLite database uses Render's ephemeral filesystem. Hosted event history may reset after a restart, spin-down or deployment. The local-development database is unaffected.
+Production security events are stored persistently in Neon PostgreSQL. The Render backend can restart, redeploy or spin down without deleting event history. Local development continues to use SQLite by default.
 
 ## Screenshots
 
@@ -289,7 +289,8 @@ The HMAC secret is loaded from an environment variable and must not be committed
 
 ## AES-GCM Protected Storage
 
-Redacted prompt previews are encrypted using AES-256-GCM before being stored in SQLite.
+Redacted prompt previews are encrypted using AES-256-GCM before being stored in the configured database backend. Production uses Neon PostgreSQL, while local development uses SQLite by default.
+
 
 The protected-storage design provides:
 
@@ -354,6 +355,9 @@ The backend includes:
 - SQLite foreign-key enforcement
 - SQLite busy timeout
 - SQLite WAL mode
+- Environment-selected SQLite or PostgreSQL storage
+- PostgreSQL transaction-level advisory locking
+- Persistent Neon PostgreSQL production storage
 - Explicit database transactions
 
 The root, health and login endpoints remain public. Analysis, event, statistics, integrity, audit and standalone ML endpoints require a valid administrator bearer token.
@@ -439,6 +443,9 @@ http://127.0.0.1:8000/docs
 - FastAPI
 - Pydantic
 - SQLite
+- PostgreSQL
+- Psycopg 3
+- Neon
 - scikit-learn
 - pytest
 - PyJWT
@@ -664,7 +671,7 @@ python -m pytest -v
 Current result:
 
 ```text
-149 passed
+169 passed
 ```
 
 One dependency deprecation warning may appear from FastAPI's current `TestClient` integration. It does not indicate a failed test.
@@ -746,6 +753,9 @@ The backend test suite covers:
 - Entropy analysis
 - FastAPI endpoints
 - SQLite storage and statistics
+- PostgreSQL adapter behavior
+- SQLite and PostgreSQL backend selection
+- PostgreSQL audit-lock and encrypted-preview writes
 - Database transaction behaviour
 - HMAC generation and verification
 - AES-GCM encryption and decryption
@@ -773,7 +783,7 @@ The backend test suite covers:
 Current result:
 
 ```text
-149 passed
+169 passed
 ```
 
 ### Frontend testing
@@ -907,11 +917,14 @@ Current limitations include:
 - No production key-management service
 - No public encrypted-preview retrieval workflow
 - SQLite is intended for local development
+- The free Neon database has storage and usage limits
+- Free hosting plans and their limits may change over time
 - Detection rules require continued evaluation against new attacks
 - Model probabilities should not be interpreted as guaranteed security
 - No security tool can reliably detect every unseen adversarial prompt
-- The free hosted SQLite database is ephemeral and can reset after Render restarts or deployments
+
 - The free backend may have a cold-start delay after inactivity
+
 
 PromptShield should be used as one layer within a defense-in-depth security design.
 

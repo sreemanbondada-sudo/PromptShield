@@ -14,15 +14,18 @@ The current implementation includes:
 - Rule-based prompt-attack detection
 - Sensitive-data detection and redaction
 - Machine-learning classification
-- AES-GCM protected storage
-- HMAC audit-chain verification
-- SQLite event storage
-- Automated backend and frontend testing
+- AES-256-GCM protected storage
+- HMAC-SHA-256 audit-chain verification
+- SQLite local-development storage
+- Neon PostgreSQL production storage
+- Automated backend, frontend and browser testing
 - GitHub Actions continuous integration
 - A Render backend deployment
 - A Vercel frontend deployment
 
-The React frontend is deployed through Vercel and the FastAPI backend is deployed through Render. External AI-provider forwarding and production-grade persistent infrastructure remain future phases.
+The React frontend is deployed through Vercel, the FastAPI backend is deployed through Render, and production security events are stored persistently in Neon PostgreSQL.
+
+External AI-provider forwarding and multi-user authorization remain future phases.
 
 ## Live Deployment
 
@@ -32,10 +35,11 @@ The React frontend is deployed through Vercel and the FastAPI backend is deploye
 | FastAPI backend | Render | [https://promptshield-api-5g1x.onrender.com](https://promptshield-api-5g1x.onrender.com) |
 | Health check | Render | [https://promptshield-api-5g1x.onrender.com/health](https://promptshield-api-5g1x.onrender.com/health) |
 | API documentation | Render | [https://promptshield-api-5g1x.onrender.com/docs](https://promptshield-api-5g1x.onrender.com/docs) |
+| Production database | Neon PostgreSQL | Private pooled PostgreSQL connection |
 
 The free Render service can enter a sleep state after inactivity. Its first request after sleeping can experience a cold-start delay.
 
-The hosted SQLite database uses an ephemeral filesystem. Hosted event records can reset after a service restart, spin-down or deployment. Local-development storage is unaffected.
+Production event records are stored in Neon PostgreSQL and survive Render restarts, spin-downs and deployments. SQLite remains the default local-development backend.
 
 ## High-Level Architecture
 
@@ -48,7 +52,7 @@ flowchart TD
     E --> F[Security decision]
     F --> G[Authenticated response]
     F --> H[Protected event storage]
-    H --> I[Ephemeral SQLite database]
+    H --> I[Neon PostgreSQL]
     I --> B
 ```
 
@@ -61,6 +65,7 @@ flowchart TD
     A --> D[Render build]
     C --> E[React dashboard]
     D --> F[FastAPI backend]
+    F --> G[Neon PostgreSQL]
     E --> F
 ```
 
@@ -70,6 +75,7 @@ The deployment uses:
 - GitHub Actions for automated verification
 - Vercel for the Vite and React frontend
 - Render for the FastAPI backend
+- Neon for persistent PostgreSQL storage
 - Vercel environment variables for the public API base URL
 - Render environment variables for private backend configuration
 - Explicit production CORS origins
@@ -80,7 +86,7 @@ The frontend receives only the public backend URL through:
 VITE_API_BASE_URL
 ```
 
-Private cryptographic values are stored only in Render environment settings.
+Private database credentials, authentication values and cryptographic keys are stored only in Render environment settings.
 
 ## Authentication Architecture
 
@@ -293,6 +299,33 @@ The frontend API service is responsible for:
 - Recent-event retrieval
 - Expired-session cleanup
 
+## Storage Selection
+
+PromptShield uses a storage-selection layer.
+
+```mermaid
+flowchart TD
+    A[FastAPI application] --> B[Storage selector]
+    B -->|No database URL| C[Local SQLite]
+    B -->|PostgreSQL URL| D[Neon PostgreSQL]
+    C --> E[Shared storage interface]
+    D --> E
+```
+
+The selected backend is controlled by:
+
+```text
+PROMPTSHIELD_DATABASE_URL
+```
+
+Selection rules:
+
+- If the variable is absent, PromptShield uses SQLite.
+- If it contains a validated `postgresql://` or `postgres://` URL, PromptShield uses PostgreSQL.
+- Empty URLs, unsupported schemes, missing hostnames and missing database names are rejected.
+- The database URL is never returned by configuration validation.
+- Production stores the Neon pooled URL only in Render’s private environment configuration.
+
 ## Data Protection Flow
 
 ```mermaid
@@ -303,7 +336,7 @@ flowchart TD
     C --> E[AES-256-GCM encryption]
     D --> F[security_events table]
     E --> G[encrypted_event_previews table]
-    F --> H[SQLite]
+    F --> H[Configured database backend]
     G --> H
 ```
 
@@ -355,11 +388,22 @@ Each protected event hash covers:
 
 Changing an existing event, changing its audit hash or rearranging the chain causes verification to fail.
 
-`BEGIN IMMEDIATE` protects audit-chain writes from concurrent branching.
+SQLite uses `BEGIN IMMEDIATE` to serialize local audit-chain writes.
+
+PostgreSQL uses `pg_advisory_xact_lock` inside the event transaction to prevent concurrent writers from branching the production audit chain. The transaction-level lock is released automatically when the transaction commits or rolls back.
 
 ## Database Reliability
 
-PromptShield configures SQLite with:
+PromptShield selects its storage backend through `PROMPTSHIELD_DATABASE_URL`.
+
+- Local development defaults to SQLite.
+- Production uses Neon PostgreSQL.
+- Both backends expose the same application-level storage operations.
+- Both backends use the same audit-hash representation.
+- Both backends use the same encrypted-preview associated-data format.
+- Database credentials are never committed to Git.
+
+### SQLite controls
 
 | Control | Purpose |
 |---|---|
@@ -369,11 +413,52 @@ PromptShield configures SQLite with:
 | WAL mode | Improve concurrent reading and writing |
 | Normal synchronization | Provide suitable WAL safety and performance |
 | Context-managed transactions | Commit successful writes and roll back failures |
+| `BEGIN IMMEDIATE` | Serialize local audit-chain writes |
 | Quick check | Detect SQLite consistency problems |
 | Foreign-key check | Detect invalid table relationships |
 | Startup verification | Refuse startup when integrity verification fails |
 
-These controls protect database consistency, but they do not make SQLite persistent on Render's free ephemeral filesystem.
+### PostgreSQL controls
+
+| Control | Purpose |
+|---|---|
+| Foreign-key constraints | Enforce event and encrypted-preview relationships |
+| Context-managed transactions | Commit successful writes and roll back failures |
+| Transaction-level advisory lock | Serialize production audit-chain appends |
+| `BIGSERIAL` identifiers | Generate event IDs safely |
+| Parameterized queries | Prevent SQL injection through stored values |
+| TLS connection string | Protect database traffic |
+| Required-table verification | Confirm that the expected schema is available |
+| Startup verification | Refuse startup when database integrity checks fail |
+| Persistent Neon storage | Preserve events across Render restarts and deployments |
+
+### PostgreSQL schema
+
+The PostgreSQL implementation creates:
+
+```text
+security_events
+encrypted_event_previews
+```
+
+It also creates indexes for:
+
+- Event creation time
+- Detection category
+- Recommended action
+
+The PostgreSQL adapter returns timestamps in the same format expected by the React dashboard.
+
+### Production persistence verification
+
+Production persistence was verified by:
+
+1. Starting with a clean PostgreSQL audit chain
+2. Creating event `#1` through the deployed React dashboard
+3. Confirming the event and statistics through authenticated API endpoints
+4. Restarting the Render backend
+5. Confirming event `#1` remained available
+6. Confirming the audit chain remained valid after restart
 
 ## Cryptographic Components
 
@@ -387,6 +472,8 @@ These controls protect database consistency, but they do not make SQLite persist
 | Username and signature comparison | Constant-time comparison | Reduce timing leakage |
 
 JWT, AES and HMAC secrets are supplied through private environment variables and excluded from Git.
+
+The PostgreSQL URL is also treated as a private credential and is stored only in the deployment environment.
 
 ## API Components
 
@@ -413,7 +500,9 @@ JWT, AES and HMAC secrets are supplied through private environment variables and
 | `detector.py` | Deterministic prompt-attack detection |
 | `sensitive_detector.py` | Sensitive-data detection and redaction |
 | `ml_detector.py` | Saved-model loading and inference |
-| `database.py` | Storage, statistics and database integrity |
+| `storage.py` | Select SQLite or PostgreSQL at runtime |
+| `database.py` | SQLite storage, statistics and integrity |
+| `postgres_database.py` | PostgreSQL storage, statistics and integrity |
 | `audit_service.py` | Audit-event hashing and verification |
 | `encryption_service.py` | AES-256-GCM encryption and decryption |
 | `integrity_service.py` | HMAC message signing and verification |
@@ -434,10 +523,12 @@ JWT, AES and HMAC secrets are supplied through private environment variables and
 | `SecurityBreakdown.jsx` | Action and category visualizations |
 | `services/api.js` | API requests, token storage and authorization headers |
 | `App.css` | Dashboard and authentication presentation |
+| `e2e/dashboard.spec.js` | Authenticated browser workflow testing |
+| `playwright.config.js` | Playwright browser-test configuration |
 
 ## Trust Boundaries
 
-PromptShield has four primary trust boundaries.
+PromptShield has five primary trust boundaries.
 
 ### 1. Administrator browser to authentication endpoint
 
@@ -465,18 +556,32 @@ The backend:
 
 Original sensitive values are excluded. Redacted previews are encrypted and event metadata is authenticated through the audit chain.
 
-### 4. Deployment environment to security services
+### 4. Render backend to Neon PostgreSQL
 
-JWT, HMAC and AES keys, along with the administrator password hash, are stored as private environment variables.
+The backend connects using a private TLS PostgreSQL connection string.
+
+The database URL:
+
+- Is stored only in Render environment settings
+- Is not available to the frontend
+- Is excluded from Git
+- Is not printed in application output
+- Is validated before PostgreSQL is selected
+
+### 5. Deployment environment to security services
+
+JWT, HMAC and AES keys, the administrator password hash, and the database URL are stored as private environment variables.
 
 These values must never be added to:
 
 - Git
 - GitHub
+- `.env.example`
 - `render.yaml`
 - Vercel frontend variables
 - Screenshots
 - Public logs
+- Documentation
 
 ## Configuration Validation
 
@@ -489,28 +594,76 @@ Application startup validates:
 - Administrator Argon2 password-hash validity
 - ML model availability
 - Rate-limit configuration
-- Database consistency and foreign-key integrity
+- Database URL scheme
+- Database hostname
+- Database name
+- Database-table availability
+- Database integrity
 
 PromptShield refuses normal startup when required security configuration is invalid.
 
+### Database configuration
+
+Local SQLite requires no database URL.
+
+Production PostgreSQL uses:
+
+```text
+PROMPTSHIELD_DATABASE_URL
+```
+
+Only these schemes are accepted:
+
+```text
+postgresql://
+postgres://
+```
+
+The production value is private and must not be placed in source-controlled files.
+
 ## Testing Architecture
 
-The backend test suite covers authentication independently and through the API.
+### Backend tests
 
-Authentication-related backend tests include:
+The backend suite covers:
 
+- Rule-based prompt-attack detection
+- Safe-prompt handling
+- Sensitive-data detection
+- Redaction behavior
+- ML inference
+- Hybrid decision priority
+- Authentication and authorization
 - Password hashing and verification
-- Valid and invalid credentials
-- JWT creation
-- JWT decoding
-- Invalid signatures
-- Expired tokens
+- JWT creation and decoding
+- Invalid and expired tokens
 - Missing authorization
 - Protected endpoint access
 - Public endpoint availability
-- Authentication configuration validation
+- SQLite storage
+- PostgreSQL storage routing
+- PostgreSQL URL validation
+- PostgreSQL URL normalization
+- PostgreSQL timestamp formatting
+- PostgreSQL transaction-level audit locking
+- PostgreSQL event insertion
+- PostgreSQL encrypted-preview insertion
+- PostgreSQL event deserialization
+- PostgreSQL integrity checks
+- HMAC audit-chain verification
+- AES-GCM encryption
+- Database transaction behavior
+- Configuration validation
 
-The frontend test suite covers:
+Current backend result:
+
+```text
+169 passed
+```
+
+### Frontend unit and component tests
+
+The Vitest and React Testing Library suite covers:
 
 - Login form rendering
 - Successful login
@@ -520,15 +673,66 @@ The frontend test suite covers:
 - Missing-session behavior
 - Expired-session cleanup
 - Dashboard access after login
+- Prompt analysis
+- Statistics rendering
+- Event filtering
+- Event refreshing
+- Event investigation
 - Logout and dashboard-state clearing
 
-The current automated-test totals are:
+Current frontend result:
+
+```text
+31 passed
+```
+
+### Browser end-to-end tests
+
+Playwright verifies the authenticated Chromium workflow:
+
+- Administrator login
+- Protected dashboard loading
+- Bearer-token authorization
+- Prompt submission
+- Analysis-result rendering
+- Security-event investigation
+- Investigation-panel closing
+- Administrator logout
+- Session-token removal
+
+Current browser result:
+
+```text
+2 passed
+```
+
+### Automated-test totals
 
 | Suite | Passing tests |
 |---|---:|
-| Backend | 149 |
-| Frontend | 31 |
-| Total | 180 |
+| Backend | 169 |
+| Frontend unit and component | 31 |
+| Browser end-to-end | 2 |
+| Total | 202 |
+
+## Continuous Integration
+
+GitHub Actions verifies every push and pull request targeting `main`.
+
+The workflow:
+
+- Installs Python dependencies
+- Validates Python source files
+- Runs the backend test suite
+- Installs frontend dependencies
+- Runs frontend unit and component tests
+- Runs ESLint
+- Builds the production frontend
+- Installs Playwright Chromium
+- Runs authenticated browser end-to-end tests
+- Uploads Playwright failure artifacts when browser tests fail
+
+CI uses test-only credentials and controlled mocked browser API responses. Production secrets are never stored in the workflow.
 
 ## Current Limitations
 
@@ -538,10 +742,11 @@ The current automated-test totals are:
 - The rate limiter is stored in process memory.
 - Multiple server processes would not share rate-limit state.
 - The free Render backend can experience a cold-start delay.
-- The free Render filesystem is ephemeral, so hosted SQLite events can reset.
 - SQLite is intended for local or small-scale use.
+- The free Neon database has storage and usage limits.
+- Free hosting plans and their limits may change over time.
 - Production key rotation is not implemented.
-- The audit chain is not coordinated across distributed databases.
+- The audit chain is not coordinated across multiple independent databases.
 - External AI-provider forwarding is not yet implemented.
 - The project has not undergone an independent penetration test.
 - The ML classifier remains probabilistic and cannot detect every unseen attack.
@@ -550,17 +755,17 @@ The current automated-test totals are:
 
 ```mermaid
 flowchart TD
-    A[Current deployed platform] --> B[Persistent production storage]
-    B --> C[Role-based access control]
-    C --> D[Session revocation]
-    D --> E[Managed key rotation]
+    A[Current deployed platform] --> B[Role-based access control]
+    B --> C[Session revocation]
+    C --> D[Managed key rotation]
+    D --> E[Shared rate limiting]
     E --> F[External AI integration]
     F --> G[Portfolio release]
 ```
 
 Planned improvements include:
 
-- Persistent production storage
+
 - Multi-user role-based access control
 - Refresh-token rotation
 - Centralized session revocation
@@ -569,4 +774,4 @@ Planned improvements include:
 - Additional multilingual and obfuscated-attack evaluation
 - External AI-provider forwarding
 - Independent security testing
-- Portfolio screenshots and demonstration material
+- Additional portfolio demonstration material
