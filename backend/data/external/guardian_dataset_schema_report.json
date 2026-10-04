@@ -1,0 +1,339 @@
+{
+  "dataset_id": "Guardian0369/Prompt-injection-and-PII",
+  "dataset_revision": "4fbd7338a757c6c6b61311a7eb997b3ef7edcae1",
+  "inspection_policy": {
+    "prompt_content_written_to_report": false,
+    "matched_secret_values_written_to_report": false,
+    "duplicate_detection_method": "SHA-256 of normalized content",
+    "production_model_modified": false
+  },
+  "summary": {
+    "files_inspected": 9,
+    "total_records": 6631,
+    "total_malformed_lines": 2,
+    "distinct_schema_count": 3,
+    "cross_file_duplicate_groups": 4397,
+    "files_with_secret_patterns": [
+      "dev_final.jsonl",
+      "docs_final.jsonl",
+      "hardNegatives_final.jsonl",
+      "promptInjection_final.jsonl",
+      "test.jsonl",
+      "test_raw.jsonl",
+      "train.jsonl",
+      "train_raw.jsonl"
+    ]
+  },
+  "files": [
+    {
+      "file": "dev_final.jsonl",
+      "record_count": 232,
+      "malformed_line_count": 1,
+      "empty_line_count": 0,
+      "records_with_content": 232,
+      "records_without_content": 0,
+      "field_counts": {
+        "input": 232,
+        "output": 232
+      },
+      "schemas": [
+        {
+          "fields": [
+            "input",
+            "output"
+          ],
+          "record_count": 232
+        }
+      ],
+      "label_values": {},
+      "records_with_secret_patterns": 182,
+      "secret_pattern_counts": {
+        "aws_access_key": 16,
+        "email_address": 88,
+        "github_token": 13,
+        "private_key_marker": 17,
+        "secret_assignment": 114,
+        "slack_webhook": 26
+      },
+      "duplicate_content_count": 0
+    },
+    {
+      "file": "docs_final.jsonl",
+      "record_count": 300,
+      "malformed_line_count": 0,
+      "empty_line_count": 0,
+      "records_with_content": 300,
+      "records_without_content": 0,
+      "field_counts": {
+        "input": 300,
+        "output": 300
+      },
+      "schemas": [
+        {
+          "fields": [
+            "input",
+            "output"
+          ],
+          "record_count": 300
+        }
+      ],
+      "label_values": {},
+      "records_with_secret_patterns": 112,
+      "secret_pattern_counts": {
+        "email_address": 112
+      },
+      "duplicate_content_count": 17
+    },
+    {
+      "file": "hardNegatives_final.jsonl",
+      "record_count": 205,
+      "malformed_line_count": 1,
+      "empty_line_count": 0,
+      "records_with_content": 205,
+      "records_without_content": 0,
+      "field_counts": {
+        "input": 205,
+        "output": 205
+      },
+      "schemas": [
+        {
+          "fields": [
+            "input",
+            "output"
+          ],
+          "record_count": 205
+        }
+      ],
+      "label_values": {},
+      "records_with_secret_patterns": 22,
+      "secret_pattern_counts": {
+        "email_address": 12,
+        "secret_assignment": 12
+      },
+      "duplicate_content_count": 5
+    },
+    {
+      "file": "normal_final.jsonl",
+      "record_count": 1000,
+      "malformed_line_count": 0,
+      "empty_line_count": 0,
+      "records_with_content": 1000,
+      "records_without_content": 0,
+      "field_counts": {
+        "input": 1000,
+        "output": 1000
+      },
+      "schemas": [
+        {
+          "fields": [
+            "input",
+            "output"
+          ],
+          "record_count": 1000
+        }
+      ],
+      "label_values": {},
+      "records_with_secret_patterns": 0,
+      "secret_pattern_counts": {},
+      "duplicate_content_count": 9
+    },
+    {
+      "file": "promptInjection_final.jsonl",
+      "record_count": 480,
+      "malformed_line_count": 0,
+      "empty_line_count": 0,
+      "records_with_content": 480,
+      "records_without_content": 0,
+      "field_counts": {
+        "input": 480,
+        "output": 480
+      },
+      "schemas": [
+        {
+          "fields": [
+            "input",
+            "output"
+          ],
+          "record_count": 480
+        }
+      ],
+      "label_values": {},
+      "records_with_secret_patterns": 3,
+      "secret_pattern_counts": {
+        "email_address": 1,
+        "secret_assignment": 2
+      },
+      "duplicate_content_count": 0
+    },
+    {
+      "file": "test.jsonl",
+      "record_count": 100,
+      "malformed_line_count": 0,
+      "empty_line_count": 0,
+      "records_with_content": 100,
+      "records_without_content": 0,
+      "field_counts": {
+        "_category": 100,
+        "text": 100
+      },
+      "schemas": [
+        {
+          "fields": [
+            "_category",
+            "text"
+          ],
+          "record_count": 100
+        }
+      ],
+      "label_values": {
+        "_category": {
+          "dev": 11,
+          "docs": 14,
+          "hard_negatives": 9,
+          "normal": 44,
+          "prompt_injection": 22
+        }
+      },
+      "records_with_secret_patterns": 16,
+      "secret_pattern_counts": {
+        "aws_access_key": 1,
+        "email_address": 10,
+        "github_token": 1,
+        "private_key_marker": 3,
+        "secret_assignment": 6
+      },
+      "duplicate_content_count": 0
+    },
+    {
+      "file": "test_raw.jsonl",
+      "record_count": 100,
+      "malformed_line_count": 0,
+      "empty_line_count": 0,
+      "records_with_content": 100,
+      "records_without_content": 0,
+      "field_counts": {
+        "_category": 100,
+        "input": 100,
+        "output": 100
+      },
+      "schemas": [
+        {
+          "fields": [
+            "_category",
+            "input",
+            "output"
+          ],
+          "record_count": 100
+        }
+      ],
+      "label_values": {
+        "_category": {
+          "dev": 11,
+          "docs": 14,
+          "hard_negatives": 9,
+          "normal": 44,
+          "prompt_injection": 22
+        }
+      },
+      "records_with_secret_patterns": 16,
+      "secret_pattern_counts": {
+        "aws_access_key": 1,
+        "email_address": 10,
+        "github_token": 1,
+        "private_key_marker": 3,
+        "secret_assignment": 6
+      },
+      "duplicate_content_count": 0
+    },
+    {
+      "file": "train.jsonl",
+      "record_count": 2107,
+      "malformed_line_count": 0,
+      "empty_line_count": 0,
+      "records_with_content": 2107,
+      "records_without_content": 0,
+      "field_counts": {
+        "_category": 2107,
+        "text": 2107
+      },
+      "schemas": [
+        {
+          "fields": [
+            "_category",
+            "text"
+          ],
+          "record_count": 2107
+        }
+      ],
+      "label_values": {
+        "_category": {
+          "dev": 221,
+          "docs": 286,
+          "hard_negatives": 191,
+          "normal": 951,
+          "prompt_injection": 458
+        }
+      },
+      "records_with_secret_patterns": 303,
+      "secret_pattern_counts": {
+        "aws_access_key": 15,
+        "email_address": 203,
+        "github_token": 12,
+        "private_key_marker": 14,
+        "secret_assignment": 122,
+        "slack_webhook": 26
+      },
+      "duplicate_content_count": 0
+    },
+    {
+      "file": "train_raw.jsonl",
+      "record_count": 2107,
+      "malformed_line_count": 0,
+      "empty_line_count": 0,
+      "records_with_content": 2107,
+      "records_without_content": 0,
+      "field_counts": {
+        "_category": 2107,
+        "input": 2107,
+        "output": 2107
+      },
+      "schemas": [
+        {
+          "fields": [
+            "_category",
+            "input",
+            "output"
+          ],
+          "record_count": 2107
+        }
+      ],
+      "label_values": {
+        "_category": {
+          "dev": 221,
+          "docs": 286,
+          "hard_negatives": 191,
+          "normal": 951,
+          "prompt_injection": 458
+        }
+      },
+      "records_with_secret_patterns": 303,
+      "secret_pattern_counts": {
+        "aws_access_key": 15,
+        "email_address": 203,
+        "github_token": 12,
+        "private_key_marker": 14,
+        "secret_assignment": 122,
+        "slack_webhook": 26
+      },
+      "duplicate_content_count": 17
+    }
+  ],
+  "review_status": "under_review",
+  "production_training_approved": false,
+  "review_reasons": [
+    "Multiple record schemas were detected.",
+    "Malformed JSONL records were detected.",
+    "Credential-like or PII-like patterns were detected in dataset content.",
+    "The declared license remains `other` and requires clarification before production use."
+  ]
+}

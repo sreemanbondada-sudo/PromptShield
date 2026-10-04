@@ -1,0 +1,140 @@
+{
+  "dataset_id": "Guardian0369/Prompt-injection-and-PII",
+  "inspected_at": "2026-10-04T05:19:26.602485+00:00",
+  "repository_revision": "4fbd7338a757c6c6b61311a7eb997b3ef7edcae1",
+  "private": false,
+  "gated": false,
+  "downloads": 67,
+  "likes": 1,
+  "card_metadata": {
+    "license": "other",
+    "language": [
+      "en"
+    ],
+    "task_categories": [
+      "text-classification",
+      "token-classification"
+    ],
+    "tags": [
+      "security",
+      "prompt-injection",
+      "pii-redaction",
+      "distilling-step-by-step",
+      "chain-of-thought",
+      "firewall",
+      "firewall-gemma-3-4b-it"
+    ],
+    "size_categories": [
+      "n < 10K"
+    ]
+  },
+  "repository_file_count": 11,
+  "repository_files": [
+    ".gitattributes",
+    "README.md",
+    "dev_final.jsonl",
+    "docs_final.jsonl",
+    "hardNegatives_final.jsonl",
+    "normal_final.jsonl",
+    "promptInjection_final.jsonl",
+    "test.jsonl",
+    "test_raw.jsonl",
+    "train.jsonl",
+    "train_raw.jsonl"
+  ],
+  "file_metadata": [
+    {
+      "path": ".gitattributes",
+      "size_bytes": 2504,
+      "blob_id": "bed0738c7eeb449bca98b5d2f33c89a1ee56349a"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 4068,
+      "blob_id": "d23c30a50d1e0ce77ce180caba3835948a0f7418"
+    },
+    {
+      "path": "dev_final.jsonl",
+      "size_bytes": 949460,
+      "blob_id": "7eb233e7bee311bf10b591b0b38ca5804d00953f"
+    },
+    {
+      "path": "docs_final.jsonl",
+      "size_bytes": 3062733,
+      "blob_id": "08fa8cf1c021ce0bf8973f3e5e890f08e0a6c673"
+    },
+    {
+      "path": "hardNegatives_final.jsonl",
+      "size_bytes": 613935,
+      "blob_id": "052042c64d1a61e4c9859c5f2905dea1db879a6e"
+    },
+    {
+      "path": "normal_final.jsonl",
+      "size_bytes": 1344167,
+      "blob_id": "1102400a43e515b648b254fe091dd7daaabad8d9"
+    },
+    {
+      "path": "promptInjection_final.jsonl",
+      "size_bytes": 867154,
+      "blob_id": "83a25e677003dd63eac25697a71f80e11d6700cf"
+    },
+    {
+      "path": "test.jsonl",
+      "size_bytes": 327093,
+      "blob_id": "a4e828e3b5320cad5f2f498ba7483598f95d6b59"
+    },
+    {
+      "path": "test_raw.jsonl",
+      "size_bytes": 320793,
+      "blob_id": "58eb6495c7ac550c6ebb0d9803b7b7f52c368888"
+    },
+    {
+      "path": "train.jsonl",
+      "size_bytes": 6689737,
+      "blob_id": "7e223c8a7a2cbfa7e18c22fda2cc0c7af857f4e5"
+    },
+    {
+      "path": "train_raw.jsonl",
+      "size_bytes": 6556996,
+      "blob_id": "0cd4906c9d4f4a656e63e3781604e03e0ed1ab7d"
+    }
+  ],
+  "expected_data_files": [
+    "dev_final.jsonl",
+    "docs_final.jsonl",
+    "hardNegatives_final.jsonl",
+    "normal_final.jsonl",
+    "promptInjection_final.jsonl",
+    "test.jsonl",
+    "test_raw.jsonl",
+    "train.jsonl",
+    "train_raw.jsonl"
+  ],
+  "available_expected_files": [
+    "dev_final.jsonl",
+    "docs_final.jsonl",
+    "hardNegatives_final.jsonl",
+    "normal_final.jsonl",
+    "promptInjection_final.jsonl",
+    "test.jsonl",
+    "test_raw.jsonl",
+    "train.jsonl",
+    "train_raw.jsonl"
+  ],
+  "missing_expected_files": [],
+  "production_training_approved": false,
+  "review_status": "under_review",
+  "review_reasons": [
+    "The dataset does not declare a clear standard redistribution license.",
+    "Dataset files may use different schemas and require field-level inspection before label mapping.",
+    "Examples may contain synthetic credentials, PII or reasoning traces and must be sanitized before use."
+  ],
+  "next_review_steps": [
+    "Clarify the dataset license and redistribution permissions.",
+    "Inspect each data file using a privacy-safe schema scanner.",
+    "Define explicit mappings for safe, malicious and sensitive-data labels.",
+    "Remove exact and normalized duplicates across training and evaluation splits.",
+    "Scan for credential-like strings before saving or committing prepared records.",
+    "Train an isolated candidate model without overwriting the production model."
+  ]
+}

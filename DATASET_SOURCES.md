@@ -182,3 +182,26 @@ The preparation and evaluation scripts are part of the PromptShield source code.
 A separate ScamBench candidate was trained with approximately 12,944 combined records. It improved scam and social-engineering coverage but was not promoted because no evaluated single-model or ensemble configuration improved all established PromptShield evaluation sets without increasing false positives.
 
 The current production model remains unchanged.
+
+## Guardian0369 Prompt-injection-and-PII
+
+- Source: https://huggingface.co/datasets/Guardian0369/Prompt-injection-and-PII
+- Current status: Under review
+- Reported size: 2,139 synthetic examples
+- Language: English
+- Relevant content:
+  - Normal prompts
+  - Prompt-injection examples
+  - PII and document examples
+  - Developer-secret examples
+  - Hard-negative examples
+- License status: Listed as `other`; redistribution and training permissions require clarification.
+- Schema status: Dataset files do not all use the same columns.
+- Security consideration: Examples may contain synthetic credentials, personal information and reasoning traces.
+- Production decision: Not included in PromptShield training until licensing, schema mapping, sanitization and split integrity are verified.
+### Guardian0369 technical review
+
+A privacy-safe metadata and schema inspection was completed against repository revision:
+
+```text
+4fbd7338a757c6c6b61311a7eb997b3ef7edcae1
