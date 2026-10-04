@@ -72,6 +72,20 @@ SENSITIVE_PATTERNS = [
         ),
         "value_group": "value",
     },
+    {
+    "name": "passport_number",
+    "pattern": (
+        r"\bpassport\s*"
+        r"(?:number|no\.?)\s*"
+        r"(?:is\s*)?[:=-]?\s*"
+        r"(?P<value>"
+        r"(?:[A-Z]\d{7}"
+        r"|"
+        r"\d{4}(?:[\s-]?\d{4}){1,2})"
+        r")\b"
+    ),
+    "value_group": "value",
+},
 ]
 
 

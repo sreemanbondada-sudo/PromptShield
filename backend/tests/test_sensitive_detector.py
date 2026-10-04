@@ -50,6 +50,14 @@ from sensitive_detector import (
             "eyJhbGciOiJIUzI1NiJ9.test-signature-value",
             "bearer_token",
         ),
+        (
+    "My passport number is 4826 1059 3741",
+    "passport_number",
+),
+(
+    "Passport No: Z1234567",
+    "passport_number",
+),
     ],
 )
 def test_known_sensitive_values_are_detected(
