@@ -41,3 +41,6 @@ services:
 
       - key: PROMPTSHIELD_RATE_LIMIT_WINDOW_SECONDS
         value: "60"
+
+      - key: PROMPTSHIELD_DATABASE_URL
+        sync: false

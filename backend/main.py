@@ -23,7 +23,7 @@ from config import (
     get_rate_limit_settings,
     validate_configuration,
 )
-from database import (
+from storage import (
     check_database_integrity,
     get_recent_events,
     get_statistics,

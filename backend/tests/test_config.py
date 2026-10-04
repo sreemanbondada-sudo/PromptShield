@@ -4,6 +4,7 @@ import pytest
 
 from config import (
     ALLOWED_ORIGINS_ENVIRONMENT_VARIABLE,
+    DATABASE_URL_ENVIRONMENT_VARIABLE,
     DEFAULT_ALLOWED_ORIGINS,
     DEFAULT_RATE_LIMIT_MAXIMUM_REQUESTS,
     DEFAULT_RATE_LIMIT_WINDOW_SECONDS,
@@ -11,6 +12,7 @@ from config import (
     RATE_LIMIT_MAXIMUM_REQUESTS_ENVIRONMENT_VARIABLE,
     RATE_LIMIT_WINDOW_SECONDS_ENVIRONMENT_VARIABLE,
     get_allowed_origins,
+    get_database_settings,
     get_rate_limit_settings,
     validate_configuration,
 )
@@ -228,3 +230,92 @@ def test_zero_rate_limit_window_is_rejected(
         match="must be a positive integer",
     ):
         get_rate_limit_settings()
+
+def test_sqlite_is_the_default_database_backend(
+    monkeypatch,
+):
+    monkeypatch.delenv(
+        DATABASE_URL_ENVIRONMENT_VARIABLE,
+        raising=False,
+    )
+
+    assert get_database_settings() == {
+        "backend": "sqlite",
+        "database_url": None,
+    }
+
+
+def test_postgresql_database_url_is_accepted(
+    monkeypatch,
+):
+    database_url = (
+        "postgresql://promptshield:"
+        "test-password@localhost/promptshield_test"
+    )
+
+    monkeypatch.setenv(
+        DATABASE_URL_ENVIRONMENT_VARIABLE,
+        database_url,
+    )
+
+    assert get_database_settings() == {
+        "backend": "postgresql",
+        "database_url": database_url,
+    }
+
+
+def test_legacy_postgres_scheme_is_accepted(
+    monkeypatch,
+):
+    database_url = (
+        "postgres://promptshield:"
+        "test-password@localhost/promptshield_test"
+    )
+
+    monkeypatch.setenv(
+        DATABASE_URL_ENVIRONMENT_VARIABLE,
+        database_url,
+    )
+
+    assert get_database_settings() == {
+        "backend": "postgresql",
+        "database_url": database_url,
+    }
+
+
+@pytest.mark.parametrize(
+    "database_url, expected_message",
+    [
+        (
+            "",
+            "must not be empty",
+        ),
+        (
+            "sqlite:///promptshield.db",
+            "must use the postgresql",
+        ),
+        (
+            "postgresql:///promptshield",
+            "must include a PostgreSQL hostname",
+        ),
+        (
+            "postgresql://localhost",
+            "must include a PostgreSQL database name",
+        ),
+    ],
+)
+def test_invalid_database_url_is_rejected(
+    monkeypatch,
+    database_url,
+    expected_message,
+):
+    monkeypatch.setenv(
+        DATABASE_URL_ENVIRONMENT_VARIABLE,
+        database_url,
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match=expected_message,
+    ):
+        get_database_settings()

@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 from auth_service import (
     ADMIN_PASSWORD_HASH_ENVIRONMENT_VARIABLE,
@@ -25,6 +26,10 @@ RATE_LIMIT_MAXIMUM_REQUESTS_ENVIRONMENT_VARIABLE = (
 
 RATE_LIMIT_WINDOW_SECONDS_ENVIRONMENT_VARIABLE = (
     "PROMPTSHIELD_RATE_LIMIT_WINDOW_SECONDS"
+)
+
+DATABASE_URL_ENVIRONMENT_VARIABLE = (
+    "PROMPTSHIELD_DATABASE_URL"
 )
 
 DEFAULT_ALLOWED_ORIGINS = [
@@ -106,6 +111,63 @@ def get_rate_limit_settings() -> dict:
     }
 
 
+def get_database_settings() -> dict:
+    """
+    Return the selected database backend.
+
+    SQLite remains the safe local default. PostgreSQL is selected
+    only when an explicit PromptShield database URL is configured.
+    """
+    configured_url = os.getenv(
+        DATABASE_URL_ENVIRONMENT_VARIABLE
+    )
+
+    if configured_url is None:
+        return {
+            "backend": "sqlite",
+            "database_url": None,
+        }
+
+    database_url = configured_url.strip()
+
+    if not database_url:
+        raise RuntimeError(
+            f"{DATABASE_URL_ENVIRONMENT_VARIABLE} "
+            "must not be empty."
+        )
+
+    parsed_url = urlparse(database_url)
+
+    if parsed_url.scheme not in {
+        "postgresql",
+        "postgres",
+    }:
+        raise RuntimeError(
+            f"{DATABASE_URL_ENVIRONMENT_VARIABLE} "
+            "must use the postgresql:// or postgres:// scheme."
+        )
+
+    if not parsed_url.hostname:
+        raise RuntimeError(
+            f"{DATABASE_URL_ENVIRONMENT_VARIABLE} "
+            "must include a PostgreSQL hostname."
+        )
+
+    if (
+        not parsed_url.path
+        or parsed_url.path == "/"
+    ):
+        raise RuntimeError(
+            f"{DATABASE_URL_ENVIRONMENT_VARIABLE} "
+            "must include a PostgreSQL database name."
+        )
+
+    return {
+        "backend": "postgresql",
+        "database_url": database_url,
+    }
+
+
 def validate_configuration(
     model_path: Path = DEFAULT_MODEL_PATH,
 ) -> dict:
@@ -165,6 +227,13 @@ def validate_configuration(
         errors.append(str(error))
         rate_limit_settings = None
 
+    try:
+        database_settings = get_database_settings()
+
+    except RuntimeError as error:
+        errors.append(str(error))
+        database_settings = None
+
     if not model_path.exists():
         errors.append(
             "The ML model file was not found. "
@@ -201,5 +270,9 @@ def validate_configuration(
         ),
         "rate_limit_window_seconds": (
             rate_limit_settings["window_seconds"]
+        ),
+        "database_configured": True,
+        "database_backend": (
+            database_settings["backend"]
         ),
     }
