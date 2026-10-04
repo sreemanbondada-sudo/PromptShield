@@ -9,7 +9,8 @@ PromptShield is an explainable security gateway that analyzes user prompts befor
 The backend security platform, expanded machine-learning pipeline and authenticated React dashboard are operational.
 
 - 149 backend tests passing
-- 31 frontend tests passing
+- 31 frontend unit and component tests passing
+- 2 Playwright browser end-to-end tests passing
 - JWT administrator authentication for protected API routes
 - Hybrid rule-based and machine-learning detection
 - Sensitive-data detection and redaction
@@ -370,13 +371,16 @@ The CI workflow automatically:
 - Validates Python source files
 - Runs the complete backend test suite
 - Installs frontend dependencies with `npm ci`
-- Runs the complete frontend test suite
+- Runs the frontend unit and component test suite
 - Runs ESLint
 - Builds the production frontend bundle
+- Installs Playwright Chromium
+- Runs the authenticated browser end-to-end tests
+- Uploads screenshots, videos, traces and reports when browser tests fail
 
 The current CI status is displayed by the badge at the top of this README.
 
-The workflow uses CI-only test credentials. Real application secrets are never committed to the repository.
+The workflow uses CI-only test credentials and mocked browser API responses. Real application secrets and administrator credentials are never committed to the repository.
 
 ## Architecture
 
@@ -452,6 +456,7 @@ http://127.0.0.1:8000/docs
 - CSS
 - Vitest
 - React Testing Library
+-Playwright
 
 ### Development and automation
 
@@ -773,7 +778,7 @@ Current result:
 
 ### Frontend testing
 
-The frontend test suite covers:
+The Vitest and React Testing Library suite covers:
 
 - Administrator login and logout
 - Login failure handling
@@ -800,10 +805,50 @@ The frontend test suite covers:
 - Closing the investigation view
 - API service functions
 
-Current result:
+Run the unit and component tests:
+
+```powershell
+cd frontend
+npm test
+```
+
+Current unit and component result:
 
 ```text
 31 passed
+```
+
+### Browser end-to-end testing
+
+Playwright tests the authenticated administrator workflow in Chromium using controlled mocked API responses. No real administrator password, JWT or production data is used.
+
+The browser suite verifies:
+
+- Administrator login
+- Protected dashboard loading
+- Bearer-token authorization
+- Prompt submission and analysis rendering
+- Security-event investigation
+- Investigation-panel closing
+- Administrator logout
+- Session-token removal
+
+Install the local Chromium test browser once:
+
+```powershell
+npx playwright install chromium
+```
+
+Run the browser tests:
+
+```powershell
+npm run test:e2e
+```
+
+Current browser result:
+
+```text
+2 passed
 ```
 
 ## Reproducing the ScamBench Experiment
