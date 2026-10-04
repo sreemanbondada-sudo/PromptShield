@@ -4,15 +4,19 @@ import re
 RULES = [
     # Prompt-injection rules
     {
-        "pattern": (
-            r"\b(ignore|disregard|forget|override)\s+(all\s+)?"
-            r"(previous|prior|earlier|above)\s+"
-            r"(instructions?|rules?|directions?)\b"
-        ),
-        "name": "previous-instruction override",
-        "category": "prompt_injection",
-        "score": 80,
-    },
+    "pattern": (
+        r"\b(ignore|disregard|forget|override)\s+"
+        r"(?:"
+        r"all\s+(?:(?:previous|prior|earlier|above)\s+)?"
+        r"|"
+        r"(?:previous|prior|earlier|above)\s+"
+        r")"
+        r"(instructions?|rules?|directions?)\b"
+    ),
+    "name": "instruction override",
+    "category": "prompt_injection",
+    "score": 80,
+},
     {
         "pattern": (
             r"\b(these|my|new)\s+instructions?\s+"
