@@ -51,6 +51,62 @@ def test_sensitive_data_is_redacted():
     assert result["recommended_action"] == "redact"
     assert "[REDACTED]" in result["redacted_prompt"]
 
+def test_sensitive_data_has_priority_over_ml_review(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        "main.analyze_prompt_with_ml",
+        lambda prompt: {
+            "is_malicious": True,
+            "malicious_probability": 0.96,
+            "threshold": 0.55,
+            "model_type": (
+                "TF-IDF Logistic Regression"
+            ),
+        },
+    )
+
+    response = client.post(
+        "/analyze",
+        json={
+            "prompt": (
+                "My Aadhaar number is "
+                "2345 6789 0123."
+            ),
+        },
+    )
+
+    result = response.json()
+
+    assert response.status_code == 200
+    assert result["is_malicious"] is False
+    assert result["contains_sensitive_data"] is True
+    assert result["recommended_action"] == "redact"
+
+    assert result["category"] == (
+        "sensitive_data_exposure"
+    )
+
+    assert result["redacted_prompt"] == (
+        "My Aadhaar number is [REDACTED]."
+    )
+
+    detected_types = {
+        finding["type"]
+        for finding in result["sensitive_findings"]
+    }
+
+    assert "aadhaar_number" in detected_types
+
+    assert (
+        "sensitive_data_detector"
+        in result["detection_sources"]
+    )
+
+    assert (
+        "machine_learning"
+        in result["detection_sources"]
+    )
 
 def test_malicious_prompt_is_blocked():
     response = client.post(
@@ -118,7 +174,7 @@ def test_instruction_override_without_previous_is_blocked(
         "machine_learning"
         not in result["detection_sources"]
     )
-    
+
 def test_combined_attack_is_blocked_and_redacted():
     response = client.post(
         "/analyze",
