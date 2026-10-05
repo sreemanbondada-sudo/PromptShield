@@ -100,6 +100,8 @@ def test_high_entropy_secret_is_detected():
         "The reference number is 2345 6789 0123.",
         "Bearer tokens are used for API authentication.",
         "The UID field should contain twelve digits.",
+        "A passport number is required for travel.",
+"Where can I find my passport number?",
     ],
 )
 def test_safe_text_is_not_redacted(text):

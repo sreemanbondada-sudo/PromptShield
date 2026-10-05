@@ -60,3 +60,8 @@ Use `allow` when the prompt is benign, legitimate, educational, protective or ad
 
 ```text
 Explain how passport applications work.
+What documents are legally required to enter the UK?
+I lost my passport abroad. What official steps should I take?
+I lost my passport abroad. What official steps should I take?
+Explain how prompt injection attacks work.
+Explain how API tokens should be stored securely.

@@ -185,6 +185,7 @@ function RecentEvents({ events, onRefresh }) {
   const filteredEvents = useMemo(() => {
     const normalizedSearch = searchTerm
       .trim()
+      .replaceAll('-', ' ')
       .toLowerCase()
 
     return events.filter((event) => {
@@ -197,10 +198,12 @@ function RecentEvents({ events, onRefresh }) {
         event.category,
         event.recommended_action,
         event.risk_level,
+        ...(event.matched_patterns ?? []),
         ...(event.sensitive_data_types ?? []),
       ]
         .join(' ')
         .replaceAll('_', ' ')
+        .replaceAll('-', ' ')
         .toLowerCase()
 
       const matchesSearch =
