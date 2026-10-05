@@ -168,7 +168,7 @@ def test_complete_dataset_is_valid():
 
     assert report["valid"] is True
     assert report["errors"] == []
-    assert report["total_records"] == 800
+    assert report["total_records"] == 840
 
 def test_valid_temporary_dataset_passes(
     monkeypatch,
