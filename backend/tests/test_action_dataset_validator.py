@@ -160,7 +160,7 @@ def valid_dataset_records() -> dict[str, list[dict]]:
     }
 
 
-def test_seed_dataset_is_valid():
+def test_complete_dataset_is_valid():
     report = (
         validate_action_dataset
         .validate_datasets()
@@ -168,8 +168,7 @@ def test_seed_dataset_is_valid():
 
     assert report["valid"] is True
     assert report["errors"] == []
-    assert report["total_records"] == 32
-
+    assert report["total_records"] == 800
 
 def test_valid_temporary_dataset_passes(
     monkeypatch,
