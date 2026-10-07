@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
@@ -23,13 +24,8 @@ from config import (
     get_rate_limit_settings,
     validate_configuration,
 )
-from storage import (
-    check_database_integrity,
-    get_recent_events,
-    get_statistics,
-    initialize_database,
-    save_security_event,
-    verify_audit_chain,
+from contextual_action_service import (
+    analyze_contextual_action,
 )
 from detector import analyze_prompt
 from error_handlers import register_error_handlers
@@ -55,6 +51,17 @@ from security_headers import (
     SecurityHeadersMiddleware,
 )
 from sensitive_detector import detect_sensitive_data
+from storage import (
+    check_database_integrity,
+    get_recent_events,
+    get_statistics,
+    initialize_database,
+    save_security_event,
+    verify_audit_chain,
+)
+
+
+logger = logging.getLogger(__name__)
 
 
 load_dotenv()
@@ -185,6 +192,72 @@ def login(request: LoginRequest):
     }
 
 
+def run_contextual_action_shadow(
+    prompt: str,
+    production_action: str,
+) -> dict:
+    """
+    Run the contextual classifier without controlling production.
+
+    A shadow-model failure must not interrupt the existing
+    production analysis pipeline.
+    """
+    try:
+        contextual_result = analyze_contextual_action(
+            prompt
+        )
+
+    except Exception:
+        logger.warning(
+            "Contextual action shadow analysis failed.",
+            exc_info=True,
+        )
+
+        return {
+            "available": False,
+            "predicted_action": None,
+            "probabilities": {},
+            "confidence": None,
+            "probability_margin": None,
+            "is_confident": None,
+            "requires_review": None,
+            "agrees_with_production": None,
+            "model_name": None,
+            "mode": "shadow",
+        }
+
+    predicted_action = contextual_result[
+        "predicted_action"
+    ]
+
+    return {
+        "available": True,
+        "predicted_action": predicted_action,
+        "probabilities": contextual_result[
+            "probabilities"
+        ],
+        "confidence": contextual_result[
+            "confidence"
+        ],
+        "probability_margin": contextual_result[
+            "probability_margin"
+        ],
+        "is_confident": contextual_result[
+            "is_confident"
+        ],
+        "requires_review": contextual_result[
+            "requires_review"
+        ],
+        "agrees_with_production": (
+            predicted_action == production_action
+        ),
+        "model_name": contextual_result[
+            "model_name"
+        ],
+        "mode": "shadow",
+    }
+
+
 @app.post(
     "/analyze",
     response_model=AnalyzeResponse,
@@ -275,6 +348,13 @@ def analyze(
     else:
         recommended_action = "allow"
 
+    contextual_shadow = (
+        run_contextual_action_shadow(
+            prompt=request.prompt,
+            production_action=recommended_action,
+        )
+    )
+
     analysis_result = {
         **prompt_result,
         "contains_sensitive_data": (
@@ -292,6 +372,7 @@ def analyze(
             ml_result["malicious_probability"]
         ),
         "detection_sources": detection_sources,
+        "contextual_shadow": contextual_shadow,
     }
 
     event_id = save_security_event(

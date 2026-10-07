@@ -41,6 +41,28 @@ def save_security_event(
         prompt_length=prompt_length,
     )
 
+def get_contextual_action_shadow(
+    event_id: int,
+) -> dict | None:
+    """Read contextual shadow metadata from configured storage."""
+    settings = get_database_settings()
+
+    if settings["backend"] == "postgresql":
+        return (
+            postgres_database
+            .get_contextual_action_shadow(
+                event_id=event_id,
+                database_url=settings["database_url"],
+            )
+        )
+
+    return (
+        sqlite_database
+        .get_contextual_action_shadow(
+            event_id=event_id,
+        )
+    )
+
 
 def get_decrypted_event_preview(
     event_id: int,

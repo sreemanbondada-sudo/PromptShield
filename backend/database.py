@@ -106,14 +106,41 @@ def initialize_database(
 
         connection.execute(
             """
-            CREATE TABLE IF NOT EXISTS encrypted_event_previews (
-                event_id INTEGER PRIMARY KEY,
-                event_reference TEXT NOT NULL UNIQUE,
-                encrypted_preview TEXT NOT NULL,
-                FOREIGN KEY (event_id)
-                    REFERENCES security_events(id)
-                    ON DELETE CASCADE
-            )
+            CREATE TABLE IF NOT EXISTS
+                encrypted_event_previews (
+                    event_id INTEGER PRIMARY KEY,
+                    event_reference TEXT NOT NULL UNIQUE,
+                    encrypted_preview TEXT NOT NULL,
+                    FOREIGN KEY (event_id)
+                        REFERENCES security_events(id)
+                        ON DELETE CASCADE
+                )
+            """
+        )
+
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS
+                contextual_action_shadows (
+                    event_id INTEGER PRIMARY KEY,
+                    created_at TEXT NOT NULL
+                        DEFAULT CURRENT_TIMESTAMP,
+                    production_action TEXT NOT NULL,
+                    predicted_action TEXT,
+                    probabilities TEXT NOT NULL
+                        DEFAULT '{}',
+                    confidence REAL,
+                    probability_margin REAL,
+                    is_confident INTEGER,
+                    requires_review INTEGER,
+                    agrees_with_production INTEGER,
+                    model_name TEXT,
+                    mode TEXT NOT NULL
+                        DEFAULT 'shadow',
+                    FOREIGN KEY (event_id)
+                        REFERENCES security_events(id)
+                        ON DELETE CASCADE
+                )
             """
         )
 
@@ -132,7 +159,9 @@ def save_security_event(
     prompt_length: int,
     database_path: Path = DEFAULT_DATABASE_PATH,
 ) -> int:
-    """Save a tamper-evident event and encrypted preview."""
+    """
+    Save a tamper-evident event, encrypted preview and shadow data.
+    """
     initialize_database(database_path)
 
     matched_patterns = analysis_result.get(
@@ -190,7 +219,7 @@ def save_security_event(
             LIMIT 1
             """
         ).fetchone()
-    
+
         previous_hash = (
             previous_row["event_hash"]
             if previous_row is not None
@@ -278,7 +307,134 @@ def save_security_event(
             ),
         )
 
+        contextual_shadow = analysis_result.get(
+            "contextual_shadow"
+        )
+
+        if contextual_shadow is not None:
+            serialized_probabilities = json.dumps(
+                contextual_shadow.get(
+                    "probabilities",
+                    {},
+                )
+            )
+
+            def nullable_boolean(value):
+                if value is None:
+                    return None
+
+                return int(bool(value))
+
+            connection.execute(
+                """
+                INSERT INTO contextual_action_shadows (
+                    event_id,
+                    production_action,
+                    predicted_action,
+                    probabilities,
+                    confidence,
+                    probability_margin,
+                    is_confident,
+                    requires_review,
+                    agrees_with_production,
+                    model_name,
+                    mode
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    event_id,
+                    analysis_result[
+                        "recommended_action"
+                    ],
+                    contextual_shadow.get(
+                        "predicted_action"
+                    ),
+                    serialized_probabilities,
+                    contextual_shadow.get(
+                        "confidence"
+                    ),
+                    contextual_shadow.get(
+                        "probability_margin"
+                    ),
+                    nullable_boolean(
+                        contextual_shadow.get(
+                            "is_confident"
+                        )
+                    ),
+                    nullable_boolean(
+                        contextual_shadow.get(
+                            "requires_review"
+                        )
+                    ),
+                    nullable_boolean(
+                        contextual_shadow.get(
+                            "agrees_with_production"
+                        )
+                    ),
+                    contextual_shadow.get(
+                        "model_name"
+                    ),
+                    contextual_shadow.get(
+                        "mode",
+                        "shadow",
+                    ),
+                ),
+            )
+
         return event_id
+
+def get_contextual_action_shadow(
+    event_id: int,
+    database_path: Path = DEFAULT_DATABASE_PATH,
+) -> dict | None:
+    """Return privacy-safe contextual shadow metadata."""
+    initialize_database(database_path)
+
+    with get_connection(database_path) as connection:
+        row = connection.execute(
+            """
+            SELECT
+                event_id,
+                created_at,
+                production_action,
+                predicted_action,
+                probabilities,
+                confidence,
+                probability_margin,
+                is_confident,
+                requires_review,
+                agrees_with_production,
+                model_name,
+                mode
+            FROM contextual_action_shadows
+            WHERE event_id = ?
+            """,
+            (event_id,),
+        ).fetchone()
+
+    if row is None:
+        return None
+
+    result = dict(row)
+
+    result["probabilities"] = json.loads(
+        result["probabilities"]
+    )
+
+    for field_name in [
+        "is_confident",
+        "requires_review",
+        "agrees_with_production",
+    ]:
+        if result[field_name] is not None:
+            result[field_name] = bool(
+                result[field_name]
+            )
+
+    return result
+
+    
 def get_decrypted_event_preview(
     event_id: int,
     database_path: Path = DEFAULT_DATABASE_PATH,

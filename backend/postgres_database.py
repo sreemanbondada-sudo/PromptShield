@@ -121,6 +121,46 @@ def initialize_database(
 
         connection.execute(
             """
+            CREATE TABLE IF NOT EXISTS
+                contextual_action_shadows (
+                    event_id BIGINT PRIMARY KEY,
+                    created_at TIMESTAMPTZ NOT NULL
+                        DEFAULT CURRENT_TIMESTAMP,
+                    production_action TEXT NOT NULL,
+                    predicted_action TEXT,
+                    probabilities TEXT NOT NULL
+                        DEFAULT '{}',
+                    confidence DOUBLE PRECISION,
+                    probability_margin DOUBLE PRECISION,
+                    is_confident SMALLINT
+                        CHECK (
+                            is_confident IS NULL
+                            OR is_confident IN (0, 1)
+                        ),
+                    requires_review SMALLINT
+                        CHECK (
+                            requires_review IS NULL
+                            OR requires_review IN (0, 1)
+                        ),
+                    agrees_with_production SMALLINT
+                        CHECK (
+                            agrees_with_production IS NULL
+                            OR agrees_with_production IN (0, 1)
+                        ),
+                    model_name TEXT,
+                    mode TEXT NOT NULL
+                        DEFAULT 'shadow',
+                    CONSTRAINT
+                        contextual_action_shadows_event_fk
+                    FOREIGN KEY (event_id)
+                        REFERENCES security_events(id)
+                        ON DELETE CASCADE
+                )
+            """
+        )
+
+        connection.execute(
+            """
             CREATE INDEX IF NOT EXISTS
                 security_events_created_at_index
             ON security_events (created_at DESC)
@@ -143,6 +183,28 @@ def initialize_database(
             """
         )
 
+        connection.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+                contextual_shadows_agreement_index
+            ON contextual_action_shadows (
+                agrees_with_production
+            )
+            """
+        )
+
+        connection.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+                contextual_shadows_prediction_index
+            ON contextual_action_shadows (
+                predicted_action
+            )
+            """
+        )
+
+
+
 
 def build_preview_associated_data(
     event_id: int,
@@ -160,7 +222,9 @@ def save_security_event(
     prompt_length: int,
     database_url: str | None = None,
 ) -> int:
-    """Save a tamper-evident event and encrypted preview."""
+    """
+    Save a tamper-evident event, encrypted preview and shadow data.
+    """
     initialize_database(database_url)
 
     matched_patterns = analysis_result.get(
@@ -316,7 +380,140 @@ def save_security_event(
             ),
         )
 
+        contextual_shadow = analysis_result.get(
+            "contextual_shadow"
+        )
+
+        if contextual_shadow is not None:
+            serialized_probabilities = json.dumps(
+                contextual_shadow.get(
+                    "probabilities",
+                    {},
+                )
+            )
+
+            def nullable_boolean(value):
+                if value is None:
+                    return None
+
+                return int(bool(value))
+
+            connection.execute(
+                """
+                INSERT INTO contextual_action_shadows (
+                    event_id,
+                    production_action,
+                    predicted_action,
+                    probabilities,
+                    confidence,
+                    probability_margin,
+                    is_confident,
+                    requires_review,
+                    agrees_with_production,
+                    model_name,
+                    mode
+                )
+                VALUES (
+                    %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s
+                )
+                """,
+                (
+                    event_id,
+                    analysis_result[
+                        "recommended_action"
+                    ],
+                    contextual_shadow.get(
+                        "predicted_action"
+                    ),
+                    serialized_probabilities,
+                    contextual_shadow.get(
+                        "confidence"
+                    ),
+                    contextual_shadow.get(
+                        "probability_margin"
+                    ),
+                    nullable_boolean(
+                        contextual_shadow.get(
+                            "is_confident"
+                        )
+                    ),
+                    nullable_boolean(
+                        contextual_shadow.get(
+                            "requires_review"
+                        )
+                    ),
+                    nullable_boolean(
+                        contextual_shadow.get(
+                            "agrees_with_production"
+                        )
+                    ),
+                    contextual_shadow.get(
+                        "model_name"
+                    ),
+                    contextual_shadow.get(
+                        "mode",
+                        "shadow",
+                    ),
+                ),
+            )
+
         return event_id
+
+def get_contextual_action_shadow(
+    event_id: int,
+    database_url: str | None = None,
+) -> dict | None:
+    """Return privacy-safe contextual shadow metadata."""
+    initialize_database(database_url)
+
+    with get_connection(database_url) as connection:
+        row = connection.execute(
+            """
+            SELECT
+                event_id,
+                created_at,
+                production_action,
+                predicted_action,
+                probabilities,
+                confidence,
+                probability_margin,
+                is_confident,
+                requires_review,
+                agrees_with_production,
+                model_name,
+                mode
+            FROM contextual_action_shadows
+            WHERE event_id = %s
+            """,
+            (event_id,),
+        ).fetchone()
+
+    if row is None:
+        return None
+
+    result = dict(row)
+
+    result["probabilities"] = json.loads(
+        result["probabilities"]
+    )
+
+    for field_name in [
+        "is_confident",
+        "requires_review",
+        "agrees_with_production",
+    ]:
+        if result[field_name] is not None:
+            result[field_name] = bool(
+                result[field_name]
+            )
+
+    if result["created_at"] is not None:
+        result["created_at"] = format_created_at(
+            result["created_at"]
+        )
+
+    return result
 
 
 def get_decrypted_event_preview(

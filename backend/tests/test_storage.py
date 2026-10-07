@@ -184,3 +184,68 @@ def test_routes_integrity_check_to_postgresql(
     postgresql_integrity.assert_called_once_with(
         database_url=POSTGRESQL_TEST_URL,
     )
+
+
+def test_reads_contextual_shadow_from_sqlite(
+    monkeypatch,
+):
+    use_sqlite(monkeypatch)
+
+    sqlite_shadow = Mock(
+        return_value={
+            "event_id": 7,
+            "predicted_action": "block",
+        }
+    )
+
+    monkeypatch.setattr(
+        storage.sqlite_database,
+        "get_contextual_action_shadow",
+        sqlite_shadow,
+    )
+
+    result = storage.get_contextual_action_shadow(
+        event_id=7
+    )
+
+    assert result == {
+        "event_id": 7,
+        "predicted_action": "block",
+    }
+
+    sqlite_shadow.assert_called_once_with(
+        event_id=7,
+    )
+
+
+def test_reads_contextual_shadow_from_postgresql(
+    monkeypatch,
+):
+    use_postgresql(monkeypatch)
+
+    postgresql_shadow = Mock(
+        return_value={
+            "event_id": 9,
+            "predicted_action": "redact",
+        }
+    )
+
+    monkeypatch.setattr(
+        storage.postgres_database,
+        "get_contextual_action_shadow",
+        postgresql_shadow,
+    )
+
+    result = storage.get_contextual_action_shadow(
+        event_id=9
+    )
+
+    assert result == {
+        "event_id": 9,
+        "predicted_action": "redact",
+    }
+
+    postgresql_shadow.assert_called_once_with(
+        event_id=9,
+        database_url=POSTGRESQL_TEST_URL,
+    )

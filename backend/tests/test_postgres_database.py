@@ -380,3 +380,145 @@ def test_postgresql_integrity_check_passes(
         "foreign_key_violations": 0,
         "backend": "postgresql",
     }
+
+def test_saves_privacy_safe_contextual_shadow(
+    monkeypatch,
+):
+    inserted_event_id = 17
+    secret_marker = "DO-NOT-STORE-ORIGINAL-PROMPT"
+
+    def execute_handler(
+        query,
+        parameters,
+    ):
+        if "pg_advisory_xact_lock" in query:
+            return FakeCursor()
+
+        if "SELECT event_hash" in query:
+            return FakeCursor(
+                row=None
+            )
+
+        if "INSERT INTO security_events" in query:
+            return FakeCursor(
+                row={
+                    "id": inserted_event_id,
+                }
+            )
+
+        if (
+            "INSERT INTO encrypted_event_previews"
+            in query
+        ):
+            return FakeCursor()
+
+        if (
+            "INSERT INTO contextual_action_shadows"
+            in query
+        ):
+            return FakeCursor()
+
+        raise AssertionError(
+            f"Unexpected query: {query}"
+        )
+
+    fake_connection = FakeConnection(
+        execute_handler
+    )
+
+    monkeypatch.setattr(
+        postgres_database,
+        "initialize_database",
+        Mock(),
+    )
+
+    monkeypatch.setattr(
+        postgres_database,
+        "get_connection",
+        lambda database_url=None: fake_connection,
+    )
+
+    monkeypatch.setattr(
+        postgres_database,
+        "encrypt_text",
+        Mock(
+            return_value="encrypted-preview"
+        ),
+    )
+
+    analysis_result = {
+        "is_malicious": False,
+        "risk_level": "low",
+        "risk_score": 0,
+        "category": "safe",
+        "recommended_action": "allow",
+        "contains_sensitive_data": False,
+        "matched_patterns": [],
+        "sensitive_findings": [],
+        "redacted_prompt": "[REDACTED]",
+        "contextual_shadow": {
+            "available": True,
+            "predicted_action": "block",
+            "probabilities": {
+                "allow": 0.05,
+                "review": 0.10,
+                "redact": 0.05,
+                "block": 0.80,
+            },
+            "confidence": 0.80,
+            "probability_margin": 0.70,
+            "is_confident": True,
+            "requires_review": False,
+            "agrees_with_production": False,
+            "model_name": "test_contextual_model",
+            "mode": "shadow",
+        },
+    }
+
+    event_id = (
+        postgres_database.save_security_event(
+            analysis_result=analysis_result,
+            prompt_length=len(secret_marker),
+            database_url=POSTGRESQL_TEST_URL,
+        )
+    )
+
+    assert event_id == inserted_event_id
+
+    shadow_inserts = [
+        (
+            query,
+            parameters,
+        )
+        for query, parameters
+        in fake_connection.executed_queries
+        if (
+            "INSERT INTO contextual_action_shadows"
+            in query
+        )
+    ]
+
+    assert len(shadow_inserts) == 1
+
+    _query, parameters = shadow_inserts[0]
+
+    assert parameters[0] == inserted_event_id
+    assert parameters[1] == "allow"
+    assert parameters[2] == "block"
+    assert parameters[4] == 0.80
+    assert parameters[5] == 0.70
+    assert parameters[6] == 1
+    assert parameters[7] == 0
+    assert parameters[8] == 0
+    assert parameters[9] == "test_contextual_model"
+    assert parameters[10] == "shadow"
+
+    all_parameters = repr(
+        [
+            parameters
+            for _query, parameters
+            in fake_connection.executed_queries
+        ]
+    )
+
+    assert secret_marker not in all_parameters

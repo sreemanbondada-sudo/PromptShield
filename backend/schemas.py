@@ -49,6 +49,33 @@ class SensitiveFinding(BaseModel):
     detection_method: str
 
 
+class ContextualActionShadow(BaseModel):
+    available: bool
+    predicted_action: str | None = None
+
+    probabilities: dict[str, float] = Field(
+        default_factory=dict,
+    )
+
+    confidence: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+    )
+
+    probability_margin: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+    )
+
+    is_confident: bool | None = None
+    requires_review: bool | None = None
+    agrees_with_production: bool | None = None
+    model_name: str | None = None
+    mode: str = "shadow"
+
+
 class AnalyzeResponse(BaseModel):
     event_id: int
     is_malicious: bool
@@ -69,7 +96,7 @@ class AnalyzeResponse(BaseModel):
     )
 
     detection_sources: list[str]
-
+    contextual_shadow: ContextualActionShadow
 
 class IntegrityVerifyRequest(BaseModel):
     message: str = Field(

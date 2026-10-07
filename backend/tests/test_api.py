@@ -593,3 +593,155 @@ def test_oversized_request_is_rejected():
     }
 
     assert secret_marker not in response.text
+
+def test_contextual_model_runs_in_shadow_mode(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        "main.analyze_prompt_with_ml",
+        lambda prompt: {
+            "is_malicious": False,
+            "malicious_probability": 0.10,
+            "threshold": 0.55,
+            "model_type": "test model",
+        },
+    )
+
+    monkeypatch.setattr(
+        "main.analyze_contextual_action",
+        lambda prompt: {
+            "predicted_action": "block",
+            "probabilities": {
+                "allow": 0.05,
+                "review": 0.10,
+                "redact": 0.05,
+                "block": 0.80,
+            },
+            "confidence": 0.80,
+            "probability_margin": 0.70,
+            "is_confident": True,
+            "requires_review": False,
+            "model_name": "test_contextual_model",
+            "dataset": "test_dataset",
+            "mode": "shadow",
+        },
+    )
+
+    response = client.post(
+        "/analyze",
+        json={
+            "prompt": "Explain the solar system.",
+        },
+    )
+
+    result = response.json()
+
+    assert response.status_code == 200
+
+    # Shadow prediction must not alter production.
+    assert result["recommended_action"] == "allow"
+
+    shadow = result["contextual_shadow"]
+
+    assert shadow["available"] is True
+    assert shadow["predicted_action"] == "block"
+    assert shadow["confidence"] == 0.80
+    assert shadow["probability_margin"] == 0.70
+    assert shadow["is_confident"] is True
+    assert shadow["requires_review"] is False
+    assert shadow["agrees_with_production"] is False
+    assert shadow["mode"] == "shadow"
+
+    assert shadow["probabilities"] == {
+        "allow": 0.05,
+        "review": 0.10,
+        "redact": 0.05,
+        "block": 0.80,
+    }
+
+
+def test_contextual_shadow_agreement_is_reported(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        "main.analyze_prompt_with_ml",
+        lambda prompt: {
+            "is_malicious": False,
+            "malicious_probability": 0.10,
+            "threshold": 0.55,
+            "model_type": "test model",
+        },
+    )
+
+    monkeypatch.setattr(
+        "main.analyze_contextual_action",
+        lambda prompt: {
+            "predicted_action": "allow",
+            "probabilities": {
+                "allow": 0.75,
+                "review": 0.15,
+                "redact": 0.05,
+                "block": 0.05,
+            },
+            "confidence": 0.75,
+            "probability_margin": 0.60,
+            "is_confident": True,
+            "requires_review": False,
+            "model_name": "test_contextual_model",
+            "dataset": "test_dataset",
+            "mode": "shadow",
+        },
+    )
+
+    response = client.post(
+        "/analyze",
+        json={
+            "prompt": "Explain photosynthesis.",
+        },
+    )
+
+    result = response.json()
+
+    assert response.status_code == 200
+    assert result["recommended_action"] == "allow"
+
+    assert (
+        result["contextual_shadow"][
+            "agrees_with_production"
+        ]
+        is True
+    )
+
+
+def test_contextual_shadow_failure_does_not_break_analysis(
+    monkeypatch,
+):
+    def raise_contextual_error(prompt):
+        raise RuntimeError(
+            "Contextual test model unavailable."
+        )
+
+    monkeypatch.setattr(
+        "main.analyze_contextual_action",
+        raise_contextual_error,
+    )
+
+    response = client.post(
+        "/analyze",
+        json={
+            "prompt": "Explain photosynthesis.",
+        },
+    )
+
+    result = response.json()
+
+    assert response.status_code == 200
+    assert result["recommended_action"] == "allow"
+
+    shadow = result["contextual_shadow"]
+
+    assert shadow["available"] is False
+    assert shadow["predicted_action"] is None
+    assert shadow["probabilities"] == {}
+    assert shadow["agrees_with_production"] is None
+    assert shadow["mode"] == "shadow"
