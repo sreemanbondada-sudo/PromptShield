@@ -522,3 +522,143 @@ def test_saves_privacy_safe_contextual_shadow(
     )
 
     assert secret_marker not in all_parameters
+
+def test_contextual_shadow_statistics_are_calculated(
+    monkeypatch,
+):
+    def execute_handler(
+        query,
+        parameters,
+    ):
+        if (
+            "COUNT(*) AS total_predictions"
+            in query
+        ):
+            return FakeCursor(
+                row={
+                    "total_predictions": 4,
+                    "available_predictions": 3,
+                    "unavailable_predictions": 1,
+                    "agreements": 2,
+                    "disagreements": 1,
+                    "confident_predictions": 2,
+                    "uncertain_predictions": 1,
+                    "average_confidence": 0.75,
+                    "average_probability_margin": 0.5,
+                }
+            )
+
+        if (
+            "GROUP BY production_action"
+            in query
+            and "predicted_action" not in query
+        ):
+            return FakeCursor(
+                rows=[
+                    {
+                        "production_action": "allow",
+                        "count": 3,
+                    },
+                    {
+                        "production_action": "redact",
+                        "count": 1,
+                    },
+                ]
+            )
+
+        if (
+            "GROUP BY predicted_action"
+            in query
+        ):
+            return FakeCursor(
+                rows=[
+                    {
+                        "predicted_action": "allow",
+                        "count": 1,
+                    },
+                    {
+                        "predicted_action": "block",
+                        "count": 1,
+                    },
+                    {
+                        "predicted_action": "redact",
+                        "count": 1,
+                    },
+                ]
+            )
+
+        if (
+            "agrees_with_production = 0"
+            in query
+        ):
+            return FakeCursor(
+                rows=[
+                    {
+                        "production_action": "allow",
+                        "predicted_action": "block",
+                        "count": 1,
+                    },
+                ]
+            )
+
+        raise AssertionError(
+            f"Unexpected query: {query}"
+        )
+
+    fake_connection = FakeConnection(
+        execute_handler
+    )
+
+    monkeypatch.setattr(
+        postgres_database,
+        "initialize_database",
+        Mock(),
+    )
+
+    monkeypatch.setattr(
+        postgres_database,
+        "get_connection",
+        lambda database_url=None: fake_connection,
+    )
+
+    statistics = (
+        postgres_database
+        .get_contextual_shadow_statistics(
+            database_url=POSTGRESQL_TEST_URL,
+        )
+    )
+
+    assert statistics["total_predictions"] == 4
+    assert statistics["available_predictions"] == 3
+    assert statistics["unavailable_predictions"] == 1
+    assert statistics["agreements"] == 2
+    assert statistics["disagreements"] == 1
+    assert statistics["agreement_rate"] == 0.6667
+    assert statistics["confident_predictions"] == 2
+    assert statistics["uncertain_predictions"] == 1
+    assert statistics["average_confidence"] == 0.75
+
+    assert (
+        statistics[
+            "average_probability_margin"
+        ]
+        == 0.5
+    )
+
+    assert statistics["production_actions"] == {
+        "allow": 3,
+        "redact": 1,
+    }
+
+    assert statistics["contextual_actions"] == {
+        "allow": 1,
+        "block": 1,
+        "redact": 1,
+    }
+
+    assert (
+        statistics["disagreement_transitions"]
+        == {
+            "allow->block": 1,
+        }
+    )

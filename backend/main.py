@@ -46,6 +46,7 @@ from schemas import (
     LoginRequest,
     MLAnalysisResponse,
     TokenResponse,
+    ContextualShadowStatisticsResponse,
 )
 from security_headers import (
     SecurityHeadersMiddleware,
@@ -58,6 +59,7 @@ from storage import (
     initialize_database,
     save_security_event,
     verify_audit_chain,
+    get_contextual_shadow_statistics,
 )
 
 
@@ -406,6 +408,15 @@ def statistics(
 ):
     return get_statistics()
 
+@app.get(
+    "/statistics/contextual-shadow",
+    response_model=ContextualShadowStatisticsResponse,
+)
+def contextual_shadow_statistics(
+    _admin: str = Depends(require_admin),
+):
+    """Return privacy-safe contextual shadow statistics."""
+    return get_contextual_shadow_statistics()
 
 @app.post(
     "/integrity/verify",

@@ -249,3 +249,66 @@ def test_reads_contextual_shadow_from_postgresql(
         event_id=9,
         database_url=POSTGRESQL_TEST_URL,
     )
+
+def test_reads_shadow_statistics_from_sqlite(
+    monkeypatch,
+):
+    use_sqlite(monkeypatch)
+
+    sqlite_statistics = Mock(
+        return_value={
+            "total_predictions": 5,
+            "agreement_rate": 0.8,
+        }
+    )
+
+    monkeypatch.setattr(
+        storage.sqlite_database,
+        "get_contextual_shadow_statistics",
+        sqlite_statistics,
+    )
+
+    result = (
+        storage
+        .get_contextual_shadow_statistics()
+    )
+
+    assert result == {
+        "total_predictions": 5,
+        "agreement_rate": 0.8,
+    }
+
+    sqlite_statistics.assert_called_once_with()
+
+
+def test_reads_shadow_statistics_from_postgresql(
+    monkeypatch,
+):
+    use_postgresql(monkeypatch)
+
+    postgresql_statistics = Mock(
+        return_value={
+            "total_predictions": 8,
+            "agreement_rate": 0.75,
+        }
+    )
+
+    monkeypatch.setattr(
+        storage.postgres_database,
+        "get_contextual_shadow_statistics",
+        postgresql_statistics,
+    )
+
+    result = (
+        storage
+        .get_contextual_shadow_statistics()
+    )
+
+    assert result == {
+        "total_predictions": 8,
+        "agreement_rate": 0.75,
+    }
+
+    postgresql_statistics.assert_called_once_with(
+        database_url=POSTGRESQL_TEST_URL,
+    )

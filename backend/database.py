@@ -433,6 +433,169 @@ def get_contextual_action_shadow(
             )
 
     return result
+def get_contextual_shadow_statistics(
+    database_path: Path = DEFAULT_DATABASE_PATH,
+) -> dict:
+    """Aggregate privacy-safe contextual shadow metrics."""
+    initialize_database(database_path)
+
+    with get_connection(database_path) as connection:
+        totals = connection.execute(
+            """
+            SELECT
+                COUNT(*) AS total_predictions,
+                SUM(
+                    CASE
+                        WHEN predicted_action IS NOT NULL
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS available_predictions,
+                SUM(
+                    CASE
+                        WHEN predicted_action IS NULL
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS unavailable_predictions,
+                SUM(
+                    CASE
+                        WHEN agrees_with_production = 1
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS agreements,
+                SUM(
+                    CASE
+                        WHEN agrees_with_production = 0
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS disagreements,
+                SUM(
+                    CASE
+                        WHEN is_confident = 1
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS confident_predictions,
+                SUM(
+                    CASE
+                        WHEN is_confident = 0
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS uncertain_predictions,
+                AVG(confidence) AS average_confidence,
+                AVG(probability_margin)
+                    AS average_probability_margin
+            FROM contextual_action_shadows
+            """
+        ).fetchone()
+
+        production_rows = connection.execute(
+            """
+            SELECT
+                production_action,
+                COUNT(*) AS count
+            FROM contextual_action_shadows
+            GROUP BY production_action
+            ORDER BY production_action
+            """
+        ).fetchall()
+
+        contextual_rows = connection.execute(
+            """
+            SELECT
+                predicted_action,
+                COUNT(*) AS count
+            FROM contextual_action_shadows
+            WHERE predicted_action IS NOT NULL
+            GROUP BY predicted_action
+            ORDER BY predicted_action
+            """
+        ).fetchall()
+
+        transition_rows = connection.execute(
+            """
+            SELECT
+                production_action,
+                predicted_action,
+                COUNT(*) AS count
+            FROM contextual_action_shadows
+            WHERE
+                agrees_with_production = 0
+                AND predicted_action IS NOT NULL
+            GROUP BY
+                production_action,
+                predicted_action
+            ORDER BY
+                production_action,
+                predicted_action
+            """
+        ).fetchall()
+
+    agreements = totals["agreements"] or 0
+    disagreements = totals["disagreements"] or 0
+    compared_predictions = (
+        agreements + disagreements
+    )
+
+    agreement_rate = (
+        agreements / compared_predictions
+        if compared_predictions
+        else 0.0
+    )
+
+    return {
+        "total_predictions": (
+            totals["total_predictions"] or 0
+        ),
+        "available_predictions": (
+            totals["available_predictions"] or 0
+        ),
+        "unavailable_predictions": (
+            totals["unavailable_predictions"] or 0
+        ),
+        "agreements": agreements,
+        "disagreements": disagreements,
+        "agreement_rate": round(
+            agreement_rate,
+            4,
+        ),
+        "confident_predictions": (
+            totals["confident_predictions"] or 0
+        ),
+        "uncertain_predictions": (
+            totals["uncertain_predictions"] or 0
+        ),
+        "average_confidence": round(
+            totals["average_confidence"] or 0.0,
+            4,
+        ),
+        "average_probability_margin": round(
+            totals[
+                "average_probability_margin"
+            ]
+            or 0.0,
+            4,
+        ),
+        "production_actions": {
+            row["production_action"]: row["count"]
+            for row in production_rows
+        },
+        "contextual_actions": {
+            row["predicted_action"]: row["count"]
+            for row in contextual_rows
+        },
+        "disagreement_transitions": {
+            (
+                f"{row['production_action']}"
+                f"->{row['predicted_action']}"
+            ): row["count"]
+            for row in transition_rows
+        },
+    }
 
     
 def get_decrypted_event_preview(

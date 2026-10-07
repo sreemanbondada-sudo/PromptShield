@@ -75,6 +75,53 @@ class ContextualActionShadow(BaseModel):
     model_name: str | None = None
     mode: str = "shadow"
 
+class ContextualShadowStatisticsResponse(BaseModel):
+    total_predictions: int = Field(
+        ge=0,
+    )
+
+    available_predictions: int = Field(
+        ge=0,
+    )
+
+    unavailable_predictions: int = Field(
+        ge=0,
+    )
+
+    agreements: int = Field(
+        ge=0,
+    )
+
+    disagreements: int = Field(
+        ge=0,
+    )
+
+    agreement_rate: float = Field(
+        ge=0.0,
+        le=1.0,
+    )
+
+    confident_predictions: int = Field(
+        ge=0,
+    )
+
+    uncertain_predictions: int = Field(
+        ge=0,
+    )
+
+    average_confidence: float = Field(
+        ge=0.0,
+        le=1.0,
+    )
+
+    average_probability_margin: float = Field(
+        ge=0.0,
+        le=1.0,
+    )
+
+    production_actions: dict[str, int]
+    contextual_actions: dict[str, int]
+    disagreement_transitions: dict[str, int]
 
 class AnalyzeResponse(BaseModel):
     event_id: int

@@ -63,6 +63,23 @@ def get_contextual_action_shadow(
         )
     )
 
+def get_contextual_shadow_statistics() -> dict:
+    """Read contextual shadow statistics from configured storage."""
+    settings = get_database_settings()
+
+    if settings["backend"] == "postgresql":
+        return (
+            postgres_database
+            .get_contextual_shadow_statistics(
+                database_url=settings["database_url"],
+            )
+        )
+
+    return (
+        sqlite_database
+        .get_contextual_shadow_statistics()
+    )
+
 
 def get_decrypted_event_preview(
     event_id: int,

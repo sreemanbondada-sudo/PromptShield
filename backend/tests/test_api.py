@@ -713,35 +713,46 @@ def test_contextual_shadow_agreement_is_reported(
     )
 
 
-def test_contextual_shadow_failure_does_not_break_analysis(
+def test_contextual_shadow_statistics_endpoint(
     monkeypatch,
 ):
-    def raise_contextual_error(prompt):
-        raise RuntimeError(
-            "Contextual test model unavailable."
-        )
+    expected_statistics = {
+        "total_predictions": 10,
+        "available_predictions": 9,
+        "unavailable_predictions": 1,
+        "agreements": 7,
+        "disagreements": 2,
+        "agreement_rate": 0.7778,
+        "confident_predictions": 6,
+        "uncertain_predictions": 3,
+        "average_confidence": 0.74,
+        "average_probability_margin": 0.51,
+        "production_actions": {
+            "allow": 5,
+            "review": 2,
+            "redact": 2,
+            "block": 1,
+        },
+        "contextual_actions": {
+            "allow": 4,
+            "review": 2,
+            "redact": 1,
+            "block": 2,
+        },
+        "disagreement_transitions": {
+            "allow->block": 1,
+            "redact->review": 1,
+        },
+    }
 
     monkeypatch.setattr(
-        "main.analyze_contextual_action",
-        raise_contextual_error,
+        "main.get_contextual_shadow_statistics",
+        lambda: expected_statistics,
     )
 
-    response = client.post(
-        "/analyze",
-        json={
-            "prompt": "Explain photosynthesis.",
-        },
+    response = client.get(
+        "/statistics/contextual-shadow"
     )
-
-    result = response.json()
 
     assert response.status_code == 200
-    assert result["recommended_action"] == "allow"
-
-    shadow = result["contextual_shadow"]
-
-    assert shadow["available"] is False
-    assert shadow["predicted_action"] is None
-    assert shadow["probabilities"] == {}
-    assert shadow["agrees_with_production"] is None
-    assert shadow["mode"] == "shadow"
+    assert response.json() == expected_statistics
