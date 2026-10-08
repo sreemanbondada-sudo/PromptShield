@@ -1,0 +1,726 @@
+{
+  "decoder": "general_boundary_decoder_v1",
+  "final_holdout_used": false,
+  "model_name": "logistic_context_one",
+  "model_path": "C:\\Users\\Sreeman\\Documents\\Projects\\PromptShield\\backend\\research\\entity_localizer\\models\\contextual_entity_candidate.joblib",
+  "splits": {
+    "challenge": {
+      "changes": {
+        "exact_span_f1": 0.13043478260869568,
+        "exact_span_precision": 0.16666666666666663,
+        "exact_span_recall": 0.09090909090909094,
+        "false_positive_record_rate": -0.03333333333333333,
+        "sensitive_token_f1": 0.02564102564102566
+      },
+      "raw": {
+        "exact_span_f1": 0.8695652173913043,
+        "exact_span_precision": 0.8333333333333334,
+        "exact_span_recall": 0.9090909090909091,
+        "false_negative_record_rate": 0.0,
+        "false_negative_records": 0,
+        "false_negative_spans": 1,
+        "false_positive_record_rate": 0.03333333333333333,
+        "false_positive_records": 1,
+        "false_positive_spans": 2,
+        "incorrect_record_count": 2,
+        "incorrect_records": [
+          {
+            "gold_spans": [],
+            "id": "psac_900009",
+            "predicted_spans": [
+              {
+                "end": 14,
+                "start": 13,
+                "text": "-"
+              }
+            ],
+            "prompt": "Describe role-based access control for a small business application.",
+            "source_action": "allow",
+            "template_group": "challenge_allow_900009"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 28,
+                "start": 8,
+                "text": "dev.user@example.org",
+                "type": "email_address"
+              },
+              {
+                "end": 42,
+                "start": 32,
+                "text": "9654321078",
+                "type": "phone_number"
+              }
+            ],
+            "id": "psac_900029",
+            "predicted_spans": [
+              {
+                "end": 28,
+                "start": 11,
+                "text": ".user@example.org"
+              },
+              {
+                "end": 42,
+                "start": 32,
+                "text": "9654321078"
+              }
+            ],
+            "prompt": "Contact dev.user@example.org on 9654321078.",
+            "source_action": "redact",
+            "template_group": "challenge_redact_900029"
+          }
+        ],
+        "positive_record_count": 10,
+        "record_count": 40,
+        "safe_record_count": 30,
+        "sensitive_token_f1": 0.9743589743589743,
+        "sensitive_token_precision": 0.9743589743589743,
+        "sensitive_token_recall": 0.9743589743589743,
+        "token_accuracy": 0.9937106918238994,
+        "token_count": 477,
+        "true_positive_spans": 10
+      },
+      "repaired": {
+        "exact_span_f1": 1.0,
+        "exact_span_precision": 1.0,
+        "exact_span_recall": 1.0,
+        "false_negative_record_rate": 0.0,
+        "false_negative_records": 0,
+        "false_negative_spans": 0,
+        "false_positive_record_rate": 0.0,
+        "false_positive_records": 0,
+        "false_positive_spans": 0,
+        "incorrect_record_count": 0,
+        "incorrect_records": [],
+        "positive_record_count": 10,
+        "record_count": 40,
+        "safe_record_count": 30,
+        "sensitive_token_f1": 1.0,
+        "sensitive_token_precision": 1.0,
+        "sensitive_token_recall": 1.0,
+        "token_accuracy": 1.0,
+        "token_count": 477,
+        "true_positive_spans": 11
+      }
+    },
+    "test": {
+      "changes": {
+        "exact_span_f1": 0.4285714285714285,
+        "exact_span_precision": 0.5,
+        "exact_span_recall": 0.33333333333333337,
+        "false_positive_record_rate": -0.13333333333333333,
+        "sensitive_token_f1": 0.13744075829383884
+      },
+      "raw": {
+        "exact_span_f1": 0.5714285714285715,
+        "exact_span_precision": 0.5,
+        "exact_span_recall": 0.6666666666666666,
+        "false_negative_record_rate": 0.0,
+        "false_negative_records": 0,
+        "false_negative_spans": 10,
+        "false_positive_record_rate": 0.13333333333333333,
+        "false_positive_records": 10,
+        "false_positive_spans": 20,
+        "incorrect_record_count": 20,
+        "incorrect_records": [
+          {
+            "gold_spans": [],
+            "id": "psac_000186",
+            "predicted_spans": [
+              {
+                "end": 43,
+                "start": 42,
+                "text": "-"
+              }
+            ],
+            "prompt": "Why do regulated services perform identity-verification checks?",
+            "source_action": "allow",
+            "template_group": "identity_verification_purpose"
+          },
+          {
+            "gold_spans": [],
+            "id": "psac_000187",
+            "predicted_spans": [
+              {
+                "end": 78,
+                "start": 77,
+                "text": "-"
+              }
+            ],
+            "prompt": "Could you help with this question: Why do regulated services perform identity-verification checks?",
+            "source_action": "allow",
+            "template_group": "identity_verification_purpose"
+          },
+          {
+            "gold_spans": [],
+            "id": "psac_000188",
+            "predicted_spans": [
+              {
+                "end": 77,
+                "start": 76,
+                "text": "-"
+              }
+            ],
+            "prompt": "I would like a clear explanation: Why do regulated services perform identity-verification checks?",
+            "source_action": "allow",
+            "template_group": "identity_verification_purpose"
+          },
+          {
+            "gold_spans": [],
+            "id": "psac_000189",
+            "predicted_spans": [
+              {
+                "end": 76,
+                "start": 75,
+                "text": "-"
+              }
+            ],
+            "prompt": "Please provide a concise answer: Why do regulated services perform identity-verification checks?",
+            "source_action": "allow",
+            "template_group": "identity_verification_purpose"
+          },
+          {
+            "gold_spans": [],
+            "id": "psac_000190",
+            "predicted_spans": [
+              {
+                "end": 74,
+                "start": 73,
+                "text": "-"
+              }
+            ],
+            "prompt": "Can you explain the following: Why do regulated services perform identity-verification checks?",
+            "source_action": "allow",
+            "template_group": "identity_verification_purpose"
+          },
+          {
+            "gold_spans": [],
+            "id": "psac_000191",
+            "predicted_spans": [
+              {
+                "end": 61,
+                "start": 60,
+                "text": "-"
+              }
+            ],
+            "prompt": "Who should be notified after discovering a possible personal-data breach?",
+            "source_action": "allow",
+            "template_group": "breach_notification"
+          },
+          {
+            "gold_spans": [],
+            "id": "psac_000192",
+            "predicted_spans": [
+              {
+                "end": 96,
+                "start": 95,
+                "text": "-"
+              }
+            ],
+            "prompt": "Could you help with this question: Who should be notified after discovering a possible personal-data breach?",
+            "source_action": "allow",
+            "template_group": "breach_notification"
+          },
+          {
+            "gold_spans": [],
+            "id": "psac_000193",
+            "predicted_spans": [
+              {
+                "end": 95,
+                "start": 94,
+                "text": "-"
+              }
+            ],
+            "prompt": "I would like a clear explanation: Who should be notified after discovering a possible personal-data breach?",
+            "source_action": "allow",
+            "template_group": "breach_notification"
+          },
+          {
+            "gold_spans": [],
+            "id": "psac_000194",
+            "predicted_spans": [
+              {
+                "end": 94,
+                "start": 93,
+                "text": "-"
+              }
+            ],
+            "prompt": "Please provide a concise answer: Who should be notified after discovering a possible personal-data breach?",
+            "source_action": "allow",
+            "template_group": "breach_notification"
+          },
+          {
+            "gold_spans": [],
+            "id": "psac_000195",
+            "predicted_spans": [
+              {
+                "end": 92,
+                "start": 91,
+                "text": "-"
+              }
+            ],
+            "prompt": "Can you explain the following: Who should be notified after discovering a possible personal-data breach?",
+            "source_action": "allow",
+            "template_group": "breach_notification"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 52,
+                "start": 31,
+                "text": "rohan.sen@example.net",
+                "type": "email_address"
+              }
+            ],
+            "id": "psac_000576",
+            "predicted_spans": [
+              {
+                "end": 52,
+                "start": 37,
+                "text": "sen@example.net"
+              }
+            ],
+            "prompt": "Update the customer record for rohan.sen@example.net.",
+            "source_action": "redact",
+            "template_group": "test_customer_email"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 87,
+                "start": 66,
+                "text": "rohan.sen@example.net",
+                "type": "email_address"
+              }
+            ],
+            "id": "psac_000577",
+            "predicted_spans": [
+              {
+                "end": 87,
+                "start": 72,
+                "text": "sen@example.net"
+              }
+            ],
+            "prompt": "Could you help with this question: Update the customer record for rohan.sen@example.net.",
+            "source_action": "redact",
+            "template_group": "test_customer_email"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 86,
+                "start": 65,
+                "text": "rohan.sen@example.net",
+                "type": "email_address"
+              }
+            ],
+            "id": "psac_000578",
+            "predicted_spans": [
+              {
+                "end": 86,
+                "start": 71,
+                "text": "sen@example.net"
+              }
+            ],
+            "prompt": "I would like a clear explanation: Update the customer record for rohan.sen@example.net.",
+            "source_action": "redact",
+            "template_group": "test_customer_email"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 85,
+                "start": 64,
+                "text": "rohan.sen@example.net",
+                "type": "email_address"
+              }
+            ],
+            "id": "psac_000579",
+            "predicted_spans": [
+              {
+                "end": 85,
+                "start": 70,
+                "text": "sen@example.net"
+              }
+            ],
+            "prompt": "Please provide a concise answer: Update the customer record for rohan.sen@example.net.",
+            "source_action": "redact",
+            "template_group": "test_customer_email"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 83,
+                "start": 62,
+                "text": "rohan.sen@example.net",
+                "type": "email_address"
+              }
+            ],
+            "id": "psac_000580",
+            "predicted_spans": [
+              {
+                "end": 83,
+                "start": 68,
+                "text": "sen@example.net"
+              }
+            ],
+            "prompt": "Can you explain the following: Update the customer record for rohan.sen@example.net.",
+            "source_action": "redact",
+            "template_group": "test_customer_email"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 52,
+                "start": 30,
+                "text": "isha.mehta@example.com",
+                "type": "email_address"
+              },
+              {
+                "end": 84,
+                "start": 75,
+                "text": "LM0000077",
+                "type": "passport_number"
+              }
+            ],
+            "id": "psac_000596",
+            "predicted_spans": [
+              {
+                "end": 52,
+                "start": 34,
+                "text": ".mehta@example.com"
+              },
+              {
+                "end": 84,
+                "start": 75,
+                "text": "LM0000077"
+              }
+            ],
+            "prompt": "The applicant is reachable at isha.mehta@example.com and supplied passport LM0000077.",
+            "source_action": "redact",
+            "template_group": "test_multiple_identity_values"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 87,
+                "start": 65,
+                "text": "isha.mehta@example.com",
+                "type": "email_address"
+              },
+              {
+                "end": 119,
+                "start": 110,
+                "text": "LM0000077",
+                "type": "passport_number"
+              }
+            ],
+            "id": "psac_000597",
+            "predicted_spans": [
+              {
+                "end": 87,
+                "start": 70,
+                "text": "mehta@example.com"
+              },
+              {
+                "end": 119,
+                "start": 110,
+                "text": "LM0000077"
+              }
+            ],
+            "prompt": "Could you help with this question: The applicant is reachable at isha.mehta@example.com and supplied passport LM0000077.",
+            "source_action": "redact",
+            "template_group": "test_multiple_identity_values"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 86,
+                "start": 64,
+                "text": "isha.mehta@example.com",
+                "type": "email_address"
+              },
+              {
+                "end": 118,
+                "start": 109,
+                "text": "LM0000077",
+                "type": "passport_number"
+              }
+            ],
+            "id": "psac_000598",
+            "predicted_spans": [
+              {
+                "end": 86,
+                "start": 69,
+                "text": "mehta@example.com"
+              },
+              {
+                "end": 118,
+                "start": 109,
+                "text": "LM0000077"
+              }
+            ],
+            "prompt": "I would like a clear explanation: The applicant is reachable at isha.mehta@example.com and supplied passport LM0000077.",
+            "source_action": "redact",
+            "template_group": "test_multiple_identity_values"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 85,
+                "start": 63,
+                "text": "isha.mehta@example.com",
+                "type": "email_address"
+              },
+              {
+                "end": 117,
+                "start": 108,
+                "text": "LM0000077",
+                "type": "passport_number"
+              }
+            ],
+            "id": "psac_000599",
+            "predicted_spans": [
+              {
+                "end": 85,
+                "start": 68,
+                "text": "mehta@example.com"
+              },
+              {
+                "end": 117,
+                "start": 108,
+                "text": "LM0000077"
+              }
+            ],
+            "prompt": "Please provide a concise answer: The applicant is reachable at isha.mehta@example.com and supplied passport LM0000077.",
+            "source_action": "redact",
+            "template_group": "test_multiple_identity_values"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 83,
+                "start": 61,
+                "text": "isha.mehta@example.com",
+                "type": "email_address"
+              },
+              {
+                "end": 115,
+                "start": 106,
+                "text": "LM0000077",
+                "type": "passport_number"
+              }
+            ],
+            "id": "psac_000600",
+            "predicted_spans": [
+              {
+                "end": 83,
+                "start": 66,
+                "text": "mehta@example.com"
+              },
+              {
+                "end": 115,
+                "start": 106,
+                "text": "LM0000077"
+              }
+            ],
+            "prompt": "Can you explain the following: The applicant is reachable at isha.mehta@example.com and supplied passport LM0000077.",
+            "source_action": "redact",
+            "template_group": "test_multiple_identity_values"
+          }
+        ],
+        "positive_record_count": 25,
+        "record_count": 100,
+        "safe_record_count": 75,
+        "sensitive_token_f1": 0.8625592417061612,
+        "sensitive_token_precision": 0.900990099009901,
+        "sensitive_token_recall": 0.8272727272727273,
+        "token_accuracy": 0.9782122905027933,
+        "token_count": 1790,
+        "true_positive_spans": 20
+      },
+      "repaired": {
+        "exact_span_f1": 1.0,
+        "exact_span_precision": 1.0,
+        "exact_span_recall": 1.0,
+        "false_negative_record_rate": 0.0,
+        "false_negative_records": 0,
+        "false_negative_spans": 0,
+        "false_positive_record_rate": 0.0,
+        "false_positive_records": 0,
+        "false_positive_spans": 0,
+        "incorrect_record_count": 0,
+        "incorrect_records": [],
+        "positive_record_count": 25,
+        "record_count": 100,
+        "safe_record_count": 75,
+        "sensitive_token_f1": 1.0,
+        "sensitive_token_precision": 1.0,
+        "sensitive_token_recall": 1.0,
+        "token_accuracy": 1.0,
+        "token_count": 1790,
+        "true_positive_spans": 30
+      }
+    },
+    "validation": {
+      "changes": {
+        "exact_span_f1": 0.19999999999999984,
+        "exact_span_precision": 0.19999999999999996,
+        "exact_span_recall": 0.19999999999999996,
+        "false_positive_record_rate": 0.0,
+        "sensitive_token_f1": 0.02857142857142858
+      },
+      "raw": {
+        "exact_span_f1": 0.8000000000000002,
+        "exact_span_precision": 0.8,
+        "exact_span_recall": 0.8,
+        "false_negative_record_rate": 0.0,
+        "false_negative_records": 0,
+        "false_negative_spans": 5,
+        "false_positive_record_rate": 0.0,
+        "false_positive_records": 0,
+        "false_positive_spans": 5,
+        "incorrect_record_count": 5,
+        "incorrect_records": [
+          {
+            "gold_spans": [
+              {
+                "end": 45,
+                "start": 26,
+                "text": "4111 1111 1111 1111",
+                "type": "payment_card_number"
+              }
+            ],
+            "id": "psac_000566",
+            "predicted_spans": [
+              {
+                "end": 40,
+                "start": 26,
+                "text": "4111 1111 1111"
+              }
+            ],
+            "prompt": "Use fictional card number 4111 1111 1111 1111 in the test.",
+            "source_action": "redact",
+            "template_group": "validation_payment_card"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 80,
+                "start": 61,
+                "text": "4111 1111 1111 1111",
+                "type": "payment_card_number"
+              }
+            ],
+            "id": "psac_000567",
+            "predicted_spans": [
+              {
+                "end": 75,
+                "start": 61,
+                "text": "4111 1111 1111"
+              }
+            ],
+            "prompt": "Could you help with this question: Use fictional card number 4111 1111 1111 1111 in the test.",
+            "source_action": "redact",
+            "template_group": "validation_payment_card"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 79,
+                "start": 60,
+                "text": "4111 1111 1111 1111",
+                "type": "payment_card_number"
+              }
+            ],
+            "id": "psac_000568",
+            "predicted_spans": [
+              {
+                "end": 74,
+                "start": 60,
+                "text": "4111 1111 1111"
+              }
+            ],
+            "prompt": "I would like a clear explanation: Use fictional card number 4111 1111 1111 1111 in the test.",
+            "source_action": "redact",
+            "template_group": "validation_payment_card"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 78,
+                "start": 59,
+                "text": "4111 1111 1111 1111",
+                "type": "payment_card_number"
+              }
+            ],
+            "id": "psac_000569",
+            "predicted_spans": [
+              {
+                "end": 73,
+                "start": 59,
+                "text": "4111 1111 1111"
+              }
+            ],
+            "prompt": "Please provide a concise answer: Use fictional card number 4111 1111 1111 1111 in the test.",
+            "source_action": "redact",
+            "template_group": "validation_payment_card"
+          },
+          {
+            "gold_spans": [
+              {
+                "end": 76,
+                "start": 57,
+                "text": "4111 1111 1111 1111",
+                "type": "payment_card_number"
+              }
+            ],
+            "id": "psac_000570",
+            "predicted_spans": [
+              {
+                "end": 71,
+                "start": 57,
+                "text": "4111 1111 1111"
+              }
+            ],
+            "prompt": "Can you explain the following: Use fictional card number 4111 1111 1111 1111 in the test.",
+            "source_action": "redact",
+            "template_group": "validation_payment_card"
+          }
+        ],
+        "positive_record_count": 25,
+        "record_count": 100,
+        "safe_record_count": 75,
+        "sensitive_token_f1": 0.9714285714285714,
+        "sensitive_token_precision": 1.0,
+        "sensitive_token_recall": 0.9444444444444444,
+        "token_accuracy": 0.9969788519637462,
+        "token_count": 1655,
+        "true_positive_spans": 20
+      },
+      "repaired": {
+        "exact_span_f1": 1.0,
+        "exact_span_precision": 1.0,
+        "exact_span_recall": 1.0,
+        "false_negative_record_rate": 0.0,
+        "false_negative_records": 0,
+        "false_negative_spans": 0,
+        "false_positive_record_rate": 0.0,
+        "false_positive_records": 0,
+        "false_positive_spans": 0,
+        "incorrect_record_count": 0,
+        "incorrect_records": [],
+        "positive_record_count": 25,
+        "record_count": 100,
+        "safe_record_count": 75,
+        "sensitive_token_f1": 1.0,
+        "sensitive_token_precision": 1.0,
+        "sensitive_token_recall": 1.0,
+        "token_accuracy": 1.0,
+        "token_count": 1655,
+        "true_positive_spans": 25
+      }
+    }
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "combined": {
+    "record_count": 880,
+    "records_with_sensitive_entities": 220,
+    "records_without_sensitive_entities": 660,
+    "sensitive_span_types": {
+      "aadhaar_number": 11,
+      "access_token": 5,
+      "aws_access_key": 10,
+      "backup_code": 5,
+      "bank_account_number": 10,
+      "bearer_token": 11,
+      "client_secret": 10,
+      "email_address": 37,
+      "github_token": 11,
+      "openai_api_key": 11,
+      "pan_number": 10,
+      "passport_number": 23,
+      "password": 25,
+      "payment_card_number": 5,
+      "phone_number": 27,
+      "recovery_code": 8,
+      "service_secret": 5,
+      "service_token": 2,
+      "session_token": 10
+    },
+    "token_label_counts": {
+      "B-SENSITIVE": 236,
+      "I-SENSITIVE": 453,
+      "O": 13210
+    },
+    "total_sensitive_spans": 236,
+    "total_tokens": 13899
+  },
+  "dataset": "contextual_sensitive_entity_bio_v1",
+  "final_holdout_used": false,
+  "label_scheme": [
+    "B-SENSITIVE",
+    "I-SENSITIVE",
+    "O"
+  ],
+  "source_directory": "C:\\Users\\Sreeman\\Documents\\Projects\\PromptShield\\backend\\research\\action_classifier\\data",
+  "splits": {
+    "challenge": {
+      "record_count": 40,
+      "records_with_sensitive_entities": 10,
+      "records_without_sensitive_entities": 30,
+      "sensitive_span_types": {
+        "aadhaar_number": 1,
+        "bearer_token": 1,
+        "email_address": 2,
+        "github_token": 1,
+        "openai_api_key": 1,
+        "passport_number": 1,
+        "password": 1,
+        "phone_number": 2,
+        "recovery_code": 1
+      },
+      "token_label_counts": {
+        "B-SENSITIVE": 11,
+        "I-SENSITIVE": 28,
+        "O": 438
+      },
+      "total_sensitive_spans": 11,
+      "total_tokens": 477
+    },
+    "test": {
+      "record_count": 100,
+      "records_with_sensitive_entities": 25,
+      "records_without_sensitive_entities": 75,
+      "sensitive_span_types": {
+        "access_token": 5,
+        "backup_code": 5,
+        "email_address": 10,
+        "passport_number": 10
+      },
+      "token_label_counts": {
+        "B-SENSITIVE": 30,
+        "I-SENSITIVE": 80,
+        "O": 1680
+      },
+      "total_sensitive_spans": 30,
+      "total_tokens": 1790
+    },
+    "train": {
+      "record_count": 640,
+      "records_with_sensitive_entities": 160,
+      "records_without_sensitive_entities": 480,
+      "sensitive_span_types": {
+        "aadhaar_number": 10,
+        "aws_access_key": 10,
+        "bank_account_number": 10,
+        "bearer_token": 10,
+        "client_secret": 10,
+        "email_address": 20,
+        "github_token": 10,
+        "openai_api_key": 10,
+        "pan_number": 10,
+        "passport_number": 12,
+        "password": 24,
+        "phone_number": 20,
+        "recovery_code": 2,
+        "service_token": 2,
+        "session_token": 10
+      },
+      "token_label_counts": {
+        "B-SENSITIVE": 170,
+        "I-SENSITIVE": 280,
+        "O": 9527
+      },
+      "total_sensitive_spans": 170,
+      "total_tokens": 9977
+    },
+    "validation": {
+      "record_count": 100,
+      "records_with_sensitive_entities": 25,
+      "records_without_sensitive_entities": 75,
+      "sensitive_span_types": {
+        "email_address": 5,
+        "payment_card_number": 5,
+        "phone_number": 5,
+        "recovery_code": 5,
+        "service_secret": 5
+      },
+      "token_label_counts": {
+        "B-SENSITIVE": 25,
+        "I-SENSITIVE": 65,
+        "O": 1565
+      },
+      "total_sensitive_spans": 25,
+      "total_tokens": 1655
+    }
+  },
+  "tokenizer": "Unicode words and individual non-whitespace punctuation",
+  "valid": true,
+  "validation_errors": []
+}
