@@ -1,4 +1,6 @@
 from database import (
+    get_contextual_action_shadow,
+    get_contextual_shadow_statistics,
     get_recent_events,
     get_statistics,
     initialize_database,
@@ -164,3 +166,117 @@ def test_statistics_are_calculated(tmp_path):
         "redact": 1,
         "block": 1,
     }
+
+def test_contextual_shadow_statistics_are_calculated(
+    tmp_path,
+):
+    database_path = tmp_path / "test.db"
+
+    examples = [
+        (
+            "allow",
+            "allow",
+            0.80,
+            0.60,
+            True,
+        ),
+        (
+            "allow",
+            "block",
+            0.70,
+            0.40,
+            False,
+        ),
+        (
+            "redact",
+            "redact",
+            0.90,
+            0.75,
+            True,
+        ),
+    ]
+
+    for (
+        production_action,
+        predicted_action,
+        confidence,
+        probability_margin,
+        agrees,
+    ) in examples:
+        analysis_result = create_analysis_result(
+            recommended_action=production_action,
+        )
+
+        analysis_result["contextual_shadow"] = {
+            "available": True,
+            "predicted_action": predicted_action,
+            "probabilities": {},
+            "confidence": confidence,
+            "probability_margin": (
+                probability_margin
+            ),
+            "is_confident": True,
+            "requires_review": False,
+            "agrees_with_production": agrees,
+            "model_name": "test_model",
+            "mode": "shadow",
+        }
+
+        save_security_event(
+            analysis_result=analysis_result,
+            prompt_length=20,
+            database_path=database_path,
+        )
+
+    statistics = (
+        get_contextual_shadow_statistics(
+            database_path=database_path
+        )
+    )
+
+    assert statistics["total_predictions"] == 3
+    assert statistics["available_predictions"] == 3
+    assert statistics["unavailable_predictions"] == 0
+    assert statistics["agreements"] == 2
+    assert statistics["disagreements"] == 1
+    assert statistics["agreement_rate"] == 0.6667
+
+    assert (
+        statistics["confident_predictions"]
+        == 3
+    )
+
+    assert (
+        statistics["uncertain_predictions"]
+        == 0
+    )
+
+    assert (
+        statistics["average_confidence"]
+        == 0.8
+    )
+
+    assert (
+        statistics[
+            "average_probability_margin"
+        ]
+        == 0.5833
+    )
+
+    assert statistics["production_actions"] == {
+        "allow": 2,
+        "redact": 1,
+    }
+
+    assert statistics["contextual_actions"] == {
+        "allow": 1,
+        "block": 1,
+        "redact": 1,
+    }
+
+    assert (
+        statistics["disagreement_transitions"]
+        == {
+            "allow->block": 1,
+        }
+    )
