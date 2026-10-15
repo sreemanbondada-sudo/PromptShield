@@ -1,0 +1,557 @@
+{
+  "boundary_decoder": {
+    "path": "C:\\Users\\Sreeman\\Documents\\Projects\\PromptShield\\backend\\research\\entity_localizer\\boundary_decoder.py",
+    "sha256": "327a11414fa7f893b54dddab60ac5e91adc1a317a7622dda39f4fb9fdd5b9591",
+    "used": true
+  },
+  "evaluated_at_utc": "2026-10-15T03:59:16.045666+00:00",
+  "evaluation": "contextual_sensitive_entity_final_holdout_v1",
+  "final_decision": "FAIL - DO NOT PROMOTE",
+  "gate_results": {
+    "all_gates_passed": false,
+    "mandatory_conditions": {
+      "boundary_decoder_used": true,
+      "holdout_checksum_matches": true,
+      "holdout_manifest_is_valid": true,
+      "holdout_not_used_for_model_selection": true,
+      "holdout_not_used_for_threshold_tuning": true,
+      "holdout_not_used_for_training": true
+    },
+    "mandatory_conditions_passed": true,
+    "metric_gates": [
+      {
+        "actual": 0.5416666666666666,
+        "comparison": "minimum",
+        "metric": "exact_span_precision",
+        "passed": false,
+        "required": 0.9
+      },
+      {
+        "actual": 0.7222222222222222,
+        "comparison": "minimum",
+        "metric": "exact_span_recall",
+        "passed": false,
+        "required": 0.9
+      },
+      {
+        "actual": 0.619047619047619,
+        "comparison": "minimum",
+        "metric": "exact_span_f1",
+        "passed": false,
+        "required": 0.9
+      },
+      {
+        "actual": 0.8152492668621701,
+        "comparison": "minimum",
+        "metric": "sensitive_token_f1",
+        "passed": false,
+        "required": 0.9
+      },
+      {
+        "actual": 0.26666666666666666,
+        "comparison": "maximum",
+        "metric": "false_positive_record_rate",
+        "passed": false,
+        "required": 0.05
+      },
+      {
+        "actual": 0.0,
+        "comparison": "maximum",
+        "metric": "false_negative_record_rate",
+        "passed": true,
+        "required": 0.05
+      },
+      {
+        "actual": 8,
+        "comparison": "maximum",
+        "metric": "false_positive_records",
+        "passed": false,
+        "required": 1
+      },
+      {
+        "actual": 0,
+        "comparison": "maximum",
+        "metric": "false_negative_records",
+        "passed": true,
+        "required": 1
+      }
+    ],
+    "metric_gates_passed": false
+  },
+  "holdout": {
+    "manifest_path": "C:\\Users\\Sreeman\\Documents\\Projects\\PromptShield\\backend\\research\\entity_localizer\\final_holdout_manifest.json",
+    "path": "C:\\Users\\Sreeman\\Documents\\Projects\\PromptShield\\backend\\research\\entity_localizer\\data\\final_holdout.jsonl",
+    "verification": {
+      "actual_sha256": "b1ad2dcfb0f5d9ca02846109430d42198a1def8c0171c1d979a815312e94b69f",
+      "checksum_matches": true,
+      "expected_sha256": "b1ad2dcfb0f5d9ca02846109430d42198a1def8c0171c1d979a815312e94b69f",
+      "manifest_conditions": {
+        "frozen": true,
+        "not_derived_from_development_data": true,
+        "not_used_for_model_selection": true,
+        "not_used_for_threshold_tuning": true,
+        "not_used_for_training": true
+      },
+      "manifest_is_valid": true,
+      "valid": true
+    }
+  },
+  "model": {
+    "context_window": 1,
+    "name": "logistic_context_one",
+    "path": "C:\\Users\\Sreeman\\Documents\\Projects\\PromptShield\\backend\\research\\entity_localizer\\models\\contextual_entity_candidate.joblib",
+    "production_ready_before_evaluation": false,
+    "sha256": "914d973160d0ce86987e7b812c2f7f77b00fecd48e8853fb55775ab03fcd316a"
+  },
+  "performance": {
+    "exact_span_f1": 0.619047619047619,
+    "exact_span_precision": 0.5416666666666666,
+    "exact_span_recall": 0.7222222222222222,
+    "false_negative_record_rate": 0.0,
+    "false_negative_records": 0,
+    "false_negative_spans": 10,
+    "false_positive_record_rate": 0.26666666666666666,
+    "false_positive_records": 8,
+    "false_positive_spans": 22,
+    "incorrect_record_count": 19,
+    "incorrect_records": [
+      {
+        "gold_spans": [
+          {
+            "end": 69,
+            "start": 35,
+            "text": "nora.kapoor+finance@samplemail.org",
+            "type": "email_address"
+          }
+        ],
+        "id": "pseh_000001",
+        "predicted_spans": [
+          {
+            "end": 46,
+            "start": 39,
+            "text": ".kapoor"
+          },
+          {
+            "end": 65,
+            "start": 54,
+            "text": "@samplemail"
+          },
+          {
+            "end": 69,
+            "start": 66,
+            "text": "org"
+          }
+        ],
+        "prompt": "Please send the revised invoice to nora.kapoor+finance@samplemail.org before Friday.",
+        "source_action": "redact",
+        "template_group": "unseen_email_plus_address"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 60,
+            "start": 45,
+            "text": "+44 7700 900821",
+            "type": "international_phone_number"
+          }
+        ],
+        "id": "pseh_000002",
+        "predicted_spans": [
+          {
+            "end": 60,
+            "start": 46,
+            "text": "44 7700 900821"
+          }
+        ],
+        "prompt": "The emergency contact written on the form is +44 7700 900821.",
+        "source_action": "redact",
+        "template_group": "unseen_international_phone"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 56,
+            "start": 29,
+            "text": "GB29 NWBK 6016 1331 9268 19",
+            "type": "iban"
+          }
+        ],
+        "id": "pseh_000004",
+        "predicted_spans": [
+          {
+            "end": 33,
+            "start": 29,
+            "text": "GB29"
+          },
+          {
+            "end": 56,
+            "start": 39,
+            "text": "6016 1331 9268 19"
+          }
+        ],
+        "prompt": "The reimbursement account is GB29 NWBK 6016 1331 9268 19.",
+        "source_action": "redact",
+        "template_group": "unseen_iban"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 75,
+            "start": 38,
+            "text": "P<INDKUMAR<<ARUN<<<<<<<<<<<<123456789",
+            "type": "passport_machine_readable_value"
+          }
+        ],
+        "id": "pseh_000009",
+        "predicted_spans": [
+          {
+            "end": 75,
+            "start": 54,
+            "text": "<<<<<<<<<<<<123456789"
+          }
+        ],
+        "prompt": "The applicant entered passport number P<INDKUMAR<<ARUN<<<<<<<<<<<<123456789.",
+        "source_action": "redact",
+        "template_group": "unseen_passport_mrz"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 47,
+            "start": 30,
+            "text": "17 September 1998",
+            "type": "date_of_birth"
+          }
+        ],
+        "id": "pseh_000015",
+        "predicted_spans": [
+          {
+            "end": 47,
+            "start": 43,
+            "text": "1998"
+          }
+        ],
+        "prompt": "Her recorded date of birth is 17 September 1998.",
+        "source_action": "redact",
+        "template_group": "unseen_date_of_birth"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 69,
+            "start": 34,
+            "text": "42 Lakeview Crescent, Mysuru 570001",
+            "type": "home_address"
+          }
+        ],
+        "id": "pseh_000016",
+        "predicted_spans": [
+          {
+            "end": 69,
+            "start": 63,
+            "text": "570001"
+          }
+        ],
+        "prompt": "Deliver the replacement device to 42 Lakeview Crescent, Mysuru 570001.",
+        "source_action": "redact",
+        "template_group": "unseen_postal_address"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 53,
+            "start": 37,
+            "text": "KA09 20260001234",
+            "type": "driving_licence_number"
+          }
+        ],
+        "id": "pseh_000018",
+        "predicted_spans": [
+          {
+            "end": 53,
+            "start": 42,
+            "text": "20260001234"
+          }
+        ],
+        "prompt": "The driver record references licence KA09 20260001234.",
+        "source_action": "redact",
+        "template_group": "unseen_licence_number"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 85,
+            "start": 69,
+            "text": "Ax7Pq9Lm2Nv5Rt8K",
+            "type": "url_access_token"
+          }
+        ],
+        "id": "pseh_000022",
+        "predicted_spans": [
+          {
+            "end": 55,
+            "start": 23,
+            "text": "https://example.invalid/callback"
+          },
+          {
+            "end": 85,
+            "start": 69,
+            "text": "Ax7Pq9Lm2Nv5Rt8K"
+          }
+        ],
+        "prompt": "The query parameter is https://example.invalid/callback?access_token=Ax7Pq9Lm2Nv5Rt8K.",
+        "source_action": "redact",
+        "template_group": "unseen_url_token"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 42,
+            "start": 27,
+            "text": "+91-91234-56789",
+            "type": "phone_number"
+          },
+          {
+            "end": 64,
+            "start": 56,
+            "text": "N9081726",
+            "type": "passport_number"
+          }
+        ],
+        "id": "pseh_000026",
+        "predicted_spans": [
+          {
+            "end": 42,
+            "start": 28,
+            "text": "91-91234-56789"
+          },
+          {
+            "end": 64,
+            "start": 56,
+            "text": "N9081726"
+          }
+        ],
+        "prompt": "The profile contains phone +91-91234-56789 and passport N9081726.",
+        "source_action": "redact",
+        "template_group": "unseen_multiple_phone_passport"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 28,
+            "start": 15,
+            "text": "demo.operator",
+            "type": "login_username"
+          },
+          {
+            "end": 56,
+            "start": 43,
+            "text": "Violet!Grid84",
+            "type": "password"
+          }
+        ],
+        "id": "pseh_000027",
+        "predicted_spans": [
+          {
+            "end": 28,
+            "start": 19,
+            "text": ".operator"
+          },
+          {
+            "end": 56,
+            "start": 43,
+            "text": "Violet!Grid84"
+          }
+        ],
+        "prompt": "Use login name demo.operator with password Violet!Grid84.",
+        "source_action": "redact",
+        "template_group": "unseen_username_password_pair"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 29,
+            "start": 19,
+            "text": "192.0.2.44",
+            "type": "private_host_address"
+          },
+          {
+            "end": 81,
+            "start": 58,
+            "text": "SHA256:Qm7R2pV9xK4tN8sL",
+            "type": "private_key_fingerprint"
+          }
+        ],
+        "id": "pseh_000030",
+        "predicted_spans": [
+          {
+            "end": 29,
+            "start": 19,
+            "text": "192.0.2.44"
+          },
+          {
+            "end": 81,
+            "start": 65,
+            "text": "Qm7R2pV9xK4tN8sL"
+          }
+        ],
+        "prompt": "Connect using host 192.0.2.44 and private key fingerprint SHA256:Qm7R2pV9xK4tN8sL.",
+        "source_action": "redact",
+        "template_group": "unseen_host_fingerprint_pair"
+      },
+      {
+        "gold_spans": [],
+        "id": "pseh_000037",
+        "predicted_spans": [
+          {
+            "end": 48,
+            "start": 42,
+            "text": "string"
+          }
+        ],
+        "prompt": "Give an overview of PostgreSQL connection-string security.",
+        "source_action": "allow",
+        "template_group": "negative_connection_concept"
+      },
+      {
+        "gold_spans": [],
+        "id": "pseh_000041",
+        "predicted_spans": [
+          {
+            "end": 66,
+            "start": 61,
+            "text": "blank"
+          }
+        ],
+        "prompt": "The UID field should contain twelve digits, but this form is blank.",
+        "source_action": "allow",
+        "template_group": "negative_uid_concept"
+      },
+      {
+        "gold_spans": [],
+        "id": "pseh_000054",
+        "predicted_spans": [
+          {
+            "end": 70,
+            "start": 57,
+            "text": "EXAMPLE_VALUE"
+          }
+        ],
+        "prompt": "The service credential was replaced with the placeholder EXAMPLE_VALUE.",
+        "source_action": "allow",
+        "template_group": "negative_placeholder_value"
+      },
+      {
+        "gold_spans": [],
+        "id": "pseh_000055",
+        "predicted_spans": [
+          {
+            "end": 33,
+            "start": 23,
+            "text": "2026-10-08"
+          }
+        ],
+        "prompt": "The order reference is 2026-10-08 and does not identify a person.",
+        "source_action": "allow",
+        "template_group": "negative_date_like_reference"
+      },
+      {
+        "gold_spans": [],
+        "id": "pseh_000056",
+        "predicted_spans": [
+          {
+            "end": 15,
+            "start": 8,
+            "text": "192.0.2"
+          }
+        ],
+        "prompt": "Version 192.0.2 is used in this documentation heading.",
+        "source_action": "allow",
+        "template_group": "negative_version_number"
+      },
+      {
+        "gold_spans": [],
+        "id": "pseh_000057",
+        "predicted_spans": [
+          {
+            "end": 31,
+            "start": 12,
+            "text": "XXXX-XXXX-XXXX-XXXX"
+          }
+        ],
+        "prompt": "The pattern XXXX-XXXX-XXXX-XXXX is a masked example, not a card number.",
+        "source_action": "allow",
+        "template_group": "negative_masked_card"
+      },
+      {
+        "gold_spans": [],
+        "id": "pseh_000058",
+        "predicted_spans": [
+          {
+            "end": 28,
+            "start": 8,
+            "text": "user@example.invalid"
+          }
+        ],
+        "prompt": "Contact user@example.invalid is a reserved documentation address.",
+        "source_action": "allow",
+        "template_group": "negative_reserved_email"
+      },
+      {
+        "gold_spans": [],
+        "id": "pseh_000059",
+        "predicted_spans": [
+          {
+            "end": 26,
+            "start": 15,
+            "text": "ABC-DEF-GHI"
+          }
+        ],
+        "prompt": "The identifier ABC-DEF-GHI is merely a section label.",
+        "source_action": "allow",
+        "template_group": "negative_identifier_lookalike"
+      }
+    ],
+    "positive_record_count": 30,
+    "record_count": 60,
+    "safe_record_count": 30,
+    "sensitive_token_f1": 0.8152492668621701,
+    "sensitive_token_precision": 0.7808988764044944,
+    "sensitive_token_recall": 0.852760736196319,
+    "token_accuracy": 0.8948106591865358,
+    "token_count": 713,
+    "true_positive_spans": 26
+  },
+  "production_changed": false,
+  "promotion_policy": {
+    "dataset": "contextual_sensitive_entity_final_holdout_v1",
+    "failure_policy": {
+      "modify_holdout_after_evaluation": false,
+      "production_remains_unchanged": true,
+      "promote_if_any_gate_fails": false,
+      "tune_directly_against_final_holdout": false
+    },
+    "frozen_before_final_evaluation": true,
+    "mandatory_conditions": {
+      "boundary_decoder_required": true,
+      "final_holdout_must_not_be_used_for_model_selection": true,
+      "final_holdout_must_not_be_used_for_threshold_tuning": true,
+      "final_holdout_must_not_be_used_for_training": true,
+      "holdout_checksum_must_match": true,
+      "production_integration_requires_all_gates": true
+    },
+    "maximum_metrics": {
+      "false_negative_record_rate": 0.05,
+      "false_negative_records": 1,
+      "false_positive_record_rate": 0.05,
+      "false_positive_records": 1
+    },
+    "minimum_metrics": {
+      "exact_span_f1": 0.9,
+      "exact_span_precision": 0.9,
+      "exact_span_recall": 0.9,
+      "sensitive_token_f1": 0.9
+    },
+    "policy": "contextual_sensitive_entity_promotion_v1"
+  }
+}
