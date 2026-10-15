@@ -1,0 +1,31 @@
+{
+  "policy": "contextual_sensitive_entity_promotion_v1",
+  "frozen_before_final_evaluation": true,
+  "dataset": "contextual_sensitive_entity_final_holdout_v1",
+  "minimum_metrics": {
+    "exact_span_precision": 0.9,
+    "exact_span_recall": 0.9,
+    "exact_span_f1": 0.9,
+    "sensitive_token_f1": 0.9
+  },
+  "maximum_metrics": {
+    "false_positive_record_rate": 0.05,
+    "false_negative_record_rate": 0.05,
+    "false_positive_records": 1,
+    "false_negative_records": 1
+  },
+  "mandatory_conditions": {
+    "holdout_checksum_must_match": true,
+    "boundary_decoder_required": true,
+    "final_holdout_must_not_be_used_for_training": true,
+    "final_holdout_must_not_be_used_for_model_selection": true,
+    "final_holdout_must_not_be_used_for_threshold_tuning": true,
+    "production_integration_requires_all_gates": true
+  },
+  "failure_policy": {
+    "promote_if_any_gate_fails": false,
+    "modify_holdout_after_evaluation": false,
+    "tune_directly_against_final_holdout": false,
+    "production_remains_unchanged": true
+  }
+}

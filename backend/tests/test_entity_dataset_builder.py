@@ -370,7 +370,7 @@ def test_sensitive_record_flag_matches_spans(split):
         )
 
 
-def test_final_holdout_is_not_an_entity_split():
+def test_final_holdout_is_not_a_development_split():
     assert (
         "final_holdout"
         not in build_entity_dataset
@@ -382,11 +382,6 @@ def test_final_holdout_is_not_an_entity_split():
         not in build_entity_dataset
         .OUTPUT_DATASET_PATHS
     )
-
-    assert not (
-        ENTITY_DATA_DIRECTORY
-        / "final_holdout.jsonl"
-    ).exists()
 
 
 def test_entity_dataset_report_is_valid():
