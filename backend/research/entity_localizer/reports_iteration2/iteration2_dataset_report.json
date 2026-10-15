@@ -1,0 +1,102 @@
+{
+  "combined_record_count": 1200,
+  "dataset": "contextual_sensitive_entity_iteration2_development_v1",
+  "group_isolated_splits": true,
+  "historical_final_holdout_used": false,
+  "split_targets": {
+    "challenge": {
+      "negative": 100,
+      "positive": 100
+    },
+    "train": {
+      "negative": 400,
+      "positive": 400
+    },
+    "validation": {
+      "negative": 100,
+      "positive": 100
+    }
+  },
+  "splits": {
+    "challenge": {
+      "negative_record_count": 100,
+      "positive_record_count": 100,
+      "record_count": 200,
+      "sensitive_span_count": 115,
+      "sensitive_span_types": {
+        "access_token": 10,
+        "bank_account_number": 10,
+        "date_of_birth": 10,
+        "email_address": 11,
+        "medical_record_identifier": 9,
+        "passport_number": 9,
+        "password": 9,
+        "payment_card_number": 10,
+        "phone_number": 10,
+        "postal_address": 9,
+        "recovery_code": 9,
+        "service_secret": 9
+      },
+      "token_count": 2622,
+      "token_label_counts": {
+        "B-SENSITIVE": 115,
+        "I-SENSITIVE": 351,
+        "O": 2156
+      }
+    },
+    "train": {
+      "negative_record_count": 400,
+      "positive_record_count": 400,
+      "record_count": 800,
+      "sensitive_span_count": 458,
+      "sensitive_span_types": {
+        "access_token": 38,
+        "bank_account_number": 38,
+        "date_of_birth": 38,
+        "email_address": 39,
+        "medical_record_identifier": 38,
+        "passport_number": 38,
+        "password": 38,
+        "payment_card_number": 39,
+        "phone_number": 39,
+        "postal_address": 38,
+        "recovery_code": 37,
+        "service_secret": 38
+      },
+      "token_count": 9996,
+      "token_label_counts": {
+        "B-SENSITIVE": 458,
+        "I-SENSITIVE": 1381,
+        "O": 8157
+      }
+    },
+    "validation": {
+      "negative_record_count": 100,
+      "positive_record_count": 100,
+      "record_count": 200,
+      "sensitive_span_count": 115,
+      "sensitive_span_types": {
+        "access_token": 10,
+        "bank_account_number": 10,
+        "date_of_birth": 10,
+        "email_address": 11,
+        "medical_record_identifier": 9,
+        "passport_number": 9,
+        "password": 9,
+        "payment_card_number": 10,
+        "phone_number": 10,
+        "postal_address": 9,
+        "recovery_code": 9,
+        "service_secret": 9
+      },
+      "token_count": 2548,
+      "token_label_counts": {
+        "B-SENSITIVE": 115,
+        "I-SENSITIVE": 351,
+        "O": 2082
+      }
+    }
+  },
+  "valid": true,
+  "validation_errors": []
+}
