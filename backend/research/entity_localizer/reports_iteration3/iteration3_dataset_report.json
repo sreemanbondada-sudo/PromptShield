@@ -1,0 +1,37 @@
+{
+  "dataset": "contextual_sensitive_entity_iteration3_development_v1",
+  "historical_final_holdout_used": false,
+  "iteration2_final_holdout_used": false,
+  "previous_development_normalized_overlap": 0,
+  "previous_development_prompt_overlap": 0,
+  "previous_template_group_overlap": 0,
+  "production_changed": false,
+  "split_reports": {
+    "challenge": {
+      "negative_records": 150,
+      "positive_records": 150,
+      "sensitive_spans": 180,
+      "token_count": 4345,
+      "total_records": 300
+    },
+    "train": {
+      "negative_records": 600,
+      "positive_records": 600,
+      "sensitive_spans": 720,
+      "token_count": 17244,
+      "total_records": 1200
+    },
+    "validation": {
+      "negative_records": 150,
+      "positive_records": 150,
+      "sensitive_spans": 180,
+      "token_count": 4376,
+      "total_records": 300
+    }
+  },
+  "total_records": 1800,
+  "total_sensitive_spans": 1080,
+  "unique_ids": true,
+  "unique_normalized_prompts": true,
+  "unique_prompts": true
+}
