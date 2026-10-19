@@ -1,0 +1,30 @@
+{
+  "builder_path": "build_iteration2_final_holdout.py",
+  "candidate_model_path": "models_iteration2/contextual_entity_candidate_iteration2.joblib",
+  "candidate_model_sha256": "30cd6efee8c95988cf82fb2d9a5716843710e451aa2fca2b6b0f223b33e3319d",
+  "dataset_name": "contextual_sensitive_entity_iteration2_final_holdout_v1",
+  "dataset_path": "data_iteration2_final/final_holdout.jsonl",
+  "dataset_sha256": "6ca2415a34e06f0ad4ef03209332b00719bf6da0f87f6d6179d8c2836304cbab",
+  "frozen": true,
+  "historical_holdout_read": false,
+  "one_time_evaluation": true,
+  "production_changed": false,
+  "promotion_policy_path": "ITERATION2_PROMOTION_GATES.json",
+  "promotion_policy_sha256": "169350eafa44798dd899013fa2af4f38e789a816c556e2bdf878270d868acd3c",
+  "used_for_model_selection": false,
+  "used_for_threshold_tuning": false,
+  "used_for_training": false,
+  "validation": {
+    "development_normalized_prompt_overlap": 0,
+    "development_prompt_overlap": 0,
+    "development_template_group_overlap": 0,
+    "historical_holdout_read": false,
+    "negative_control_records": 50,
+    "positive_records": 50,
+    "sensitive_spans": 63,
+    "total_records": 100,
+    "unique_normalized_prompts": true,
+    "unique_prompts": true,
+    "unique_record_ids": true
+  }
+}
