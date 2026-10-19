@@ -1,0 +1,59 @@
+{
+  "policy_name": "PromptShield contextual entity iteration-two promotion gates",
+  "policy_version": "1.0.0",
+  "frozen_date": "2026-10-19",
+  "candidate_model": "iteration2_crf_context_two",
+  "model_artifact": "models_iteration2/contextual_entity_candidate_iteration2.joblib",
+  "evaluation_mode": "one_time_independent_holdout",
+  "production_behavior_before_promotion": "unchanged",
+  "minimum_holdout_requirements": {
+    "total_records": 100,
+    "positive_records": 50,
+    "negative_control_records": 50,
+    "minimum_sensitive_spans": 55
+  },
+  "quality_gates": {
+    "exact_span_precision_minimum": 0.9,
+    "exact_span_recall_minimum": 0.9,
+    "exact_span_f1_minimum": 0.9,
+    "sensitive_token_f1_minimum": 0.95,
+    "false_positive_record_rate_maximum": 0.05,
+    "false_negative_record_rate_maximum": 0.05,
+    "false_positive_records_maximum": 2,
+    "false_negative_records_maximum": 2
+  },
+  "mandatory_integrity_conditions": {
+    "holdout_checksum_matches_manifest": true,
+    "holdout_manifest_is_valid": true,
+    "boundary_decoder_is_used": true,
+    "candidate_artifact_checksum_matches": true,
+    "historical_holdout_is_not_read": true,
+    "holdout_is_not_used_for_training": true,
+    "holdout_is_not_used_for_model_selection": true,
+    "holdout_is_not_used_for_threshold_tuning": true,
+    "holdout_has_no_prompt_overlap_with_development_data": true,
+    "holdout_has_no_normalized_prompt_overlap_with_development_data": true,
+    "holdout_has_no_template_group_overlap_with_development_data": true
+  },
+  "decision_rules": {
+    "pass": "All quality gates and mandatory integrity conditions pass.",
+    "fail": "Any quality gate or mandatory integrity condition fails.",
+    "pass_result": "PASS FOR CONTROLLED SHADOW INTEGRATION",
+    "fail_result": "FAIL - DO NOT PROMOTE"
+  },
+  "post_pass_restrictions": {
+    "initial_mode": "shadow",
+    "production_detector_remains_authoritative": true,
+    "contextual_entity_predictions_change_actions": false,
+    "contextual_entity_predictions_change_stored_redaction": false,
+    "manual_review_required_before_active_promotion": true
+  },
+  "anti_leakage_rules": [
+    "The new holdout must be created without reading the historical final holdout.",
+    "The new holdout must not be read by training or model-selection code.",
+    "The candidate model must not be retrained after the new holdout is frozen.",
+    "Thresholds and boundary-decoder behavior must not be changed after the new holdout is frozen.",
+    "The holdout may be evaluated only once by the final evaluation script.",
+    "A failed result must be recorded without editing or replacing the holdout."
+  ]
+}
