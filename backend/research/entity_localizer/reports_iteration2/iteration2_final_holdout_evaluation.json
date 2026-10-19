@@ -1,0 +1,592 @@
+{
+  "boundary_decoder_used": true,
+  "dataset_name": "contextual_sensitive_entity_iteration2_final_holdout_v1",
+  "decision": "FAIL - DO NOT PROMOTE",
+  "evaluated_at": "2026-10-19T12:30:15.978537+00:00",
+  "evaluation": {
+    "exact_span_f1": 0.7394957983193275,
+    "exact_span_precision": 0.7857142857142857,
+    "exact_span_recall": 0.6984126984126984,
+    "false_negative_record_rate": 0.08,
+    "false_negative_records": 4,
+    "false_negative_spans": 19,
+    "false_positive_record_rate": 0.0,
+    "false_positive_records": 0,
+    "false_positive_spans": 12,
+    "incorrect_record_count": 19,
+    "incorrect_records": [
+      {
+        "gold_spans": [
+          {
+            "end": 46,
+            "start": 32,
+            "text": "+91 7258387919",
+            "type": "phone_number"
+          }
+        ],
+        "id": "psei2_final_positive_000001",
+        "predicted_spans": [
+          {
+            "end": 46,
+            "start": 33,
+            "text": "91 7258387919"
+          }
+        ],
+        "prompt": "The private attachment contains +91 7258387919; remove it before sharing.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_1_phone_number"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 35,
+            "start": 15,
+            "text": "VAULT-0A98A98AAB548A",
+            "type": "bank_account_number"
+          }
+        ],
+        "id": "psei2_final_positive_000003",
+        "predicted_spans": [],
+        "prompt": "Do not publish VAULT-0A98A98AAB548A in the external incident report.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_3_bank_account_number"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 52,
+            "start": 30,
+            "text": "Qz!Final676311c2536a9#",
+            "type": "password"
+          },
+          {
+            "end": 74,
+            "start": 57,
+            "text": "917FC103-94712944",
+            "type": "recovery_code"
+          }
+        ],
+        "id": "psei2_final_positive_000004",
+        "predicted_spans": [
+          {
+            "end": 74,
+            "start": 57,
+            "text": "917FC103-94712944"
+          }
+        ],
+        "prompt": "The confidential record lists Qz!Final676311c2536a9# and 917FC103-94712944; both values must be hidden.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_multiple_4"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 16,
+            "start": 7,
+            "text": "ZP8720006",
+            "type": "passport_number"
+          }
+        ],
+        "id": "psei2_final_positive_000006",
+        "predicted_spans": [],
+        "prompt": "Remove ZP8720006 from the document prepared for public release.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_6_passport_number"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 57,
+            "start": 15,
+            "text": "Flat 20048, Orchid Archive Road, Sector 78",
+            "type": "residential_address"
+          },
+          {
+            "end": 78,
+            "start": 61,
+            "text": "2D037F73-79E0708E",
+            "type": "recovery_code"
+          }
+        ],
+        "id": "psei2_final_positive_000008",
+        "predicted_spans": [
+          {
+            "end": 57,
+            "start": 20,
+            "text": "20048, Orchid Archive Road, Sector 78"
+          },
+          {
+            "end": 78,
+            "start": 61,
+            "text": "2D037F73-79E0708E"
+          }
+        ],
+        "prompt": "Do not publish Flat 20048, Orchid Archive Road, Sector 78 or 2D037F73-79E0708E in the external report.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_multiple_3"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 46,
+            "start": 32,
+            "text": "+91 7258467109",
+            "type": "phone_number"
+          }
+        ],
+        "id": "psei2_final_positive_000011",
+        "predicted_spans": [
+          {
+            "end": 46,
+            "start": 33,
+            "text": "91 7258467109"
+          }
+        ],
+        "prompt": "The private attachment contains +91 7258467109; remove it before sharing.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_1_phone_number"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 52,
+            "start": 30,
+            "text": "Qz!Final512cd42d97f79#",
+            "type": "password"
+          }
+        ],
+        "id": "psei2_final_positive_000014",
+        "predicted_spans": [
+          {
+            "end": 53,
+            "start": 30,
+            "text": "Qz!Final512cd42d97f79#,"
+          }
+        ],
+        "prompt": "The confidential record lists Qz!Final512cd42d97f79#, which must be hidden.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_4_password"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 47,
+            "start": 5,
+            "text": "Flat 20058, Orchid Archive Road, Sector 88",
+            "type": "residential_address"
+          }
+        ],
+        "id": "psei2_final_positive_000018",
+        "predicted_spans": [
+          {
+            "end": 47,
+            "start": 0,
+            "text": "Mask Flat 20058, Orchid Archive Road, Sector 88"
+          }
+        ],
+        "prompt": "Mask Flat 20058, Orchid Archive Road, Sector 88 in the customer-facing copy of this report.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_8_residential_address"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 46,
+            "start": 32,
+            "text": "+91 7258546299",
+            "type": "phone_number"
+          }
+        ],
+        "id": "psei2_final_positive_000021",
+        "predicted_spans": [
+          {
+            "end": 46,
+            "start": 33,
+            "text": "91 7258546299"
+          }
+        ],
+        "prompt": "The private attachment contains +91 7258546299; remove it before sharing.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_1_phone_number"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 52,
+            "start": 30,
+            "text": "Qz!Final93989f51a2119#",
+            "type": "password"
+          },
+          {
+            "end": 74,
+            "start": 57,
+            "text": "A87BACCC-B09381AE",
+            "type": "recovery_code"
+          }
+        ],
+        "id": "psei2_final_positive_000024",
+        "predicted_spans": [
+          {
+            "end": 74,
+            "start": 57,
+            "text": "A87BACCC-B09381AE"
+          }
+        ],
+        "prompt": "The confidential record lists Qz!Final93989f51a2119# and A87BACCC-B09381AE; both values must be hidden.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_multiple_4"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 16,
+            "start": 7,
+            "text": "ZP8720026",
+            "type": "passport_number"
+          }
+        ],
+        "id": "psei2_final_positive_000026",
+        "predicted_spans": [],
+        "prompt": "Remove ZP8720026 from the document prepared for public release.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_6_passport_number"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 57,
+            "start": 15,
+            "text": "Flat 20068, Orchid Archive Road, Sector 78",
+            "type": "residential_address"
+          },
+          {
+            "end": 78,
+            "start": 61,
+            "text": "6F3F2142-07F794DD",
+            "type": "recovery_code"
+          }
+        ],
+        "id": "psei2_final_positive_000028",
+        "predicted_spans": [
+          {
+            "end": 57,
+            "start": 20,
+            "text": "20068, Orchid Archive Road, Sector 78"
+          },
+          {
+            "end": 78,
+            "start": 61,
+            "text": "6F3F2142-07F794DD"
+          }
+        ],
+        "prompt": "Do not publish Flat 20068, Orchid Archive Road, Sector 78 or 6F3F2142-07F794DD in the external report.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_multiple_3"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 46,
+            "start": 32,
+            "text": "+91 7258625489",
+            "type": "phone_number"
+          }
+        ],
+        "id": "psei2_final_positive_000031",
+        "predicted_spans": [
+          {
+            "end": 46,
+            "start": 33,
+            "text": "91 7258625489"
+          }
+        ],
+        "prompt": "The private attachment contains +91 7258625489; remove it before sharing.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_1_phone_number"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 52,
+            "start": 30,
+            "text": "Qz!Finalc3d16d68596c9#",
+            "type": "password"
+          }
+        ],
+        "id": "psei2_final_positive_000034",
+        "predicted_spans": [
+          {
+            "end": 53,
+            "start": 30,
+            "text": "Qz!Finalc3d16d68596c9#,"
+          }
+        ],
+        "prompt": "The confidential record lists Qz!Finalc3d16d68596c9#, which must be hidden.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_4_password"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 47,
+            "start": 5,
+            "text": "Flat 20078, Orchid Archive Road, Sector 88",
+            "type": "residential_address"
+          }
+        ],
+        "id": "psei2_final_positive_000038",
+        "predicted_spans": [
+          {
+            "end": 47,
+            "start": 0,
+            "text": "Mask Flat 20078, Orchid Archive Road, Sector 88"
+          }
+        ],
+        "prompt": "Mask Flat 20078, Orchid Archive Road, Sector 88 in the customer-facing copy of this report.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_8_residential_address"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 46,
+            "start": 32,
+            "text": "+91 7258704679",
+            "type": "phone_number"
+          }
+        ],
+        "id": "psei2_final_positive_000041",
+        "predicted_spans": [
+          {
+            "end": 46,
+            "start": 33,
+            "text": "91 7258704679"
+          }
+        ],
+        "prompt": "The private attachment contains +91 7258704679; remove it before sharing.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_1_phone_number"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 52,
+            "start": 30,
+            "text": "Qz!Finald4d2cc40d3d49#",
+            "type": "password"
+          },
+          {
+            "end": 74,
+            "start": 57,
+            "text": "4DF21929-6D53F9C7",
+            "type": "recovery_code"
+          }
+        ],
+        "id": "psei2_final_positive_000044",
+        "predicted_spans": [
+          {
+            "end": 74,
+            "start": 57,
+            "text": "4DF21929-6D53F9C7"
+          }
+        ],
+        "prompt": "The confidential record lists Qz!Finald4d2cc40d3d49# and 4DF21929-6D53F9C7; both values must be hidden.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_multiple_4"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 16,
+            "start": 7,
+            "text": "ZP8720046",
+            "type": "passport_number"
+          }
+        ],
+        "id": "psei2_final_positive_000046",
+        "predicted_spans": [],
+        "prompt": "Remove ZP8720046 from the document prepared for public release.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_positive_6_passport_number"
+      },
+      {
+        "gold_spans": [
+          {
+            "end": 57,
+            "start": 15,
+            "text": "Flat 20088, Orchid Archive Road, Sector 78",
+            "type": "residential_address"
+          },
+          {
+            "end": 78,
+            "start": 61,
+            "text": "CE823C23-43F7FE8C",
+            "type": "recovery_code"
+          }
+        ],
+        "id": "psei2_final_positive_000048",
+        "predicted_spans": [
+          {
+            "end": 57,
+            "start": 20,
+            "text": "20088, Orchid Archive Road, Sector 78"
+          },
+          {
+            "end": 78,
+            "start": 61,
+            "text": "CE823C23-43F7FE8C"
+          }
+        ],
+        "prompt": "Do not publish Flat 20088, Orchid Archive Road, Sector 78 or CE823C23-43F7FE8C in the external report.",
+        "source_action": "redact",
+        "template_group": "iteration2_final_multiple_3"
+      }
+    ],
+    "positive_record_count": 50,
+    "record_count": 100,
+    "safe_record_count": 50,
+    "sensitive_token_f1": 0.9369747899159664,
+    "sensitive_token_precision": 0.9823788546255506,
+    "sensitive_token_recall": 0.8955823293172691,
+    "token_accuracy": 0.9755501222493888,
+    "token_count": 1636,
+    "true_positive_spans": 44
+  },
+  "evaluation_name": "contextual_entity_iteration2_final_holdout_evaluation",
+  "frozen_inputs": {
+    "actual_dataset_sha256": "6ca2415a34e06f0ad4ef03209332b00719bf6da0f87f6d6179d8c2836304cbab",
+    "actual_model_sha256": "30cd6efee8c95988cf82fb2d9a5716843710e451aa2fca2b6b0f223b33e3319d",
+    "actual_policy_sha256": "169350eafa44798dd899013fa2af4f38e789a816c556e2bdf878270d868acd3c",
+    "dataset_checksum_matches": true,
+    "expected_dataset_sha256": "6ca2415a34e06f0ad4ef03209332b00719bf6da0f87f6d6179d8c2836304cbab",
+    "expected_model_sha256": "30cd6efee8c95988cf82fb2d9a5716843710e451aa2fca2b6b0f223b33e3319d",
+    "expected_policy_sha256": "169350eafa44798dd899013fa2af4f38e789a816c556e2bdf878270d868acd3c",
+    "manifest_conditions": {
+      "frozen": true,
+      "historical_holdout_not_read": true,
+      "historical_path_excluded": true,
+      "not_used_for_model_selection": true,
+      "not_used_for_threshold_tuning": true,
+      "not_used_for_training": true,
+      "one_time_evaluation": true,
+      "production_not_changed": true
+    },
+    "manifest_is_valid": true,
+    "model_checksum_matches": true,
+    "policy_checksum_matches": true,
+    "policy_is_valid": true,
+    "valid": true
+  },
+  "mandatory_conditions": {
+    "boundary_decoder_is_used": true,
+    "candidate_artifact_checksum_matches": true,
+    "historical_holdout_is_not_read": true,
+    "holdout_checksum_matches_manifest": true,
+    "holdout_has_no_normalized_prompt_overlap_with_development_data": true,
+    "holdout_has_no_prompt_overlap_with_development_data": true,
+    "holdout_has_no_template_group_overlap_with_development_data": true,
+    "holdout_is_not_used_for_model_selection": true,
+    "holdout_is_not_used_for_threshold_tuning": true,
+    "holdout_is_not_used_for_training": true,
+    "holdout_manifest_is_valid": true
+  },
+  "mandatory_conditions_passed": true,
+  "model_name": "iteration2_crf_context_two",
+  "model_type": "contextual_sensitive_entity_localizer_iteration2",
+  "model_verification": {
+    "conditions": {
+      "boundary_decoder_required": true,
+      "classifier_available": true,
+      "historical_holdout_not_used": true,
+      "model_kind_is_crf": true,
+      "model_name_matches": true,
+      "research_only": true
+    },
+    "valid": true
+  },
+  "next_mode": "research_only",
+  "passed": false,
+  "production_changed": false,
+  "quality_gates": [
+    {
+      "actual": 0.7857142857142857,
+      "comparison": "minimum",
+      "metric": "exact_span_precision",
+      "passed": false,
+      "required": 0.9
+    },
+    {
+      "actual": 0.6984126984126984,
+      "comparison": "minimum",
+      "metric": "exact_span_recall",
+      "passed": false,
+      "required": 0.9
+    },
+    {
+      "actual": 0.7394957983193275,
+      "comparison": "minimum",
+      "metric": "exact_span_f1",
+      "passed": false,
+      "required": 0.9
+    },
+    {
+      "actual": 0.9369747899159664,
+      "comparison": "minimum",
+      "metric": "sensitive_token_f1",
+      "passed": false,
+      "required": 0.95
+    },
+    {
+      "actual": 0.0,
+      "comparison": "maximum",
+      "metric": "false_positive_record_rate",
+      "passed": true,
+      "required": 0.05
+    },
+    {
+      "actual": 0.08,
+      "comparison": "maximum",
+      "metric": "false_negative_record_rate",
+      "passed": false,
+      "required": 0.05
+    },
+    {
+      "actual": 0,
+      "comparison": "maximum",
+      "metric": "false_positive_records",
+      "passed": true,
+      "required": 2
+    },
+    {
+      "actual": 4,
+      "comparison": "maximum",
+      "metric": "false_negative_records",
+      "passed": false,
+      "required": 2
+    }
+  ],
+  "quality_gates_passed": false,
+  "structure_verification": {
+    "manifest_validation_matches": true,
+    "requirement_checks": {
+      "minimum_sensitive_spans": true,
+      "negative_control_records": true,
+      "positive_records": true,
+      "total_records": true
+    },
+    "valid": true,
+    "validation": {
+      "development_normalized_prompt_overlap": 0,
+      "development_prompt_overlap": 0,
+      "development_template_group_overlap": 0,
+      "historical_holdout_read": false,
+      "negative_control_records": 50,
+      "positive_records": 50,
+      "sensitive_spans": 63,
+      "total_records": 100,
+      "unique_normalized_prompts": true,
+      "unique_prompts": true,
+      "unique_record_ids": true
+    }
+  }
+}
