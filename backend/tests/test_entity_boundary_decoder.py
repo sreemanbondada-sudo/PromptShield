@@ -358,3 +358,77 @@ def test_unsupported_bio_label_is_rejected():
             tokens,
             labels,
         )
+
+def test_connected_plus_prefix_is_restored():
+    """A connected plus belongs to a numeric structure."""
+    prompt = (
+        "Remove +44 7700 950002 before sharing."
+    )
+
+    result = decode_values(
+        prompt=prompt,
+        predicted_values=[
+            "44 7700 950002",
+        ],
+    )
+
+    assert extracted_texts(result) == [
+        "+44 7700 950002",
+    ]
+
+    assert result["spans"][0]["start"] == 7
+    assert result["spans"][0]["end"] == 22
+
+
+def test_parenthesized_plus_prefix_is_restored():
+    """Connected opening punctuation is preserved."""
+    prompt = (
+        "Remove (+91) 80018 20666 before sharing."
+    )
+
+    result = decode_values(
+        prompt=prompt,
+        predicted_values=[
+            "91) 80018 20666",
+        ],
+    )
+
+    assert extracted_texts(result) == [
+        "(+91) 80018 20666",
+    ]
+
+    assert result["spans"][0]["start"] == 7
+    assert result["spans"][0]["end"] == 24
+
+
+def test_separated_plus_is_not_restored():
+    """Whitespace prevents unrelated plus expansion."""
+    prompt = (
+        "The marker + appears before 44 7700 950002."
+    )
+
+    result = decode_values(
+        prompt=prompt,
+        predicted_values=[
+            "44 7700 950002",
+        ],
+    )
+
+    assert extracted_texts(result) == [
+        "44 7700 950002",
+    ]
+
+    assert result["spans"][0]["start"] == 28
+    assert result["spans"][0]["end"] == 42
+
+
+def test_plus_in_safe_text_is_not_created_as_entity():
+    """Boundary repair cannot create a prediction."""
+    prompt = "Explain what the C++17 standard added."
+
+    result = decode_values(
+        prompt=prompt,
+        predicted_values=[],
+    )
+
+    assert result["spans"] == []

@@ -539,6 +539,97 @@ def groups_to_bio_labels(
 
     return labels
 
+def expand_numeric_wrapper_groups(
+    prompt: str,
+    tokens: list[dict],
+    groups: list[TokenGroup],
+) -> list[TokenGroup]:
+    """
+    Restore meaningful prefixes and wrappers around
+    detected numeric structures.
+
+    This handles structures such as +44, (+91) and
+    (415) without creating new entity groups.
+    """
+    expanded_groups = []
+
+    for group in groups:
+        group_contains_digit = any(
+            is_digit_token(tokens[token_index])
+            for token_index in range(
+                group.start,
+                group.end + 1,
+            )
+        )
+
+        if not group_contains_digit:
+            expanded_groups.append(group)
+            continue
+
+        start = group.start
+        end = group.end
+
+        if start > 0:
+            previous_token = tokens[start - 1]
+            current_token = tokens[start]
+
+            if (
+                previous_token["text"] == "+"
+                and tokens_are_character_connected(
+                    prompt,
+                    previous_token,
+                    current_token,
+                )
+            ):
+                start -= 1
+
+
+
+        if start > 0:
+            previous_token = tokens[start - 1]
+            current_token = tokens[start]
+
+            current_is_numeric_prefix = (
+                current_token["text"] == "+"
+                or is_digit_token(current_token)
+            )
+
+            if (
+                previous_token["text"] == "("
+                and current_is_numeric_prefix
+                and tokens_are_character_connected(
+                    prompt,
+                    previous_token,
+                    current_token,
+                )
+            ):
+                start -= 1
+
+        if (
+            tokens[start]["text"] == "("
+            and end + 1 < len(tokens)
+        ):
+            current_end_token = tokens[end]
+            next_token = tokens[end + 1]
+
+            if (
+                next_token["text"] == ")"
+                and tokens_are_character_connected(
+                    prompt,
+                    current_end_token,
+                    next_token,
+                )
+            ):
+                end += 1
+
+        expanded_groups.append(
+            TokenGroup(
+                start=start,
+                end=end,
+            )
+        )
+
+    return expanded_groups
 
 def repair_bio_labels(
     prompt: str,
@@ -571,6 +662,12 @@ def repair_bio_labels(
     )
 
     groups = expand_repeated_numeric_groups(
+        prompt,
+        tokens,
+        groups,
+    )
+
+    groups = expand_numeric_wrapper_groups(
         prompt,
         tokens,
         groups,

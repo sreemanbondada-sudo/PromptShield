@@ -1,0 +1,1899 @@
+{
+  "dataset": "contextual_sensitive_entity_iteration3_development_v1",
+  "feature_set": "iteration3_structural_features",
+  "selection_split": "validation",
+  "challenge_used_for_selection": false,
+  "historical_final_holdout_used": false,
+  "iteration2_final_holdout_used": false,
+  "production_changed": false,
+  "iteration2_baseline": {
+    "model_name": "iteration2_crf_context_two",
+    "model_kind": "crf",
+    "context_window": 2,
+    "evaluation": {
+      "record_count": 300,
+      "token_count": 4376,
+      "true_positive_spans": 140,
+      "false_positive_spans": 16,
+      "false_negative_spans": 40,
+      "exact_span_precision": 0.8974358974358975,
+      "exact_span_recall": 0.7777777777777778,
+      "exact_span_f1": 0.8333333333333333,
+      "token_accuracy": 0.9645795246800731,
+      "sensitive_token_precision": 0.9834983498349835,
+      "sensitive_token_recall": 0.8108843537414966,
+      "sensitive_token_f1": 0.8888888888888888,
+      "safe_record_count": 150,
+      "positive_record_count": 150,
+      "false_positive_records": 0,
+      "false_negative_records": 10,
+      "false_positive_record_rate": 0.0,
+      "false_negative_record_rate": 0.06666666666666667,
+      "incorrect_record_count": 40,
+      "incorrect_records": [
+        {
+          "id": "psei3_validation_positive_000004",
+          "prompt": "The private intake message contains 4532 4004 3004 4004; redact it.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_4_payment_card_number",
+          "gold_spans": [
+            {
+              "end": 55,
+              "start": 36,
+              "text": "4532 4004 3004 4004",
+              "type": "payment_card_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 36,
+              "end": 56,
+              "text": "4532 4004 3004 4004;"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000005",
+          "prompt": "The confidential submission combines ACCT-56D86E84B8EC2C61 with 009E03E6-D6D583AB.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_2",
+          "gold_spans": [
+            {
+              "end": 58,
+              "start": 37,
+              "text": "ACCT-56D86E84B8EC2C61",
+              "type": "bank_account_number"
+            },
+            {
+              "end": 81,
+              "start": 64,
+              "text": "009E03E6-D6D583AB",
+              "type": "recovery_code"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 42,
+              "end": 58,
+              "text": "56D86E84B8EC2C61"
+            },
+            {
+              "start": 64,
+              "end": 81,
+              "text": "009E03E6-D6D583AB"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000006",
+          "prompt": "The confidential case file includes Vm!Secure41b65fffd3c97#; protect it.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_0_password",
+          "gold_spans": [
+            {
+              "end": 59,
+              "start": 36,
+              "text": "Vm!Secure41b65fffd3c97#",
+              "type": "password"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 36,
+              "end": 60,
+              "text": "Vm!Secure41b65fffd3c97#;"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000010",
+          "prompt": "Remove Flat 320, Cedar Privacy Avenue, Zone 11 as well as (+91) 80010 60370 from the attachment.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_1",
+          "gold_spans": [
+            {
+              "end": 46,
+              "start": 7,
+              "text": "Flat 320, Cedar Privacy Avenue, Zone 11",
+              "type": "residential_address"
+            },
+            {
+              "end": 75,
+              "start": 58,
+              "text": "(+91) 80010 60370",
+              "type": "phone_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 58,
+              "end": 75,
+              "text": "(+91) 80010 60370"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000020",
+          "prompt": "The confidential submission combines ACCT-C122EE6DBC602F3D with 1694E9A2-9106A2C7.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_2",
+          "gold_spans": [
+            {
+              "end": 58,
+              "start": 37,
+              "text": "ACCT-C122EE6DBC602F3D",
+              "type": "bank_account_number"
+            },
+            {
+              "end": 81,
+              "start": 64,
+              "text": "1694E9A2-9106A2C7",
+              "type": "recovery_code"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 42,
+              "end": 58,
+              "text": "C122EE6DBC602F3D"
+            },
+            {
+              "start": 64,
+              "end": 81,
+              "text": "1694E9A2-9106A2C7"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000021",
+          "prompt": "Do not reveal Vm!Securea42b996a6da87# in the external response.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_3_password",
+          "gold_spans": [
+            {
+              "end": 37,
+              "start": 14,
+              "text": "Vm!Securea42b996a6da87#",
+              "type": "password"
+            }
+          ],
+          "predicted_spans": []
+        },
+        {
+          "id": "psei3_validation_positive_000023",
+          "prompt": "Remove the exposed value QX6130023 before publication.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_5_passport_number",
+          "gold_spans": [
+            {
+              "end": 34,
+              "start": 25,
+              "text": "QX6130023",
+              "type": "passport_number"
+            }
+          ],
+          "predicted_spans": []
+        },
+        {
+          "id": "psei3_validation_positive_000025",
+          "prompt": "Remove Flat 335, Cedar Privacy Avenue, Zone 26 as well as +1 (415) 555-3025 from the attachment.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_1",
+          "gold_spans": [
+            {
+              "end": 46,
+              "start": 7,
+              "text": "Flat 335, Cedar Privacy Avenue, Zone 26",
+              "type": "residential_address"
+            },
+            {
+              "end": 75,
+              "start": 58,
+              "text": "+1 (415) 555-3025",
+              "type": "phone_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 58,
+              "end": 75,
+              "text": "+1 (415) 555-3025"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000034",
+          "prompt": "The private intake message contains 4532 4034 3034 4034; redact it.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_4_payment_card_number",
+          "gold_spans": [
+            {
+              "end": 55,
+              "start": 36,
+              "text": "4532 4034 3034 4034",
+              "type": "payment_card_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 36,
+              "end": 56,
+              "text": "4532 4034 3034 4034;"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000035",
+          "prompt": "The confidential submission combines ACCT-EF4F77F478A8278E with D53C58B6-DF0BBCE6.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_2",
+          "gold_spans": [
+            {
+              "end": 58,
+              "start": 37,
+              "text": "ACCT-EF4F77F478A8278E",
+              "type": "bank_account_number"
+            },
+            {
+              "end": 81,
+              "start": 64,
+              "text": "D53C58B6-DF0BBCE6",
+              "type": "recovery_code"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 64,
+              "end": 81,
+              "text": "D53C58B6-DF0BBCE6"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000036",
+          "prompt": "The confidential case file includes Vm!Secure8ccfff36cd537#; protect it.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_0_password",
+          "gold_spans": [
+            {
+              "end": 59,
+              "start": 36,
+              "text": "Vm!Secure8ccfff36cd537#",
+              "type": "password"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 36,
+              "end": 60,
+              "text": "Vm!Secure8ccfff36cd537#;"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000040",
+          "prompt": "Remove Flat 350, Cedar Privacy Avenue, Zone 41 as well as (+91) 80040 61480 from the attachment.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_1",
+          "gold_spans": [
+            {
+              "end": 46,
+              "start": 7,
+              "text": "Flat 350, Cedar Privacy Avenue, Zone 41",
+              "type": "residential_address"
+            },
+            {
+              "end": 75,
+              "start": 58,
+              "text": "(+91) 80040 61480",
+              "type": "phone_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 58,
+              "end": 75,
+              "text": "(+91) 80040 61480"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000050",
+          "prompt": "The confidential submission combines ACCT-FC635F9330354CCD with AAD4F21F-E81E8899.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_2",
+          "gold_spans": [
+            {
+              "end": 58,
+              "start": 37,
+              "text": "ACCT-FC635F9330354CCD",
+              "type": "bank_account_number"
+            },
+            {
+              "end": 81,
+              "start": 64,
+              "text": "AAD4F21F-E81E8899",
+              "type": "recovery_code"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 42,
+              "end": 58,
+              "text": "FC635F9330354CCD"
+            },
+            {
+              "start": 64,
+              "end": 81,
+              "text": "AAD4F21F-E81E8899"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000051",
+          "prompt": "Do not reveal Vm!Secure071a9bb607877# in the external response.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_3_password",
+          "gold_spans": [
+            {
+              "end": 37,
+              "start": 14,
+              "text": "Vm!Secure071a9bb607877#",
+              "type": "password"
+            }
+          ],
+          "predicted_spans": []
+        },
+        {
+          "id": "psei3_validation_positive_000053",
+          "prompt": "Remove the exposed value QX6130053 before publication.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_5_passport_number",
+          "gold_spans": [
+            {
+              "end": 34,
+              "start": 25,
+              "text": "QX6130053",
+              "type": "passport_number"
+            }
+          ],
+          "predicted_spans": []
+        },
+        {
+          "id": "psei3_validation_positive_000055",
+          "prompt": "Remove Flat 365, Cedar Privacy Avenue, Zone 56 as well as +1 (415) 555-3055 from the attachment.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_1",
+          "gold_spans": [
+            {
+              "end": 46,
+              "start": 7,
+              "text": "Flat 365, Cedar Privacy Avenue, Zone 56",
+              "type": "residential_address"
+            },
+            {
+              "end": 75,
+              "start": 58,
+              "text": "+1 (415) 555-3055",
+              "type": "phone_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 58,
+              "end": 75,
+              "text": "+1 (415) 555-3055"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000064",
+          "prompt": "The private intake message contains 4532 4064 3064 4064; redact it.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_4_payment_card_number",
+          "gold_spans": [
+            {
+              "end": 55,
+              "start": 36,
+              "text": "4532 4064 3064 4064",
+              "type": "payment_card_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 36,
+              "end": 56,
+              "text": "4532 4064 3064 4064;"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000065",
+          "prompt": "The confidential submission combines ACCT-349D3A772E105B83 with 766A301A-552CBA97.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_2",
+          "gold_spans": [
+            {
+              "end": 58,
+              "start": 37,
+              "text": "ACCT-349D3A772E105B83",
+              "type": "bank_account_number"
+            },
+            {
+              "end": 81,
+              "start": 64,
+              "text": "766A301A-552CBA97",
+              "type": "recovery_code"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 42,
+              "end": 58,
+              "text": "349D3A772E105B83"
+            },
+            {
+              "start": 64,
+              "end": 81,
+              "text": "766A301A-552CBA97"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000066",
+          "prompt": "The confidential case file includes Vm!Secure3230833c11797#; protect it.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_0_password",
+          "gold_spans": [
+            {
+              "end": 59,
+              "start": 36,
+              "text": "Vm!Secure3230833c11797#",
+              "type": "password"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 36,
+              "end": 60,
+              "text": "Vm!Secure3230833c11797#;"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000070",
+          "prompt": "Remove Flat 380, Cedar Privacy Avenue, Zone 71 as well as (+91) 80070 62590 from the attachment.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_1",
+          "gold_spans": [
+            {
+              "end": 46,
+              "start": 7,
+              "text": "Flat 380, Cedar Privacy Avenue, Zone 71",
+              "type": "residential_address"
+            },
+            {
+              "end": 75,
+              "start": 58,
+              "text": "(+91) 80070 62590",
+              "type": "phone_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 58,
+              "end": 75,
+              "text": "(+91) 80070 62590"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000080",
+          "prompt": "The confidential submission combines ACCT-0AF6B3609195EAAB with DECEC34A-89B5E1E9.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_2",
+          "gold_spans": [
+            {
+              "end": 58,
+              "start": 37,
+              "text": "ACCT-0AF6B3609195EAAB",
+              "type": "bank_account_number"
+            },
+            {
+              "end": 81,
+              "start": 64,
+              "text": "DECEC34A-89B5E1E9",
+              "type": "recovery_code"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 64,
+              "end": 81,
+              "text": "DECEC34A-89B5E1E9"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000081",
+          "prompt": "Do not reveal Vm!Secure1104654300d37# in the external response.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_3_password",
+          "gold_spans": [
+            {
+              "end": 37,
+              "start": 14,
+              "text": "Vm!Secure1104654300d37#",
+              "type": "password"
+            }
+          ],
+          "predicted_spans": []
+        },
+        {
+          "id": "psei3_validation_positive_000083",
+          "prompt": "Remove the exposed value QX6130083 before publication.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_5_passport_number",
+          "gold_spans": [
+            {
+              "end": 34,
+              "start": 25,
+              "text": "QX6130083",
+              "type": "passport_number"
+            }
+          ],
+          "predicted_spans": []
+        },
+        {
+          "id": "psei3_validation_positive_000085",
+          "prompt": "Remove Flat 395, Cedar Privacy Avenue, Zone 6 as well as +1 (415) 555-3085 from the attachment.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_1",
+          "gold_spans": [
+            {
+              "end": 45,
+              "start": 7,
+              "text": "Flat 395, Cedar Privacy Avenue, Zone 6",
+              "type": "residential_address"
+            },
+            {
+              "end": 74,
+              "start": 57,
+              "text": "+1 (415) 555-3085",
+              "type": "phone_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 57,
+              "end": 74,
+              "text": "+1 (415) 555-3085"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000094",
+          "prompt": "The private intake message contains 4532 4094 3094 4094; redact it.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_4_payment_card_number",
+          "gold_spans": [
+            {
+              "end": 55,
+              "start": 36,
+              "text": "4532 4094 3094 4094",
+              "type": "payment_card_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 36,
+              "end": 56,
+              "text": "4532 4094 3094 4094;"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000095",
+          "prompt": "The confidential submission combines ACCT-AB94AA4EDBDEABA8 with 098D006A-93E22363.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_2",
+          "gold_spans": [
+            {
+              "end": 58,
+              "start": 37,
+              "text": "ACCT-AB94AA4EDBDEABA8",
+              "type": "bank_account_number"
+            },
+            {
+              "end": 81,
+              "start": 64,
+              "text": "098D006A-93E22363",
+              "type": "recovery_code"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 64,
+              "end": 81,
+              "text": "098D006A-93E22363"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000096",
+          "prompt": "The confidential case file includes Vm!Secure93dd8c3d05657#; protect it.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_0_password",
+          "gold_spans": [
+            {
+              "end": 59,
+              "start": 36,
+              "text": "Vm!Secure93dd8c3d05657#",
+              "type": "password"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 36,
+              "end": 60,
+              "text": "Vm!Secure93dd8c3d05657#;"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000100",
+          "prompt": "Remove Flat 410, Cedar Privacy Avenue, Zone 21 as well as (+91) 80100 63700 from the attachment.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_1",
+          "gold_spans": [
+            {
+              "end": 46,
+              "start": 7,
+              "text": "Flat 410, Cedar Privacy Avenue, Zone 21",
+              "type": "residential_address"
+            },
+            {
+              "end": 75,
+              "start": 58,
+              "text": "(+91) 80100 63700",
+              "type": "phone_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 58,
+              "end": 75,
+              "text": "(+91) 80100 63700"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000110",
+          "prompt": "The confidential submission combines ACCT-AD909B89D54909EE with C05A33AA-040424DE.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_2",
+          "gold_spans": [
+            {
+              "end": 58,
+              "start": 37,
+              "text": "ACCT-AD909B89D54909EE",
+              "type": "bank_account_number"
+            },
+            {
+              "end": 81,
+              "start": 64,
+              "text": "C05A33AA-040424DE",
+              "type": "recovery_code"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 64,
+              "end": 81,
+              "text": "C05A33AA-040424DE"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000111",
+          "prompt": "Do not reveal Vm!Secure066cdf54c8527# in the external response.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_3_password",
+          "gold_spans": [
+            {
+              "end": 37,
+              "start": 14,
+              "text": "Vm!Secure066cdf54c8527#",
+              "type": "password"
+            }
+          ],
+          "predicted_spans": []
+        },
+        {
+          "id": "psei3_validation_positive_000113",
+          "prompt": "Remove the exposed value QX6130113 before publication.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_5_passport_number",
+          "gold_spans": [
+            {
+              "end": 34,
+              "start": 25,
+              "text": "QX6130113",
+              "type": "passport_number"
+            }
+          ],
+          "predicted_spans": []
+        },
+        {
+          "id": "psei3_validation_positive_000115",
+          "prompt": "Remove Flat 425, Cedar Privacy Avenue, Zone 36 as well as +1 (415) 555-3115 from the attachment.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_1",
+          "gold_spans": [
+            {
+              "end": 46,
+              "start": 7,
+              "text": "Flat 425, Cedar Privacy Avenue, Zone 36",
+              "type": "residential_address"
+            },
+            {
+              "end": 75,
+              "start": 58,
+              "text": "+1 (415) 555-3115",
+              "type": "phone_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 58,
+              "end": 75,
+              "text": "+1 (415) 555-3115"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000124",
+          "prompt": "The private intake message contains 4532 4124 3124 4124; redact it.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_4_payment_card_number",
+          "gold_spans": [
+            {
+              "end": 55,
+              "start": 36,
+              "text": "4532 4124 3124 4124",
+              "type": "payment_card_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 36,
+              "end": 56,
+              "text": "4532 4124 3124 4124;"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000125",
+          "prompt": "The confidential submission combines ACCT-453E4ABB45351436 with 173463E7-E796DADB.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_2",
+          "gold_spans": [
+            {
+              "end": 58,
+              "start": 37,
+              "text": "ACCT-453E4ABB45351436",
+              "type": "bank_account_number"
+            },
+            {
+              "end": 81,
+              "start": 64,
+              "text": "173463E7-E796DADB",
+              "type": "recovery_code"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 42,
+              "end": 58,
+              "text": "453E4ABB45351436"
+            },
+            {
+              "start": 64,
+              "end": 81,
+              "text": "173463E7-E796DADB"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000126",
+          "prompt": "The confidential case file includes Vm!Secureb1ce2d58568f7#; protect it.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_0_password",
+          "gold_spans": [
+            {
+              "end": 59,
+              "start": 36,
+              "text": "Vm!Secureb1ce2d58568f7#",
+              "type": "password"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 36,
+              "end": 60,
+              "text": "Vm!Secureb1ce2d58568f7#;"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000130",
+          "prompt": "Remove Flat 440, Cedar Privacy Avenue, Zone 51 as well as (+91) 80130 64810 from the attachment.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_1",
+          "gold_spans": [
+            {
+              "end": 46,
+              "start": 7,
+              "text": "Flat 440, Cedar Privacy Avenue, Zone 51",
+              "type": "residential_address"
+            },
+            {
+              "end": 75,
+              "start": 58,
+              "text": "(+91) 80130 64810",
+              "type": "phone_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 58,
+              "end": 75,
+              "text": "(+91) 80130 64810"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000140",
+          "prompt": "The confidential submission combines ACCT-F432A9EAC7792E3B with 02D133A8-26670EBF.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_2",
+          "gold_spans": [
+            {
+              "end": 58,
+              "start": 37,
+              "text": "ACCT-F432A9EAC7792E3B",
+              "type": "bank_account_number"
+            },
+            {
+              "end": 81,
+              "start": 64,
+              "text": "02D133A8-26670EBF",
+              "type": "recovery_code"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 42,
+              "end": 58,
+              "text": "F432A9EAC7792E3B"
+            },
+            {
+              "start": 64,
+              "end": 81,
+              "text": "02D133A8-26670EBF"
+            }
+          ]
+        },
+        {
+          "id": "psei3_validation_positive_000141",
+          "prompt": "Do not reveal Vm!Secure1d672dcbac687# in the external response.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_3_password",
+          "gold_spans": [
+            {
+              "end": 37,
+              "start": 14,
+              "text": "Vm!Secure1d672dcbac687#",
+              "type": "password"
+            }
+          ],
+          "predicted_spans": []
+        },
+        {
+          "id": "psei3_validation_positive_000143",
+          "prompt": "Remove the exposed value QX6130143 before publication.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_positive_5_passport_number",
+          "gold_spans": [
+            {
+              "end": 34,
+              "start": 25,
+              "text": "QX6130143",
+              "type": "passport_number"
+            }
+          ],
+          "predicted_spans": []
+        },
+        {
+          "id": "psei3_validation_positive_000145",
+          "prompt": "Remove Flat 455, Cedar Privacy Avenue, Zone 66 as well as +1 (415) 555-3145 from the attachment.",
+          "source_action": "redact",
+          "template_group": "iteration3_validation_multiple_1",
+          "gold_spans": [
+            {
+              "end": 46,
+              "start": 7,
+              "text": "Flat 455, Cedar Privacy Avenue, Zone 66",
+              "type": "residential_address"
+            },
+            {
+              "end": 75,
+              "start": 58,
+              "text": "+1 (415) 555-3145",
+              "type": "phone_number"
+            }
+          ],
+          "predicted_spans": [
+            {
+              "start": 58,
+              "end": 75,
+              "text": "+1 (415) 555-3145"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate_results": [
+    {
+      "name": "iteration3_crf_context_one",
+      "model_kind": "crf",
+      "feature_set": "iteration3_structural_features",
+      "context_window": 1,
+      "training_seconds": 26.7517,
+      "feature_count": null,
+      "c1": 0.1,
+      "c2": 0.1,
+      "max_iterations": 200,
+      "validation": {
+        "record_count": 300,
+        "token_count": 4376,
+        "true_positive_spans": 178,
+        "false_positive_spans": 2,
+        "false_negative_spans": 2,
+        "exact_span_precision": 0.9888888888888889,
+        "exact_span_recall": 0.9888888888888889,
+        "exact_span_f1": 0.9888888888888889,
+        "token_accuracy": 0.9986288848263254,
+        "sensitive_token_precision": 1.0,
+        "sensitive_token_recall": 0.9945578231292517,
+        "sensitive_token_f1": 0.9972714870395635,
+        "safe_record_count": 150,
+        "positive_record_count": 150,
+        "false_positive_records": 0,
+        "false_negative_records": 0,
+        "false_positive_record_rate": 0.0,
+        "false_negative_record_rate": 0.0,
+        "incorrect_record_count": 2,
+        "incorrect_records": [
+          {
+            "id": "psei3_validation_positive_000024",
+            "prompt": "The confidential case file includes 9 January 1999; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 50,
+                "start": 36,
+                "text": "9 January 1999",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 46,
+                "end": 50,
+                "text": "1999"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000084",
+            "prompt": "The confidential case file includes 13 January 2004; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 51,
+                "start": 36,
+                "text": "13 January 2004",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 47,
+                "end": 51,
+                "text": "2004"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "iteration3_crf_context_two",
+      "model_kind": "crf",
+      "feature_set": "iteration3_structural_features",
+      "context_window": 2,
+      "training_seconds": 37.7048,
+      "feature_count": null,
+      "c1": 0.1,
+      "c2": 0.1,
+      "max_iterations": 200,
+      "validation": {
+        "record_count": 300,
+        "token_count": 4376,
+        "true_positive_spans": 175,
+        "false_positive_spans": 3,
+        "false_negative_spans": 5,
+        "exact_span_precision": 0.9831460674157303,
+        "exact_span_recall": 0.9722222222222222,
+        "exact_span_f1": 0.9776536312849161,
+        "token_accuracy": 0.9965722120658135,
+        "sensitive_token_precision": 1.0,
+        "sensitive_token_recall": 0.9836734693877551,
+        "sensitive_token_f1": 0.9917695473251029,
+        "safe_record_count": 150,
+        "positive_record_count": 150,
+        "false_positive_records": 0,
+        "false_negative_records": 1,
+        "false_positive_record_rate": 0.0,
+        "false_negative_record_rate": 0.006666666666666667,
+        "incorrect_record_count": 5,
+        "incorrect_records": [
+          {
+            "id": "psei3_validation_positive_000024",
+            "prompt": "The confidential case file includes 9 January 1999; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 50,
+                "start": 36,
+                "text": "9 January 1999",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 46,
+                "end": 50,
+                "text": "1999"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000084",
+            "prompt": "The confidential case file includes 13 January 2004; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 51,
+                "start": 36,
+                "text": "13 January 2004",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 47,
+                "end": 51,
+                "text": "2004"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000095",
+            "prompt": "The confidential submission combines ACCT-AB94AA4EDBDEABA8 with 098D006A-93E22363.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_multiple_2",
+            "gold_spans": [
+              {
+                "end": 58,
+                "start": 37,
+                "text": "ACCT-AB94AA4EDBDEABA8",
+                "type": "bank_account_number"
+              },
+              {
+                "end": 81,
+                "start": 64,
+                "text": "098D006A-93E22363",
+                "type": "recovery_code"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 64,
+                "end": 81,
+                "text": "098D006A-93E22363"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000129",
+            "prompt": "Do not reveal 2 October 1994 in the external response.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_3_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 28,
+                "start": 14,
+                "text": "2 October 1994",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000144",
+            "prompt": "The confidential case file includes 17 January 1954; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 51,
+                "start": 36,
+                "text": "17 January 1954",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 47,
+                "end": 51,
+                "text": "1954"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "iteration3_crf_context_two_low_l1",
+      "model_kind": "crf",
+      "feature_set": "iteration3_structural_features",
+      "context_window": 2,
+      "training_seconds": 50.7974,
+      "feature_count": null,
+      "c1": 0.05,
+      "c2": 0.1,
+      "max_iterations": 250,
+      "validation": {
+        "record_count": 300,
+        "token_count": 4376,
+        "true_positive_spans": 175,
+        "false_positive_spans": 3,
+        "false_negative_spans": 5,
+        "exact_span_precision": 0.9831460674157303,
+        "exact_span_recall": 0.9722222222222222,
+        "exact_span_f1": 0.9776536312849161,
+        "token_accuracy": 0.9965722120658135,
+        "sensitive_token_precision": 1.0,
+        "sensitive_token_recall": 0.9836734693877551,
+        "sensitive_token_f1": 0.9917695473251029,
+        "safe_record_count": 150,
+        "positive_record_count": 150,
+        "false_positive_records": 0,
+        "false_negative_records": 1,
+        "false_positive_record_rate": 0.0,
+        "false_negative_record_rate": 0.006666666666666667,
+        "incorrect_record_count": 5,
+        "incorrect_records": [
+          {
+            "id": "psei3_validation_positive_000024",
+            "prompt": "The confidential case file includes 9 January 1999; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 50,
+                "start": 36,
+                "text": "9 January 1999",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 46,
+                "end": 50,
+                "text": "1999"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000084",
+            "prompt": "The confidential case file includes 13 January 2004; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 51,
+                "start": 36,
+                "text": "13 January 2004",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 47,
+                "end": 51,
+                "text": "2004"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000095",
+            "prompt": "The confidential submission combines ACCT-AB94AA4EDBDEABA8 with 098D006A-93E22363.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_multiple_2",
+            "gold_spans": [
+              {
+                "end": 58,
+                "start": 37,
+                "text": "ACCT-AB94AA4EDBDEABA8",
+                "type": "bank_account_number"
+              },
+              {
+                "end": 81,
+                "start": 64,
+                "text": "098D006A-93E22363",
+                "type": "recovery_code"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 64,
+                "end": 81,
+                "text": "098D006A-93E22363"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000129",
+            "prompt": "Do not reveal 2 October 1994 in the external response.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_3_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 28,
+                "start": 14,
+                "text": "2 October 1994",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000144",
+            "prompt": "The confidential case file includes 17 January 1954; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 51,
+                "start": 36,
+                "text": "17 January 1954",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 47,
+                "end": 51,
+                "text": "1954"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "iteration3_crf_context_two_balanced",
+      "model_kind": "crf",
+      "feature_set": "iteration3_structural_features",
+      "context_window": 2,
+      "training_seconds": 55.0501,
+      "feature_count": null,
+      "c1": 0.05,
+      "c2": 0.05,
+      "max_iterations": 250,
+      "validation": {
+        "record_count": 300,
+        "token_count": 4376,
+        "true_positive_spans": 175,
+        "false_positive_spans": 3,
+        "false_negative_spans": 5,
+        "exact_span_precision": 0.9831460674157303,
+        "exact_span_recall": 0.9722222222222222,
+        "exact_span_f1": 0.9776536312849161,
+        "token_accuracy": 0.9965722120658135,
+        "sensitive_token_precision": 1.0,
+        "sensitive_token_recall": 0.9836734693877551,
+        "sensitive_token_f1": 0.9917695473251029,
+        "safe_record_count": 150,
+        "positive_record_count": 150,
+        "false_positive_records": 0,
+        "false_negative_records": 1,
+        "false_positive_record_rate": 0.0,
+        "false_negative_record_rate": 0.006666666666666667,
+        "incorrect_record_count": 5,
+        "incorrect_records": [
+          {
+            "id": "psei3_validation_positive_000024",
+            "prompt": "The confidential case file includes 9 January 1999; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 50,
+                "start": 36,
+                "text": "9 January 1999",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 46,
+                "end": 50,
+                "text": "1999"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000084",
+            "prompt": "The confidential case file includes 13 January 2004; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 51,
+                "start": 36,
+                "text": "13 January 2004",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 47,
+                "end": 51,
+                "text": "2004"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000095",
+            "prompt": "The confidential submission combines ACCT-AB94AA4EDBDEABA8 with 098D006A-93E22363.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_multiple_2",
+            "gold_spans": [
+              {
+                "end": 58,
+                "start": 37,
+                "text": "ACCT-AB94AA4EDBDEABA8",
+                "type": "bank_account_number"
+              },
+              {
+                "end": 81,
+                "start": 64,
+                "text": "098D006A-93E22363",
+                "type": "recovery_code"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 64,
+                "end": 81,
+                "text": "098D006A-93E22363"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000129",
+            "prompt": "Do not reveal 2 October 1994 in the external response.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_3_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 28,
+                "start": 14,
+                "text": "2 October 1994",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000144",
+            "prompt": "The confidential case file includes 17 January 1954; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 51,
+                "start": 36,
+                "text": "17 January 1954",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 47,
+                "end": 51,
+                "text": "1954"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "iteration3_crf_context_three",
+      "model_kind": "crf",
+      "feature_set": "iteration3_structural_features",
+      "context_window": 3,
+      "training_seconds": 59.1138,
+      "feature_count": null,
+      "c1": 0.05,
+      "c2": 0.1,
+      "max_iterations": 250,
+      "validation": {
+        "record_count": 300,
+        "token_count": 4376,
+        "true_positive_spans": 163,
+        "false_positive_spans": 4,
+        "false_negative_spans": 17,
+        "exact_span_precision": 0.9760479041916168,
+        "exact_span_recall": 0.9055555555555556,
+        "exact_span_f1": 0.9394812680115273,
+        "token_accuracy": 0.9908592321755028,
+        "sensitive_token_precision": 1.0,
+        "sensitive_token_recall": 0.9496598639455782,
+        "sensitive_token_f1": 0.9741800418702024,
+        "safe_record_count": 150,
+        "positive_record_count": 150,
+        "false_positive_records": 0,
+        "false_negative_records": 11,
+        "false_positive_record_rate": 0.0,
+        "false_negative_record_rate": 0.07333333333333333,
+        "incorrect_record_count": 17,
+        "incorrect_records": [
+          {
+            "id": "psei3_validation_positive_000006",
+            "prompt": "The confidential case file includes Vm!Secure41b65fffd3c97#; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_password",
+            "gold_spans": [
+              {
+                "end": 59,
+                "start": 36,
+                "text": "Vm!Secure41b65fffd3c97#",
+                "type": "password"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 39,
+                "end": 59,
+                "text": "Secure41b65fffd3c97#"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000023",
+            "prompt": "Remove the exposed value QX6130023 before publication.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_5_passport_number",
+            "gold_spans": [
+              {
+                "end": 34,
+                "start": 25,
+                "text": "QX6130023",
+                "type": "passport_number"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000024",
+            "prompt": "The confidential case file includes 9 January 1999; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 50,
+                "start": 36,
+                "text": "9 January 1999",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000035",
+            "prompt": "The confidential submission combines ACCT-EF4F77F478A8278E with D53C58B6-DF0BBCE6.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_multiple_2",
+            "gold_spans": [
+              {
+                "end": 58,
+                "start": 37,
+                "text": "ACCT-EF4F77F478A8278E",
+                "type": "bank_account_number"
+              },
+              {
+                "end": 81,
+                "start": 64,
+                "text": "D53C58B6-DF0BBCE6",
+                "type": "recovery_code"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 37,
+                "end": 58,
+                "text": "ACCT-EF4F77F478A8278E"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000036",
+            "prompt": "The confidential case file includes Vm!Secure8ccfff36cd537#; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_password",
+            "gold_spans": [
+              {
+                "end": 59,
+                "start": 36,
+                "text": "Vm!Secure8ccfff36cd537#",
+                "type": "password"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 39,
+                "end": 59,
+                "text": "Secure8ccfff36cd537#"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000053",
+            "prompt": "Remove the exposed value QX6130053 before publication.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_5_passport_number",
+            "gold_spans": [
+              {
+                "end": 34,
+                "start": 25,
+                "text": "QX6130053",
+                "type": "passport_number"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000054",
+            "prompt": "The confidential case file includes 11 July 1974; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 48,
+                "start": 36,
+                "text": "11 July 1974",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000083",
+            "prompt": "Remove the exposed value QX6130083 before publication.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_5_passport_number",
+            "gold_spans": [
+              {
+                "end": 34,
+                "start": 25,
+                "text": "QX6130083",
+                "type": "passport_number"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000084",
+            "prompt": "The confidential case file includes 13 January 2004; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 51,
+                "start": 36,
+                "text": "13 January 2004",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000095",
+            "prompt": "The confidential submission combines ACCT-AB94AA4EDBDEABA8 with 098D006A-93E22363.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_multiple_2",
+            "gold_spans": [
+              {
+                "end": 58,
+                "start": 37,
+                "text": "ACCT-AB94AA4EDBDEABA8",
+                "type": "bank_account_number"
+              },
+              {
+                "end": 81,
+                "start": 64,
+                "text": "098D006A-93E22363",
+                "type": "recovery_code"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 64,
+                "end": 81,
+                "text": "098D006A-93E22363"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000113",
+            "prompt": "Remove the exposed value QX6130113 before publication.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_5_passport_number",
+            "gold_spans": [
+              {
+                "end": 34,
+                "start": 25,
+                "text": "QX6130113",
+                "type": "passport_number"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000114",
+            "prompt": "The confidential case file includes 15 July 1979; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 48,
+                "start": 36,
+                "text": "15 July 1979",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000125",
+            "prompt": "The confidential submission combines ACCT-453E4ABB45351436 with 173463E7-E796DADB.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_multiple_2",
+            "gold_spans": [
+              {
+                "end": 58,
+                "start": 37,
+                "text": "ACCT-453E4ABB45351436",
+                "type": "bank_account_number"
+              },
+              {
+                "end": 81,
+                "start": 64,
+                "text": "173463E7-E796DADB",
+                "type": "recovery_code"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 37,
+                "end": 58,
+                "text": "ACCT-453E4ABB45351436"
+              },
+              {
+                "start": 64,
+                "end": 72,
+                "text": "173463E7"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000126",
+            "prompt": "The confidential case file includes Vm!Secureb1ce2d58568f7#; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_password",
+            "gold_spans": [
+              {
+                "end": 59,
+                "start": 36,
+                "text": "Vm!Secureb1ce2d58568f7#",
+                "type": "password"
+              }
+            ],
+            "predicted_spans": [
+              {
+                "start": 39,
+                "end": 59,
+                "text": "Secureb1ce2d58568f7#"
+              }
+            ]
+          },
+          {
+            "id": "psei3_validation_positive_000129",
+            "prompt": "Do not reveal 2 October 1994 in the external response.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_3_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 28,
+                "start": 14,
+                "text": "2 October 1994",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000143",
+            "prompt": "Remove the exposed value QX6130143 before publication.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_5_passport_number",
+            "gold_spans": [
+              {
+                "end": 34,
+                "start": 25,
+                "text": "QX6130143",
+                "type": "passport_number"
+              }
+            ],
+            "predicted_spans": []
+          },
+          {
+            "id": "psei3_validation_positive_000144",
+            "prompt": "The confidential case file includes 17 January 1954; protect it.",
+            "source_action": "redact",
+            "template_group": "iteration3_validation_positive_0_date_of_birth",
+            "gold_spans": [
+              {
+                "end": 51,
+                "start": 36,
+                "text": "17 January 1954",
+                "type": "date_of_birth"
+              }
+            ],
+            "predicted_spans": []
+          }
+        ]
+      }
+    }
+  ],
+  "selected_candidate": "iteration3_crf_context_one",
+  "selected_validation": {
+    "record_count": 300,
+    "token_count": 4376,
+    "true_positive_spans": 178,
+    "false_positive_spans": 2,
+    "false_negative_spans": 2,
+    "exact_span_precision": 0.9888888888888889,
+    "exact_span_recall": 0.9888888888888889,
+    "exact_span_f1": 0.9888888888888889,
+    "token_accuracy": 0.9986288848263254,
+    "sensitive_token_precision": 1.0,
+    "sensitive_token_recall": 0.9945578231292517,
+    "sensitive_token_f1": 0.9972714870395635,
+    "safe_record_count": 150,
+    "positive_record_count": 150,
+    "false_positive_records": 0,
+    "false_negative_records": 0,
+    "false_positive_record_rate": 0.0,
+    "false_negative_record_rate": 0.0,
+    "incorrect_record_count": 2,
+    "incorrect_records": [
+      {
+        "id": "psei3_validation_positive_000024",
+        "prompt": "The confidential case file includes 9 January 1999; protect it.",
+        "source_action": "redact",
+        "template_group": "iteration3_validation_positive_0_date_of_birth",
+        "gold_spans": [
+          {
+            "end": 50,
+            "start": 36,
+            "text": "9 January 1999",
+            "type": "date_of_birth"
+          }
+        ],
+        "predicted_spans": [
+          {
+            "start": 46,
+            "end": 50,
+            "text": "1999"
+          }
+        ]
+      },
+      {
+        "id": "psei3_validation_positive_000084",
+        "prompt": "The confidential case file includes 13 January 2004; protect it.",
+        "source_action": "redact",
+        "template_group": "iteration3_validation_positive_0_date_of_birth",
+        "gold_spans": [
+          {
+            "end": 51,
+            "start": 36,
+            "text": "13 January 2004",
+            "type": "date_of_birth"
+          }
+        ],
+        "predicted_spans": [
+          {
+            "start": 47,
+            "end": 51,
+            "text": "2004"
+          }
+        ]
+      }
+    ]
+  },
+  "selected_challenge": {
+    "record_count": 300,
+    "token_count": 4345,
+    "true_positive_spans": 180,
+    "false_positive_spans": 0,
+    "false_negative_spans": 0,
+    "exact_span_precision": 1.0,
+    "exact_span_recall": 1.0,
+    "exact_span_f1": 1.0,
+    "token_accuracy": 1.0,
+    "sensitive_token_precision": 1.0,
+    "sensitive_token_recall": 1.0,
+    "sensitive_token_f1": 1.0,
+    "safe_record_count": 150,
+    "positive_record_count": 150,
+    "false_positive_records": 0,
+    "false_negative_records": 0,
+    "false_positive_record_rate": 0.0,
+    "false_negative_record_rate": 0.0,
+    "incorrect_record_count": 0,
+    "incorrect_records": []
+  },
+  "model_path": "C:\\Users\\Sreeman\\Documents\\Projects\\PromptShield\\backend\\research\\entity_localizer\\models_iteration3\\contextual_entity_candidate_iteration3.joblib"
+}
