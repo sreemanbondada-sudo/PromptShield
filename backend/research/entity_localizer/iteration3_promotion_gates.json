@@ -1,0 +1,67 @@
+{
+  "policy_name": "entity_iteration3_final_promotion_policy",
+  "policy_version": 1,
+  "frozen_on": "2026-10-28",
+  "candidate": {
+    "model_name": "iteration3_crf_context_one",
+    "model_type": "contextual_sensitive_entity_localizer_iteration3",
+    "model_kind": "crf",
+    "feature_set": "iteration3_structural_features",
+    "context_window": 1
+  },
+  "evaluation_protocol": {
+    "selection_split": "validation",
+    "development_challenge_used_for_selection": false,
+    "final_holdout_is_independent": true,
+    "final_holdout_may_be_evaluated_once": true,
+    "final_holdout_may_be_used_for_training": false,
+    "final_holdout_may_be_used_for_model_selection": false,
+    "final_holdout_may_be_used_for_threshold_tuning": false,
+    "historical_holdout_may_be_loaded": false,
+    "iteration2_holdout_may_be_loaded": false,
+    "boundary_decoder_required": true
+  },
+  "holdout_requirements": {
+    "record_count": 120,
+    "minimum_positive_records": 60,
+    "minimum_negative_control_records": 60,
+    "minimum_sensitive_spans": 72,
+    "maximum_exact_prompt_overlap": 0,
+    "maximum_normalized_prompt_overlap": 0,
+    "maximum_template_group_overlap": 0
+  },
+  "minimum_quality_gates": {
+    "exact_span_precision": 0.9,
+    "exact_span_recall": 0.9,
+    "exact_span_f1": 0.9,
+    "sensitive_token_f1": 0.95
+  },
+  "maximum_safety_gates": {
+    "false_positive_record_rate": 0.05,
+    "false_negative_record_rate": 0.05,
+    "false_positive_records": 3,
+    "false_negative_records": 3
+  },
+  "mandatory_integrity_conditions": [
+    "holdout_checksum_matches_manifest",
+    "promotion_policy_checksum_matches_manifest",
+    "candidate_artifact_checksum_matches_manifest",
+    "holdout_manifest_is_valid",
+    "boundary_decoder_is_used",
+    "historical_holdout_is_not_read",
+    "iteration2_holdout_is_not_read",
+    "holdout_is_not_used_for_training",
+    "holdout_is_not_used_for_model_selection",
+    "holdout_is_not_used_for_threshold_tuning",
+    "holdout_has_no_exact_prompt_overlap",
+    "holdout_has_no_normalized_prompt_overlap",
+    "holdout_has_no_template_group_overlap",
+    "production_is_not_changed_by_evaluation"
+  ],
+  "promotion_rule": {
+    "require_all_quality_gates": true,
+    "require_all_integrity_conditions": true,
+    "failure_action": "do_not_promote",
+    "success_action": "approve_for_controlled_shadow_integration"
+  }
+}
