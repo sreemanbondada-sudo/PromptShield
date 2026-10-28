@@ -1,0 +1,29 @@
+{
+  "candidate_model_path": "research/entity_localizer/models_iteration3/contextual_entity_candidate_iteration3.joblib",
+  "candidate_model_sha256": "92c61b301025bc0d6e1b64370ed10696e6064b22c01e400e7cc4b514e6545a89",
+  "dataset_path": "research/entity_localizer/data_iteration3_final/final_holdout.jsonl",
+  "dataset_sha256": "1005629886ca3a5404c58129513fac496d0f0327b65b14332bf08abe75f642aa",
+  "frozen_on": "2026-10-28",
+  "historical_holdout_read": false,
+  "iteration2_holdout_read": false,
+  "manifest_name": "entity_iteration3_final_holdout_manifest",
+  "manifest_version": 1,
+  "production_changed": false,
+  "promotion_policy_path": "research/entity_localizer/iteration3_promotion_gates.json",
+  "promotion_policy_sha256": "13145fb8359e8e5b4fcbde9910331d92cc1ee0d608da0aeaa300789e42597ddb",
+  "used_for_model_selection": false,
+  "used_for_threshold_tuning": false,
+  "used_for_training": false,
+  "validation": {
+    "exact_prompt_overlap": 0,
+    "negative_control_records": 60,
+    "normalized_prompt_overlap": 0,
+    "positive_records": 60,
+    "record_count": 120,
+    "sensitive_spans": 72,
+    "template_group_overlap": 0,
+    "unique_ids": 120,
+    "unique_normalized_prompts": 120,
+    "unique_prompts": 120
+  }
+}
